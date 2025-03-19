@@ -1,3 +1,4 @@
+import { delegateEvents } from "./events";
 import { DiffContext, HElement, RenderedComponent } from "./types";
 
 // Add at the top of your file
@@ -56,37 +57,37 @@ const elementPool = (() => {
 })();
 
 // Then modify createDOMElement to use the pool
+
 function createDOMElement(element: HElement | string): HTMLElement | Text {
-  if (typeof element === "string") return document.createTextNode(element);
+  if (typeof element === "string") {
+    return document.createTextNode(element);
+  }
 
   const { type, props, children } = element;
-  
-  // Try to get from pool first
-  let domElement = elementPool.getElement(type) || document.createElement(type);
+  const domElement = document.createElement(type);
 
-  // Apply props as before...
+  // Apply props
   Object.entries(props).forEach(([key, value]) => {
-    if (key === "_key" || key === "key" || key.startsWith("on")) return;
-
-    if (key === "className") domElement.className = value;
-    else if (key === "style" && typeof value === "object") {
+    if (key === "className") {
+      domElement.className = value;
+    } else if (key === "style" && typeof value === "object") {
       Object.entries(value).forEach(([styleKey, styleValue]) => {
         (domElement.style as any)[styleKey] = styleValue;
       });
-    } else {
+    } else if (!key.startsWith("on") && key !== "_key") {
       domElement.setAttribute(key, value);
     }
   });
 
-  // Append children using the same fragment optimization
-  if (children.length > 1) {
-    const fragment = document.createDocumentFragment();
-    children.forEach((child) => fragment.appendChild(createDOMElement(child)));
-    domElement.appendChild(fragment);
-  } else if (children.length === 1) {
-    domElement.appendChild(createDOMElement(children[0]));
-  }
-  
+  // Attach event handlers
+  delegateEvents(domElement, props);
+
+  // Append children correctly
+  children.forEach((child) => {
+    const childNode = createDOMElement(child);
+    domElement.appendChild(childNode);
+  });
+
   return domElement;
 }
 
@@ -370,18 +371,17 @@ function diffKeyedChildren(
   }
   parent.appendChild(fragment);
 }
-
 function updateProps(
   element: HTMLElement,
   oldProps: Record<string, any>,
   newProps: Record<string, any>
 ): void {
+  // First handle regular attributes
   Object.keys(oldProps).forEach((key) => {
-    // Don't remove data-event-id attribute during diffing
-    if (!(key in newProps) && key !== "data-event-id") {
+    if (!(key in newProps) && !key.startsWith("on") && key !== "_key") {
       if (key === "className") element.className = "";
       else if (key === "style") element.removeAttribute("style");
-      else if (!key.startsWith("on")) element.removeAttribute(key);
+      else element.removeAttribute(key);
     }
   });
 
@@ -389,7 +389,6 @@ function updateProps(
     if (
       oldProps[key] === value ||
       key === "_key" ||
-      key === "key" ||
       key.startsWith("on")
     )
       return;
@@ -408,4 +407,7 @@ function updateProps(
       element.setAttribute(key, value);
     }
   });
+
+  // Now handle events separately
+  delegateEvents(element, newProps);
 }

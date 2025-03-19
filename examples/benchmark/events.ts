@@ -1,7 +1,8 @@
-import { EventManager } from "../../src";
+import { events } from "../../src/events";
 import { append, clear, create, remove, select, swapRows, update } from "./actions";
+import { TestComponent } from "./component";
 
-export function setEvents(events: EventManager, render: () => void) {
+export function setEvents() {
   // Row selection and deletion
   const rowAction = (fn: (id: number) => void) => (e: Event) => {
     e.preventDefault();
@@ -48,10 +49,12 @@ export function setEvents(events: EventManager, render: () => void) {
   ];
 
   actions.forEach(({$, fn}) => {
-    events.on("click", $, (e) => {
+    const appEvents = events("#root");
+
+    appEvents.on("click", $, (e) => {
       e.preventDefault();
       fn(e);
-      render();
+      TestComponent();
     });
   });
 }

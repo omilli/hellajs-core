@@ -1,5 +1,6 @@
 import { Props, HElement } from "./types";
 
+
 function createElement(type: string): (...args: any[]) => HElement {
   return (...args: any[]) => {
     const props: Props =
@@ -32,7 +33,7 @@ function createElement(type: string): (...args: any[]) => HElement {
       props._key = props.key;
     }
 
-    return { type, props, children };
+    return { type, props, children, element: "" };
   };
 }
 

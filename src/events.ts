@@ -1,224 +1,169 @@
-import { EventManager, HElement } from "./types";
-
 /**
- * Creates an event manager for any DOM element that can handle events independently
- * from the rendering process
+ * Creates an event delegation system for the specified root element
+ * @param rootSelector CSS selector for the root element
+ * @returns Object with methods to manage delegated events
  */
-export function createEventManager(element: HTMLElement): EventManager {
-  // Store event handlers by event type
-  const eventHandlers: Map<
-    string,
-    Array<{ selector: string; callback: (e: Event) => void }>
-  > = new Map();
-
-  // Keep track of actual DOM event listener functions for cleanup
-  const domListeners: Map<string, (e: Event) => void> = new Map();
-
-  // Helper to normalize string or array inputs to arrays
-  const normalizeArray = (input: string | string[]): string[] =>
-    Array.isArray(input) ? input : [input];
-
-  // Add event listener to the element
-  const on = (
-    events: string | string[],
-    selectors: string | string[],
-    callback: (e: Event) => void
-  ) => {
-    // Convert string arguments to arrays
-    const eventArray = normalizeArray(events);
-    const selectorArray = normalizeArray(selectors);
-
-    eventArray.forEach((event) => {
-      // Create the event handler array if it doesn't exist
-      if (!eventHandlers.has(event)) {
-        eventHandlers.set(event, []);
-
-        // Create the delegated event handler
-        const eventHandler = (e: Event) => {
-          const handlers = eventHandlers.get(event) || [];
-          if (handlers.length === 0) return;
-
-          // Check each registered handler for this event type
-          handlers.forEach(({ selector, callback: cb }) => {
-            // Find if any element in the event path matches our selector
-            const pathElements = e.composedPath();
-            const matchedElement = pathElements.find(
-              (el) =>
-                el instanceof Element && (el as Element).matches?.(selector)
-            );
-
-            if (matchedElement) {
-              cb(e);
-            }
-          });
-        };
-
-        // Store reference to the actual DOM listener for later cleanup
-        domListeners.set(event, eventHandler);
-
-        // Add the event listener to the DOM
-        element.addEventListener(event, eventHandler);
-      }
-
-      // Register the callback for each selector
-      const handlers = eventHandlers.get(event)!;
-      selectorArray.forEach((selector) => {
-        handlers.push({ selector, callback });
-      });
-    });
-
-    // Return the event manager for chaining
-    return { on, off, cleanup, getElement };
-  };
-
-  // Remove specific event listeners
-  const off = (events?: string | string[], selectors?: string | string[]) => {
-    // If no parameters, remove all event handlers
-    if (!events && !selectors) {
-      cleanup();
-      return { on, off, cleanup, getElement };
-    }
-
-    // Convert string arguments to arrays if provided
-    const eventArray = events ? normalizeArray(events) : undefined;
-    const selectorArray = selectors ? normalizeArray(selectors) : undefined;
-
-    // If only events are specified, remove all handlers for those events
-    if (eventArray && !selectorArray) {
-      eventArray.forEach((event) => {
-        removeEventHandler(event);
-      });
-      return { on, off, cleanup, getElement };
-    }
-
-    // If both events and selectors are specified, remove specific handlers
-    if (eventArray && selectorArray) {
-      eventArray.forEach((event) => {
-        const handlers = eventHandlers.get(event);
-        if (handlers) {
-          const newHandlers = handlers.filter(
-            (handler) => !selectorArray.includes(handler.selector)
-          );
-
-          if (newHandlers.length === 0) {
-            // If no handlers left for this event, remove the event listener completely
-            removeEventHandler(event);
-          } else {
-            eventHandlers.set(event, newHandlers);
-          }
-        }
-      });
-    }
-
-    return { on, off, cleanup, getElement };
-  };
-
-  // Helper to remove an event handler completely
-  const removeEventHandler = (event: string) => {
-    const listener = domListeners.get(event);
-    if (listener) {
-      element.removeEventListener(event, listener);
-      domListeners.delete(event);
-      eventHandlers.delete(event);
-    }
-  };
-
-  // Completely clean up all event handlers
-  const cleanup = () => {
-    // Remove all actual DOM event listeners
-    domListeners.forEach((listener, event) => {
-      element.removeEventListener(event, listener);
-    });
-
-    // Clear all internal maps
-    domListeners.clear();
-    eventHandlers.clear();
-
-    return { on, off, cleanup, getElement };
-  };
-
-  // Return the element for chaining
-  const getElement = () => element;
-
-  return {
-    on,
-    off,
-    cleanup,
-    getElement,
-  };
-}
-
-// Add this function to extract inline events from the HElement tree
-
-function extractInlineEvents(element: HElement): Array<{
-  selector: string;
-  event: string;
-  handler: (e: Event) => void;
-}> {
-  const events: Array<{
-    selector: string;
-    event: string;
-    handler: (e: Event) => void;
-  }> = [];
+export function events(rootSelector: string) {
+  const rootElement = document.querySelector(rootSelector);
   
-  // Generate a unique selector for this element
-  // We'll use data-event-id attributes to identify elements
-  const extractEventsFromElement = (el: HElement, path: string = '') => {
-    // Use the element's key if available, or stable properties if possible, or generate a random ID
-    const currentId = el.props['data-event-id'] || 
-                     (el.props._key ? `k${el.props._key}` : 
-                     (el.props.id ? `id${el.props.id}` : 
-                     `e${Math.random().toString(36).substr(2, 9)}`));
-    
-    const currentSelector = path ? `${path} [data-event-id="${currentId}"]` : `[data-event-id="${currentId}"]`;
-    
-    // Set the ID on the element if it doesn't have one
-    if (!el.props['data-event-id']) {
-      el.props['data-event-id'] = currentId;
-    }
-    
-    // Extract inline event handlers (properties starting with 'on')
-    Object.entries(el.props).forEach(([key, value]) => {
-      if (key.startsWith('on') && typeof value === 'function') {
-        const eventName = key.slice(2).toLowerCase(); // Convert 'onClick' to 'click'
-        events.push({
-          selector: currentSelector,
-          event: eventName,
-          handler: value as (e: Event) => void
-        });
-      }
-    });
-    
-    // Recursively process children
-    if (el.children) {
-      el.children.forEach(child => {
-        if (typeof child !== 'string' && child.props) {
-          extractEventsFromElement(child, currentSelector);
-        }
-      });
-    }
-  };
-  
-  extractEventsFromElement(element);
-  return events;
-}
-
-// Utility function to quickly attach events to any rendered component
-export function attachEvents(component: {
-  element: HTMLElement;
-  props?: HElement;
-}): EventManager {
-  const manager = createEventManager(component.element);
-  
-  // If we have props, process inline events
-  if (component.props) {
-    const inlineEvents = extractInlineEvents(component.props);
-    
-    // Register all extracted events with the event manager
-    inlineEvents.forEach(({ selector, event, handler }) => {
-      manager.on(event, selector, handler);
-    });
+  if (!rootElement) {
+    throw new Error(`Root element with selector "${rootSelector}" not found`);
   }
   
-  return manager;
+  // Store event handlers for cleanup
+  const handlers: Array<{
+    eventType: string;
+    selector: string;
+    handler: (e: Event) => void;
+    delegatedHandler: (e: Event) => void;
+  }> = [];
+  
+  /**
+   * Attach an event handler to elements matching the selector
+   */
+  function on(eventType: string, selector: string, handler: (e: Event) => void) {
+    const delegatedHandler = (e: Event) => {
+      // Check if the event target or any of its ancestors match the selector
+      let currentElement = e.target as Element | null;
+      
+      while (currentElement && currentElement !== rootElement) {
+        if (currentElement.matches(selector)) {
+          handler(e);
+          return;
+        }
+        currentElement = currentElement.parentElement;
+      }
+    };
+    
+    // Store handler information
+    handlers.push({
+      eventType,
+      selector,
+      handler,
+      delegatedHandler,
+    });
+    
+    // Attach delegated handler to root element
+    rootElement!.addEventListener(eventType, delegatedHandler);
+    
+    return () => {
+      const index = handlers.findIndex(h => 
+        h.eventType === eventType && 
+        h.selector === selector && 
+        h.handler === handler
+      );
+      
+      if (index !== -1) {
+        const handlerInfo = handlers[index];
+        rootElement!.removeEventListener(handlerInfo.eventType, handlerInfo.delegatedHandler);
+        handlers.splice(index, 1);
+      }
+    };
+  }
+  
+  /**
+   * Remove all event handlers
+   */
+  function off() {
+    handlers.forEach(h => {
+      rootElement!.removeEventListener(h.eventType, h.delegatedHandler);
+    });
+    handlers.length = 0;
+  }
+  
+  return {
+    on,
+    off
+  };
+}
+
+// Singleton for handling delegated events from inline attributes
+let _delegatedEvents: ReturnType<typeof events> | null = null;
+
+function getDelegatedEvents(): ReturnType<typeof events> {
+  if (!_delegatedEvents) {
+    _delegatedEvents = events('body');
+    
+    // Setup common events that might be used with delegation
+    const commonEvents = ['click', 'change', 'input', 'submit', 'mousedown', 'mouseup', 'mouseover', 'mouseout'];
+    commonEvents.forEach(eventType => {
+      _delegatedEvents!.on(eventType, '[data-event-id]', handleDelegatedEvent);
+    });
+  }
+  return _delegatedEvents;
+}
+
+// Global handler registry - stores all inline event handlers
+const eventHandlers = new Map<string, Record<string, (e: Event) => void>>();
+let nextEventId = 1;
+
+// Handle delegated events by looking up the handler in our registry
+function handleDelegatedEvent(e: Event) {
+  const target = e.target as HTMLElement;
+  if (!target) return;
+  
+  // Find the element with a data-event-id, traversing up if needed
+  let current: HTMLElement | null = target;
+  while (current && !current.dataset.eventId) {
+    current = current.parentElement;
+  }
+  
+  if (!current || !current.dataset.eventId) return;
+  
+  const eventId = current.dataset.eventId;
+  const eventType = e.type;
+  
+  // Look up the handler
+  const elementHandlers = eventHandlers.get(eventId);
+  if (elementHandlers && elementHandlers[eventType]) {
+    elementHandlers[eventType](e);
+    return;
+  }
+}
+
+// Function to register inline events from props
+export function delegateEvents(element: HTMLElement, props: Record<string, any>): void {
+  // Find all event handlers in props
+  const eventProps = Object.entries(props).filter(([key]) => key.startsWith('on'));
+  if (eventProps.length === 0) return;
+  
+  // Ensure we have an event ID
+  if (!element.dataset.eventId) {
+    element.dataset.eventId = `e${nextEventId++}`;
+  }
+  
+  const eventId = element.dataset.eventId;
+  const handlers: Record<string, (e: Event) => void> = eventHandlers.get(eventId) || {};
+  
+  // Register each event handler
+  eventProps.forEach(([key, handler]) => {
+    if (typeof handler !== 'function') return;
+    
+    const eventType = key.slice(2).toLowerCase(); // convert 'onClick' to 'click'
+    handlers[eventType] = handler;
+    
+    // Make sure we have a delegated handler for this event type
+    getDelegatedEvents();
+  });
+  
+  // Save handlers to the registry
+  eventHandlers.set(eventId, handlers);
+}
+
+// Export convenience function to clean up handlers for removed elements
+export function cleanupEvents(element: HTMLElement): void {
+  if (element.dataset.eventId) {
+    eventHandlers.delete(element.dataset.eventId);
+    delete element.dataset.eventId;
+  }
+  
+  // Clean up children recursively
+  Array.from(element.children).forEach(child => {
+    cleanupEvents(child as HTMLElement);
+  });
+}
+
+// Export for testing/debugging
+export function getEventHandlerCount(): number {
+  return eventHandlers.size;
 }

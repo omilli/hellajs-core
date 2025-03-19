@@ -19,21 +19,6 @@ export interface RenderedComponent {
   pending: boolean;
 }
 
-// New separate event handler type with more flexible parameters
-export interface EventManager {
-  on: (
-    events: string | string[],
-    selectors: string | string[],
-    callback: (e: Event) => void
-  ) => EventManager;
-  off: (
-    events?: string | string[],
-    selectors?: string | string[]
-  ) => EventManager;
-  cleanup: () => EventManager;
-  getElement: () => HTMLElement;
-}
-
 export interface DiffContext {
   componentCache: Map<string, RenderedComponent>;
   clearCache(): void;
