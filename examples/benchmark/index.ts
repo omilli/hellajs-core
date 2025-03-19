@@ -1,2 +1,2 @@
-import { TestComponent } from "./component";
-TestComponent();
+import { Benchmark } from "./app";
+Benchmark();

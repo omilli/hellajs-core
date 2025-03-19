@@ -6,9 +6,9 @@ import { data, selected } from "./data";
 // Rendering
 const { div, table, tbody, tr, td, span, button, a, h1 } = html;
 
-const $ = hydrater(TestComponent);
+const $ = hydrater(Benchmark);
 
-export function TestComponent() {
+export function Benchmark() {
   const actionButton = (label: string, id: string, fn: () => void) =>
     div(
       { className: "col-sm-6 smallpad" },
