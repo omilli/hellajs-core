@@ -1,12 +1,11 @@
 import { diff, html } from "../../src";
 import { hydrater } from "../../src/hydrater";
-import { append, clear, create, remove, select, swapRows, update } from "./actions";
-import { data, selected } from "./data";
-
+import { append, clear, create, initState, remove, select, state, swapRows, update } from "./actions";
+import { selected } from "./data";
 // Rendering
 const { div, table, tbody, tr, td, span, button, a, h1 } = html;
 
-const $ = hydrater(Benchmark);
+initState(Benchmark);
 
 export function Benchmark() {
   const actionButton = (label: string, id: string, fn: () => void) =>
@@ -17,7 +16,7 @@ export function Benchmark() {
           id,
           className: "btn btn-primary btn-block",
           type: "button",
-          onclick: $(fn),
+          onclick: fn,
         },
         label
       )
@@ -41,7 +40,7 @@ export function Benchmark() {
 
   const dataTable = table({ className: "table table-hover table-striped test-data" },
     tbody({ id: "tbody" },
-      ...data.map((item) =>
+      ...state.data.map((item) =>
         tr({
             "data-id": item.id.toString(),
             className: selected === item.id ? "danger" : "",
@@ -51,7 +50,7 @@ export function Benchmark() {
           td({ className: "col-md-4" },
             a({
                 className: "lbl",
-                onclick: $(() => select(item.id)),
+                onclick: () => select(item.id),
               },
               item.label
             )
@@ -59,7 +58,7 @@ export function Benchmark() {
           td({ className: "col-md-1" },
             a({
                 className: "remove",
-                onclick: $(() => remove(item.id)),
+                onclick: () => remove(item.id),
               },
               span({
                 className: "glyphicon glyphicon-remove",
