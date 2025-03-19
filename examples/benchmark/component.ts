@@ -8,7 +8,7 @@ const { div, table, tbody, tr, td, span, button, a, h1 } = html;
 
 const $ = hydrater(TestComponent);
 
-function TestComponent() {
+export function TestComponent() {
   const actionButton = (label: string, id: string, fn: () => void) =>
     div(
       { className: "col-sm-6 smallpad" },
@@ -87,5 +87,3 @@ function TestComponent() {
     "#root"
   );
 }
-
-TestComponent();

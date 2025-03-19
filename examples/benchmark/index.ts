@@ -1,1 +1,2 @@
-import "./component";
+import { TestComponent } from "./component";
+TestComponent();
