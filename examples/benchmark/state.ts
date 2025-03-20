@@ -1,20 +1,21 @@
 import { buildData, data } from "./data";
-import type { RenderedComponent } from "../../src/types";
 import { createState } from "../../src/state";
+import { State } from "../../src";
 
-let state: {
+let state: State<{
   data: {
     id: number;
     label: string;
   }[];
   selected: number | undefined;
-};
+}>;
 
-export function benchState(component: () => RenderedComponent) {
+
+export function benchState() {
   return state = state ?? createState({
     data,
     selected: undefined
-  }, component);
+  });
 }
 
 // Actions just modify state, they don't trigger renders

@@ -5,7 +5,8 @@ import type { EventFn, RenderedComponent } from "./types";
  * @param component Function that renders the component
  * @param fn Optional event handler to run before re-rendering
  */
-export const hydrater = (component: () => RenderedComponent) => (fn?: EventFn) => (e: Event) => {
+export const hydrater =
+	(component: () => RenderedComponent) => (fn?: EventFn) => (e: Event) => {
 		fn?.(e);
 		component();
 	};
