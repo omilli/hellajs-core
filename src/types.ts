@@ -27,7 +27,9 @@ export interface DiffContext {
 export type EventFn = (e: Event) => void;
 
 export type StateBase = {
-	setStateRender?: (render: () => RenderedComponent) => void;
+	setRender?(render: () => RenderedComponent): void;
 };
 
-export type State<T> = T;
+export type State<T extends Record<string, any>> = T & {
+  set(updates: Partial<T>): void;
+};

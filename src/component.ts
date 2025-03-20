@@ -13,6 +13,6 @@ export function component<T extends State<{}>>(
 	options: () => { state: T; render: () => RenderedComponent },
 ) {
 	const { state, render } = options();
-	(state as StateBase).setStateRender?.(render);
+	(state as StateBase).setRender?.(render);
 	return render;
 }

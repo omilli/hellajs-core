@@ -16,9 +16,6 @@ function createDOMElement(element: HElement | string): HTMLElement | Text {
 			Object.entries(value).forEach(([styleKey, styleValue]) => {
 				(domElement.style as any)[styleKey] = styleValue;
 			});
-		} else if (key.startsWith("on") && typeof value === "function") {
-			const eventName = key.slice(2).toLowerCase();
-			domElement.addEventListener(eventName, value);
 		} else {
 			domElement.setAttribute(key, value);
 		}

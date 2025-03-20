@@ -1,51 +1,85 @@
-export function createState<T extends Record<string, any>>(initialState: T): T {
-	// Store the render function
-	let renderFunction: (() => void) | null = null;
+import { State } from "./types";
 
-	// Function to set a render function for this state instance
-	const setStateRender = (render: () => void): void => {
-		renderFunction = render;
-	};
+export function createState<T extends Record<string, any>>(initialState: T): State<T> {
+  // Store the render function
+  let renderFunction: (() => void) | null = null;
+  
+  // Batching mechanism
+  let updatePending = false;
+  const batchUpdates = () => {
+    if (!updatePending && renderFunction) {
+      updatePending = true;
+      Promise.resolve().then(() => {
+        updatePending = false;
+        renderFunction?.();
+      });
+    }
+  };
 
-	const state = {
-		...initialState,
-		setStateRender,
-	};
+  // Function to set a render function
+  const setRender = (render: () => void): void => {
+    renderFunction = render;
+  };
 
-	// Create a recursive proxy handler
-	const createHandler = (path = ""): ProxyHandler<any> => ({
-		get(target, prop) {
-			// Return the setStateRender function when requested
-			if (prop === "setStateRender") {
-				return setStateRender;
-			}
+  // Function to update multiple properties at once
+  const set = (updates: Partial<T>): void => {
+    Object.entries(updates).forEach(([key, value]) => {
+      (state as any)[key] = value;
+    });
+    // Trigger only one re-render after all updates
+    batchUpdates();
+  };
 
-			// Handle special cases (typeof, toString, etc)
-			if (prop === Symbol.toStringTag || prop === "toString") {
-				return () => Object.prototype.toString.call(target);
-			}
+  const state: State<T> = {
+    ...initialState,
+    setRender,
+    set
+  };
 
-			const value = target[prop];
-			// If the property is an object, return a nested proxy
-			if (value && typeof value === "object" && !Array.isArray(value)) {
-				return new Proxy(value, createHandler(`${path}.${String(prop)}`));
-			}
-			return value;
-		},
+  // Create a recursive proxy handler with a weakmap cache
+  const proxyCache = new WeakMap();
+  
+  const createHandler = (path = ""): ProxyHandler<any> => ({
+    get(target, prop) {
+      // Handle special functions
+      if (prop === "setStateRender") return setRender;
+      if (prop === "setState") return set;
+      
+      // Handle special cases
+      if (typeof prop === "symbol" || prop === "toString") {
+        return Reflect.get(target, prop);
+      }
 
-		set(target, prop, value) {
-			// Update the value
-			target[prop] = value;
+      const value = target[prop];
+      
+      // Create nested proxies for objects, with caching
+      if (value && typeof value === "object") {
+        // Check cache first
+        if (proxyCache.has(value)) {
+          return proxyCache.get(value);
+        }
+        
+        const proxy = new Proxy(value, createHandler(`${path ? path + '.' : ''}${String(prop)}`));
+        proxyCache.set(value, proxy);
+        return proxy;
+      }
+      
+      return value;
+    },
 
-			// Trigger re-render, use renderFunction if available, otherwise use callback
-			if (renderFunction) {
-				renderFunction();
-			}
+    set(target, prop, value) {
+      if (target[prop] === value) return true; // Don't update if unchanged
+      
+      // Update the value
+      target[prop] = value;
+      
+      // Batch the updates
+      batchUpdates();
+      
+      return true;
+    },
+  });
 
-			return true;
-		},
-	});
-
-	// Create the main proxy
-	return new Proxy(state, createHandler());
+  // Create the main proxy
+  return new Proxy(state, createHandler()) as State<T>;
 }
