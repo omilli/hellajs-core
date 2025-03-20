@@ -1,5 +1,5 @@
 export type RenderPropHandler = {
-	classProp: (className: string) => void;
-	boolProp: (key: string) => void;
-	regularProp: (key: string, value: any) => void;
+	classProp(className: string): void;
+	boolProp(key: string):void;
+	regularProp(key: string, value: any): void;
 };

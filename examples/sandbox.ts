@@ -1,4 +1,4 @@
-import { render } from "../lib";
+import { elementMap, render } from "../lib";
 import { renderStringElement } from "../lib/render";
 
 console.log(renderStringElement({
@@ -26,4 +26,6 @@ render({
     },
   ]
 }, "#root");
+
+console.log(elementMap.get("#root"));
 
