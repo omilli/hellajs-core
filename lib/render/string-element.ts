@@ -4,16 +4,21 @@ import { escapeHTML, propHandler } from "./utils";
 /**
  * Converts an element to its HTML string representation.
  *
- * @param element - The element to convert, either an HellaElement object or a string (text node)
+ * @param hellaElement - The element to convert, either an HellaElement object or a string (text node)
  * @returns The HTML string representation of the element
  */
-export function renderStringElement(element: HellaElement | string): string {
+export function renderStringElement(hellaElement: HellaElement | string): string {
 	// Handle text nodes
-	if (typeof element === "string") {
-		return escapeHTML(element);
+	if (typeof hellaElement === "string") {
+		return escapeHTML(hellaElement);
 	}
 
-	const { type, props, children } = element;
+	const { type, props, children } = hellaElement;
+
+	// Handle fragments (when type is undefined or null)
+	if (!type) {
+		return handleChildren(children);
+	}
 
 	return `<${type}${handleProps(props)}>${handleChildren(children)}</${type}>`;
 }

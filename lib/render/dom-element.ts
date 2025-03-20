@@ -8,33 +8,57 @@ import { propHandler } from "./utils";
  * @param hellaElement - The element to render, which can be a HellaElement object or a string
  * @param container - The DOM element that will contain the rendered element
  * @returns The rendered DOM element (HTMLElement) or text node (Text)
- *
  */
 export function renderDomElement(
 	hellaElement: HellaElement | string,
 	container: Element,
-): HTMLElement | Text {
+): HTMLElement | Text | DocumentFragment {
+	// Create DOM element
+	const element = createDomElement(hellaElement);
+
+	// Clear container more efficiently than using innerHTML
+	container.textContent = "";
+
+	// Append the new element
+	if (element instanceof DocumentFragment) {
+		container.appendChild(element);
+		// Return the container as we can't return the fragment after it's been appended
+		return container as HTMLElement;
+	} else {
+		container.appendChild(element);
+		return element;
+	}
+}
+
+/**
+ * Creates a DOM element from a HellaElement without attaching it to the DOM
+ */
+function createDomElement(
+	hellaElement: HellaElement | string,
+): HTMLElement | Text | DocumentFragment {
 	if (typeof hellaElement === "string") {
 		return document.createTextNode(hellaElement);
 	}
 
 	const { type, props, children } = hellaElement;
 
-	//Create a DOM element based on the HellaElement's type
+	// Handle fragments (when type is undefined or null)
+	if (!type) {
+		const fragment = document.createDocumentFragment();
+		handleChildren(fragment, children);
+		return fragment;
+	}
+
+	// Create a DOM element based on the HellaElement's type
 	const domElement = document.createElement(type) as HTMLElement;
 
-	// Clear the container's existing content
-	container.innerHTML = "";
-	// Append the new element to the container
-	container.appendChild(domElement);
+	// Apply props to the element
+	handleProps(domElement, props || {});
 
-	//Apply props to the element
-	handleProps(domElement, props);
-
-	//Set up event handlers
+	// Set up event handlers
 	delegateEvents(domElement, props);
 
-	//Process and render any children
+	// Process and render any children
 	handleChildren(domElement, children);
 
 	return domElement;
@@ -42,26 +66,25 @@ export function renderDomElement(
 
 /**
  * Appends rendered child elements to the specified DOM element.
- *
- * @param domElement - The parent HTML element to append children to
- * @param children - Array of child elements to be rendered and appended
  */
 function handleChildren(
-	domElement: HTMLElement,
-	children: HellaElement["children"] = [],
+	domElement: HTMLElement | DocumentFragment,
+	hellaChildren: HellaElement["children"] = [],
 ) {
-	children.forEach((child) => {
-		const childElement = renderDomElement(child, domElement);
-		domElement.appendChild(childElement);
+	// Create a document fragment to batch DOM operations
+	const fragment = document.createDocumentFragment();
+
+	hellaChildren.forEach((child) => {
+		const childElement = createDomElement(child);
+		fragment.appendChild(childElement);
 	});
+
+	// Append all children in one operation
+	domElement.appendChild(fragment);
 }
 
 /**
- * Sets HTML attributes and properties on a DOM element based on a provided props object.
- *
- * @param domElement - The HTML element to apply attributes and properties to
- * @param props - An object containing the properties to apply to the element
- *
+ * Sets HTML attributes and properties on a DOM element
  */
 function handleProps(
 	domElement: HTMLElement,

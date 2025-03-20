@@ -4,18 +4,19 @@ export type HTMLElementProps<T extends HTMLTagName> = {
 	[K in keyof HTMLElementTagNameMap[T]]?: HTMLElementTagNameMap[T][K];
 };
 
-export interface HellaElement {
+export interface HellaElementBase {
 	type: HTMLTagName;
-	props?: HTMLElementProps<HellaElement["type"]> & {
+	props?: HTMLElementProps<HellaElementBase["type"]> & {
 		className?: string;
 		key?: string;
 	};
 	children?: (HellaElement | string)[];
 }
 
-// Simplified render result without event handling
+export type HellaElement = Partial<HellaElementBase>;
+
 export interface RenderedComponent {
-	element: HTMLElement | Text;
+	element: DocumentFragment | HTMLElement | Text;
 	props: HellaElement;
 	pending: boolean;
 }
