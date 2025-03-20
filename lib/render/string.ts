@@ -36,13 +36,13 @@ function handleProps(props: HellaElement["props"] = {}) {
 	let html = ``;
 
 	propHandler(props, {
-		classProp: (className) => {
+		classProp(className) {
 			html += ` class="${escapeHTML(className)}"`;
 		},
-		boolProp: (key) => {
+		boolProp(key) {
 			html += ` ${key}`;
 		},
-		regularProp: (key, value) => {
+		regularProp(key, value) {
 			html += ` ${key}="${escapeHTML(String(value))}"`;
 		},
 	});

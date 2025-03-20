@@ -30,8 +30,16 @@ export function renderDomElement(
 	}
 }
 
+
 /**
- * Creates a DOM element from a HellaElement without attaching it to the DOM
+ * Creates a DOM element based on a HellaElement or a string.
+ *
+ * If the input is a string, it creates a text node.
+ * If the input is a HellaElement, it creates an element of the specified type,
+ * applies the given properties, and processes any children.
+ *
+ * @param hellaElement - The HellaElement or string to create the DOM element from.
+ * @returns The created HTMLElement, Text node, or DocumentFragment.
  */
 export function createDomElement(
 	hellaElement: HellaElement | string,
@@ -95,13 +103,13 @@ function handleProps(
 	props: HellaElement["props"] = {},
 ) {
 	propHandler(props, {
-		classProp: (className) => {
+		classProp(className) {
 			domElement.className = className;
 		},
-		boolProp: (key) => {
+		boolProp(key) {
 			domElement.setAttribute(key, "");
 		},
-		regularProp: (key, value) => {
+		regularProp(key, value) {
 			domElement.setAttribute(key, String(value));
 		},
 	});
