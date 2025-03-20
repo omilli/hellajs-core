@@ -33,7 +33,7 @@ export function renderDomElement(
 /**
  * Creates a DOM element from a HellaElement without attaching it to the DOM
  */
-function createDomElement(
+export function createDomElement(
 	hellaElement: HellaElement | string,
 ): HTMLElement | Text | DocumentFragment {
 	if (typeof hellaElement === "string") {
@@ -61,9 +61,7 @@ function createDomElement(
 	return domElement;
 }
 
-function handleFragments(
-	children: HellaElement["children"],
-) {
+function handleFragments(children: HellaElement["children"]) {
 	// Handle fragments (when type is undefined or null)
 	const fragment = document.createDocumentFragment();
 	handleChildren(fragment, children);

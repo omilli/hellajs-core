@@ -1,5 +1,6 @@
 import { delegateEvents } from "./events";
-import type { DiffContext, HellaElement, RenderedComponent } from "./types";
+import { createDomElement } from "./render";
+import type { DiffContext, HellaElement, RenderedElement } from "./types";
 
 // Add at the top of your file
 
@@ -57,7 +58,7 @@ const elementPool = (() => {
 })();
 
 const diffContextManager = (() => {
-	const componentCache = new Map<string, RenderedComponent>();
+	const componentCache = new Map<string, RenderedElement>();
 	const pendingUpdates = new Map<string, { element: HellaElement }>();
 	let frameRequested = false;
 
@@ -83,7 +84,7 @@ const diffContextManager = (() => {
 					0,
 				) as HTMLElement;
 			} else {
-				domElement = createDOMElement(element) as HTMLElement;
+				domElement = createDomElement(element) as HTMLElement;
 				container.innerHTML = "";
 				container.appendChild(domElement);
 			}
@@ -108,7 +109,7 @@ const diffContextManager = (() => {
 	return {
 		getCache: () => componentCache,
 		getComponent: (selector: string) => componentCache.get(selector),
-		setComponent: (selector: string, component: RenderedComponent) => {
+		setComponent: (selector: string, component: RenderedElement) => {
 			componentCache.set(selector, component);
 		},
 		scheduleUpdate,
@@ -126,7 +127,7 @@ export function diff(
 	element: HellaElement,
 	selector: string,
 	options: { sync?: boolean } = {},
-): RenderedComponent {
+): RenderedElement {
 	const container = document.querySelector(selector);
 	if (!container)
 		throw new Error(`Container with selector "${selector}" not found`);
@@ -144,7 +145,7 @@ export function diff(
 				0,
 			) as HTMLElement;
 		} else {
-			domElement = createDOMElement(element) as HTMLElement;
+			domElement = createDomElement(element) as HTMLElement;
 			container.innerHTML = "";
 			container.appendChild(domElement);
 		}
@@ -169,7 +170,7 @@ export function diff(
 }
 
 export function createDiffContext(): DiffContext {
-	const componentCache = new Map<string, RenderedComponent>();
+	const componentCache = new Map<string, RenderedElement>();
 
 	return {
 		componentCache,
@@ -182,9 +183,9 @@ function diffElement(
 	newVNode: HellaElement | string,
 	parent: HTMLElement,
 	index = 0,
-): HTMLElement | Text {
+): DocumentFragment | HTMLElement | Text {
 	if (oldVNode === null) {
-		const newNode = createDOMElement(newVNode);
+		const newNode = createDomElement(newVNode);
 		parent.appendChild(newNode);
 		return newNode;
 	}
@@ -202,16 +203,20 @@ function diffElement(
 			typeof newVNode !== "string" &&
 			oldVNode.type !== newVNode.type)
 	) {
-		const newNode = createDOMElement(newVNode);
+		const newNode = createDomElement(newVNode);
 		parent.replaceChild(newNode, currentNode);
 		return newNode;
 	}
 
 	if (typeof oldVNode !== "string" && typeof newVNode !== "string") {
-		updateProps(currentNode as HTMLElement, oldVNode.props, newVNode.props);
+		updateProps(
+			currentNode as HTMLElement,
+			oldVNode.props || {},
+			newVNode.props || {},
+		);
 
-		const oldChildren = oldVNode.children;
-		const newChildren = newVNode.children;
+		const oldChildren = oldVNode.children || [];
+		const newChildren = newVNode.children || [];
 
 		if (
 			oldChildren.length &&
@@ -219,7 +224,7 @@ function diffElement(
 			typeof oldChildren[0] !== "string" &&
 			typeof newChildren[0] !== "string" &&
 			oldChildren.some(
-				(child) => typeof child !== "string" && child.props?._key !== undefined,
+				(child) => typeof child !== "string" && child.props?.key !== undefined,
 			)
 		) {
 			diffKeyedChildren(oldChildren, newChildren, currentNode as HTMLElement);
@@ -243,7 +248,7 @@ function diffElement(
 					i,
 				);
 			} else {
-				currentNode.appendChild(createDOMElement(newChildren[i]));
+				currentNode.appendChild(createDomElement(newChildren[i]));
 			}
 		}
 	}
@@ -258,8 +263,8 @@ function diffKeyedChildren(
 ): void {
 	const oldKeyMap = new Map();
 	oldChildren.forEach((child, i) => {
-		if (typeof child !== "string" && child.props?._key !== undefined) {
-			oldKeyMap.set(child.props._key, {
+		if (typeof child !== "string" && child.props?.key !== undefined) {
+			oldKeyMap.set(child.props.key, {
 				vnode: child,
 				element: parent.childNodes[i],
 				index: i,
@@ -269,8 +274,8 @@ function diffKeyedChildren(
 
 	const newKeyMap = new Map();
 	newChildren.forEach((child, i) => {
-		if (typeof child !== "string" && child.props?._key !== undefined) {
-			newKeyMap.set(child.props._key, i);
+		if (typeof child !== "string" && child.props?.key !== undefined) {
+			newKeyMap.set(child.props.key, i);
 		}
 	});
 
@@ -278,9 +283,10 @@ function diffKeyedChildren(
 	const newPositions = new Map();
 
 	newChildren.forEach((newChild, newIndex) => {
-		if (typeof newChild === "string" || !newChild.props?._key) return;
+		if (typeof newChild === "string" || !newChild.props?.key) return;
 
-		const key = newChild.props._key;
+		const { props, children = [] } = newChild;
+		const { key } = props;
 		const oldEntry = oldKeyMap.get(key);
 
 		if (oldEntry) {
@@ -290,20 +296,20 @@ function diffKeyedChildren(
 
 			updateProps(oldElement as HTMLElement, oldVNode.props, newChild.props);
 
-			if (oldVNode.children.length || newChild.children.length) {
-				for (let i = 0; i < newChild.children.length; i++) {
+			if (oldVNode.children.length || children.length) {
+				for (let i = 0; i < children.length; i++) {
 					if (i < oldVNode.children.length) {
 						diffElement(
 							oldVNode.children[i],
-							newChild.children[i],
+							children[i],
 							oldElement as HTMLElement,
 							i,
 						);
 					} else {
-						oldElement.appendChild(createDOMElement(newChild.children[i]));
+						oldElement.appendChild(createDomElement(children[i]));
 					}
 				}
-				while (oldElement.childNodes.length > newChild.children.length) {
+				while (oldElement.childNodes.length > children.length) {
 					oldElement.removeChild(oldElement.lastChild!);
 				}
 			}
@@ -316,8 +322,9 @@ function diffKeyedChildren(
 			newPositions.set(newIndex, document.createTextNode(newChild));
 			return;
 		}
-		if (!newChild.props?._key || processedKeys.has(newChild.props._key)) return;
-		newPositions.set(newIndex, createDOMElement(newChild));
+		const key = newChild.props?.key;
+		if (!key || processedKeys.has(key)) return;
+		newPositions.set(newIndex, createDomElement(newChild));
 	});
 
 	const fragment = document.createDocumentFragment();
@@ -325,8 +332,8 @@ function diffKeyedChildren(
 		const child = newChildren[i];
 		if (typeof child === "string") {
 			fragment.appendChild(document.createTextNode(child));
-		} else if (!child.props._key) {
-			fragment.appendChild(createDOMElement(child));
+		} else if (!child.props?.key) {
+			fragment.appendChild(createDomElement(child));
 		} else if (newPositions.get(i)) {
 			fragment.appendChild(newPositions.get(i));
 		}
@@ -378,39 +385,4 @@ function updateProps(
 
 	// Now handle events separately
 	delegateEvents(element, newProps);
-}
-
-// Then modify createDOMElement to use the pool
-
-function createDOMElement(element: HellaElement | string): HTMLElement | Text {
-	if (typeof element === "string") {
-		return document.createTextNode(element);
-	}
-
-	const { type, props, children } = element;
-	const domElement = document.createElement(type);
-
-	// Apply props
-	Object.entries(props).forEach(([key, value]) => {
-		if (key === "className") {
-			domElement.className = value;
-		} else if (key === "style" && typeof value === "object") {
-			Object.entries(value).forEach(([styleKey, styleValue]) => {
-				(domElement.style as any)[styleKey] = styleValue;
-			});
-		} else if (!key.startsWith("on") && key !== "_key") {
-			domElement.setAttribute(key, value);
-		}
-	});
-
-	// Attach event handlers
-	delegateEvents(domElement, props);
-
-	// Append children correctly
-	children.forEach((child) => {
-		const childNode = createDOMElement(child);
-		domElement.appendChild(childNode);
-	});
-
-	return domElement;
 }

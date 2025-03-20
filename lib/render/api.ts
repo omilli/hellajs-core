@@ -1,39 +1,31 @@
-import type { HellaElement, RenderedComponent } from "../types";
+import type { HellaElement, RenderedElement } from "../types";
 import { renderDomElement } from "./dom";
 import { renderStringElement } from "./string";
+import { getRootElement } from "./utils";
 
 /**
  * Renders an HellaElement to either a string (server environment) or the DOM (client environment).
  *
- * @param element - The element to be rendered
- * @param container - Optional target container. Can be a DOM Element or a CSS selector string.
- * @returns A string in server environments or a RenderedComponent instance in client environments
- * @throws Error when container element is not found in client environment
+ * @param hellaElement - The element to be rendered
+ * @param rootSelector - Optional target rootSelector. Can be a DOM Element or a CSS selector string.
+ * @returns A string in server environments or a RenderedElement instance in client environments
  */
 export function render(
-	element: HellaElement,
-	container?: Element | string,
-): string | RenderedComponent {
+	hellaElement: HellaElement,
+	rootSelector?: string,
+): string | RenderedElement {
+	// Server environment
 	if (typeof window === "undefined") {
-		// Server environment
-		return renderStringElement(element);
+		return renderStringElement(hellaElement);
 	}
 
 	// Client environment
-	const domContainer =
-		typeof container === "string"
-			? document.querySelector(container)
-			: container;
-
-	if (!domContainer) {
-		throw new Error("Container element not found");
-	}
-
-	const domElement = renderDomElement(element, domContainer);
+	const rootElement = getRootElement(rootSelector);
+	const domElement = renderDomElement(hellaElement, rootElement);
 
 	return {
 		element: domElement,
-		props: element,
+		props: hellaElement,
 		pending: false,
 	};
 }

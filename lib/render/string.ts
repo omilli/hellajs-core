@@ -7,7 +7,9 @@ import { escapeHTML, propHandler } from "./utils";
  * @param hellaElement - The element to convert, either an HellaElement object or a string (text node)
  * @returns The HTML string representation of the element
  */
-export function renderStringElement(hellaElement: HellaElement | string): string {
+export function renderStringElement(
+	hellaElement: HellaElement | string,
+): string {
 	// Handle text nodes
 	if (typeof hellaElement === "string") {
 		return escapeHTML(hellaElement);
