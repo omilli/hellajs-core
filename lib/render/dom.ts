@@ -42,11 +42,8 @@ function createDomElement(
 
 	const { type, props, children } = hellaElement;
 
-	// Handle fragments (when type is undefined or null)
 	if (!type) {
-		const fragment = document.createDocumentFragment();
-		handleChildren(fragment, children);
-		return fragment;
+		return handleFragments(children);
 	}
 
 	// Create a DOM element based on the HellaElement's type
@@ -62,6 +59,15 @@ function createDomElement(
 	handleChildren(domElement, children);
 
 	return domElement;
+}
+
+function handleFragments(
+	children: HellaElement["children"],
+) {
+	// Handle fragments (when type is undefined or null)
+	const fragment = document.createDocumentFragment();
+	handleChildren(fragment, children);
+	return fragment;
 }
 
 /**

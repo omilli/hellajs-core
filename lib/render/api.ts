@@ -1,6 +1,6 @@
 import type { HellaElement, RenderedComponent } from "../types";
-import { renderDomElement } from "./dom-element";
-import { renderStringElement } from "./string-element";
+import { renderDomElement } from "./dom";
+import { renderStringElement } from "./string";
 
 /**
  * Renders an HellaElement to either a string (server environment) or the DOM (client environment).

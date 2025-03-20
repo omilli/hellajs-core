@@ -56,12 +56,10 @@ function handleProps(props: HellaElement["props"] = {}) {
  */
 function handleChildren(children: HellaElement["children"] = []) {
 	let html = "";
-	// Process children
-	if (children && children.length > 0) {
-		children.forEach((child) => {
-			html += renderStringElement(child);
-		});
-	}
+
+	children.forEach((child) => {
+		html += renderStringElement(child);
+	});
 
 	return html;
 }

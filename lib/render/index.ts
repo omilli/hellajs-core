@@ -1,4 +1,4 @@
-export * from "./api.render";
-export * from "./dom-element";
-export * from "./string-element";
+export * from "./api";
+export * from "./dom";
+export * from "./string";
 export * from "./utils";
