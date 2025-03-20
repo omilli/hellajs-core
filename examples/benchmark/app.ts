@@ -1,13 +1,11 @@
 import { diff, html } from "../../src";
-import { hydrater } from "../../src/hydrater";
-import { append, clear, create, initState, remove, select, state, swapRows, update } from "./actions";
-import { selected } from "./data";
+import { append, clear, create, benchState, remove, select, swapRows, update } from "./state";
 // Rendering
 const { div, table, tbody, tr, td, span, button, a, h1 } = html;
 
-initState(Benchmark);
-
 export function Benchmark() {
+  const state = benchState(Benchmark);
+
   const actionButton = (label: string, id: string, fn: () => void) =>
     div(
       { className: "col-sm-6 smallpad" },
@@ -43,7 +41,7 @@ export function Benchmark() {
       ...state.data.map((item) =>
         tr({
             "data-id": item.id.toString(),
-            className: selected === item.id ? "danger" : "",
+            className: state.selected === item.id ? "danger" : "",
             key: item.id,
           },
           td({ className: "col-md-1" }, item.id.toString()),

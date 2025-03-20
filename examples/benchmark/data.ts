@@ -59,13 +59,6 @@ export const nouns = [
 let nextId = 1;
 
 export let data: { id: number; label: string }[] = [];
-export let selected: number | undefined = undefined;
-
-export const setData = (newData: { id: number; label: string }[]) =>
-  data = newData;
-
-export const setSelected = (newSelected: number | undefined) =>
-  selected = newSelected;
 
 export function buildData(count: number = 1000): { id: number; label: string }[] {
   const data: { id: number; label: string }[] = [];
