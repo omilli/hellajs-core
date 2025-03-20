@@ -1,5 +1,5 @@
 import { delegateEvents } from "./events";
-import type { DiffContext, HElement, RenderedComponent } from "./types";
+import type { DiffContext, HellaElement, RenderedComponent } from "./types";
 
 // Add at the top of your file
 
@@ -58,7 +58,7 @@ const elementPool = (() => {
 
 const diffContextManager = (() => {
 	const componentCache = new Map<string, RenderedComponent>();
-	const pendingUpdates = new Map<string, { element: HElement }>();
+	const pendingUpdates = new Map<string, { element: HellaElement }>();
 	let frameRequested = false;
 
 	function processUpdates() {
@@ -96,7 +96,7 @@ const diffContextManager = (() => {
 		});
 	}
 
-	function scheduleUpdate(selector: string, element: HElement) {
+	function scheduleUpdate(selector: string, element: HellaElement) {
 		pendingUpdates.set(selector, { element });
 
 		if (!frameRequested) {
@@ -123,7 +123,7 @@ const diffContextManager = (() => {
 })();
 
 export function diff(
-	element: HElement,
+	element: HellaElement,
 	selector: string,
 	options: { sync?: boolean } = {},
 ): RenderedComponent {
@@ -178,8 +178,8 @@ export function createDiffContext(): DiffContext {
 }
 
 function diffElement(
-	oldVNode: HElement | string | null,
-	newVNode: HElement | string,
+	oldVNode: HellaElement | string | null,
+	newVNode: HellaElement | string,
 	parent: HTMLElement,
 	index = 0,
 ): HTMLElement | Text {
@@ -252,8 +252,8 @@ function diffElement(
 }
 
 function diffKeyedChildren(
-	oldChildren: (HElement | string)[],
-	newChildren: (HElement | string)[],
+	oldChildren: (HellaElement | string)[],
+	newChildren: (HellaElement | string)[],
 	parent: HTMLElement,
 ): void {
 	const oldKeyMap = new Map();
@@ -382,7 +382,7 @@ function updateProps(
 
 // Then modify createDOMElement to use the pool
 
-function createDOMElement(element: HElement | string): HTMLElement | Text {
+function createDOMElement(element: HellaElement | string): HTMLElement | Text {
 	if (typeof element === "string") {
 		return document.createTextNode(element);
 	}

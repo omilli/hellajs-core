@@ -1,54 +1,81 @@
 import { delegateEvents } from "../events";
-import type { HElement } from "../types";
+import type { HellaElement } from "../types";
+import { propHandler } from "./utils";
 
 /**
- * Creates a DOM element from a virtual DOM element
+ * Renders a HellaElement or string into the specified container.
+ *
+ * @param hellaElement - The element to render, which can be a HellaElement object or a string
+ * @param container - The DOM element that will contain the rendered element
+ * @returns The rendered DOM element (HTMLElement) or text node (Text)
+ *
  */
 export function renderDomElement(
-	element: HElement | string,
+	hellaElement: HellaElement | string,
 	container: Element,
 ): HTMLElement | Text {
-	if (typeof element === "string") {
-		return document.createTextNode(element);
+	if (typeof hellaElement === "string") {
+		return document.createTextNode(hellaElement);
 	}
 
-	const { type, props, children } = element;
-	const domElement = document.createElement(type);
+	const { type, props, children } = hellaElement;
 
-	// Clear the container and append the new element
+	//Create a DOM element based on the HellaElement's type
+	const domElement = document.createElement(type) as HTMLElement;
+
+	// Clear the container's existing content
 	container.innerHTML = "";
+	// Append the new element to the container
 	container.appendChild(domElement);
 
-	// Apply props
-	Object.entries(props || {}).forEach(([key, value]) => {
-		if (key === "className") {
-			domElement.className = value;
-		} else if (key === "style" && typeof value === "object") {
-			Object.entries(value).forEach(([styleKey, styleValue]) => {
-				(domElement.style as any)[styleKey] = styleValue;
-			});
-		} else if (key.startsWith("on")) {
-			// Events will be handled by delegateEvents
-		} else if (key !== "_key") {
-			if (typeof value === "boolean") {
-				// Handle boolean attributes
-				if (value) {
-					domElement.setAttribute(key, "");
-				}
-			} else if (value !== null && value !== undefined) {
-				domElement.setAttribute(key, String(value));
-			}
-		}
-	});
+	//Apply props to the element
+	handleProps(domElement, props);
 
-	// Attach event handlers
+	//Set up event handlers
 	delegateEvents(domElement, props);
 
-	// Append children correctly
-	children?.forEach((child) => {
-		const childNode = renderDomElement(child, domElement);
-		domElement.appendChild(childNode);
-	});
+	//Process and render any children
+	handleChildren(domElement, children);
 
 	return domElement;
+}
+
+/**
+ * Appends rendered child elements to the specified DOM element.
+ *
+ * @param domElement - The parent HTML element to append children to
+ * @param children - Array of child elements to be rendered and appended
+ */
+function handleChildren(
+	domElement: HTMLElement,
+	children: HellaElement["children"] = [],
+) {
+	children.forEach((child) => {
+		const childElement = renderDomElement(child, domElement);
+		domElement.appendChild(childElement);
+	});
+}
+
+/**
+ * Sets HTML attributes and properties on a DOM element based on a provided props object.
+ *
+ * @param domElement - The HTML element to apply attributes and properties to
+ * @param props - An object containing the properties to apply to the element
+ *
+ */
+function handleProps(
+	domElement: HTMLElement,
+	props: HellaElement["props"] = {},
+) {
+	propHandler(props, {
+		classProp: (className) => {
+			domElement.className = className;
+		},
+		boolProp: (key) => {
+			domElement.setAttribute(key, "");
+		},
+		regularProp: (key, value) => {
+			domElement.setAttribute(key, String(value));
+		},
+	});
 }

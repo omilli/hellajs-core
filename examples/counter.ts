@@ -3,6 +3,7 @@
 // import { state } from "../lib/state";
 
 import { render } from "../lib";
+import { renderStringElement } from "../lib/render";
 
 // const { div, button } = html;
 
@@ -22,6 +23,16 @@ import { render } from "../lib";
 // }, "#root");
 
 // Counter();
+
+console.log(renderStringElement({
+  type: "div",
+  props: {
+    className: "foo"
+  },
+  children: [
+    "hello",
+  ]
+}))
 
 
 render({

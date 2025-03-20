@@ -137,10 +137,7 @@ function handleDelegatedEvent(e: Event) {
 }
 
 // Function to register inline events from props
-export function delegateEvents(
-	element: HTMLElement,
-	props?: Props,
-): void {
+export function delegateEvents(element: HTMLElement, props?: Props): void {
 	// Find all event handlers in props
 	const eventProps = Object.entries(props || {}).filter(([key]) =>
 		key.startsWith("on"),

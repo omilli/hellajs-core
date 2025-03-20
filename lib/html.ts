@@ -1,6 +1,6 @@
-import type { HElement, Props } from "./types";
+import type { HellaElement, Props } from "./types";
 
-function createElement(type: string): (...args: any[]) => HElement {
+function createElement(type: string): (...args: any[]) => HellaElement {
 	return (...args: any[]) => {
 		const props: Props =
 			args[0] &&
@@ -41,7 +41,7 @@ export const html = new Proxy(
 	{},
 	{
 		get: (
-			target: Record<string, (...args: any[]) => HElement>,
+			target: Record<string, (...args: any[]) => HellaElement>,
 			prop: string,
 		) => {
 			// Return cached function if it exists
