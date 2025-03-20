@@ -1,4 +1,5 @@
-import type { RenderedComponent, State, StateBase } from "./types";
+import { diff } from "./diff";
+import type { HElement, State, StateBase } from "./types";
 
 /**
  * Creates a component with associated state and render function.
@@ -10,9 +11,10 @@ import type { RenderedComponent, State, StateBase } from "./types";
  * @returns The render function that, when called, produces a RenderedComponent
  */
 export function component<T extends State<{}>>(
-	options: () => { state: T; render: () => RenderedComponent },
+	options: { state: T; render: () => HElement },
+	root: string
 ) {
-	const { state, render } = options();
-	(state as StateBase).setRender?.(render);
-	return render;
+	const { state, render} = options;
+	(state as StateBase).setRender?.(() => diff(render(), root));
+	return () => diff(render(), root);
 }

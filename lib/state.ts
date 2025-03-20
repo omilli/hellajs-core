@@ -1,6 +1,6 @@
 import { State } from "./types";
 
-export function createState<T extends Record<string, any>>(initialState: T): State<T> {
+export function state<T extends Record<string, any>>(initialState: T): State<T> {
   // Store the render function
   let renderFunction: (() => void) | null = null;
   

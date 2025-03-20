@@ -1,10 +1,10 @@
-import { diff, html } from "../../src";
-import { component } from "../../src/component";
-import { append, clear, create, benchState, remove, select, swapRows, update } from "./state";
+import { html } from "../../lib";
+import { component } from "../../lib/component";
+import { append, clear, create, useBenchState, remove, select, swapRows, update } from "./state";
 // Rendering
 const { div, table, tbody, tr, td, span, button, a, h1 } = html;
 
-const state = benchState();
+const state = useBenchState();
 
 const actionButton = (label: string, id: string, fn: () => void) =>
   div(
@@ -70,7 +70,7 @@ const dataTable = () => table({ className: "table table-hover table-striped test
   )
 )
 
-const render = () => diff(
+const render = () => 
   div({ id: "main" },
     div({ className: "container" },
       jumbo(),
@@ -80,11 +80,9 @@ const render = () => diff(
         "aria-hidden": "true",
       })
     )
-  ),
-  "#root"
-);
+  );
 
-export const Benchmark = component(() => ({
-  render,
-  state
-}));
+export const Benchmark = component({
+  state,
+  render
+},"#root");
