@@ -31,5 +31,5 @@ export type StateBase = {
 };
 
 export type State<T extends Record<string, any>> = T & {
-  set(updates: Partial<T>): void;
+	set(updates: Partial<T>): void;
 };
