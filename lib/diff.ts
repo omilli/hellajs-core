@@ -56,41 +56,6 @@ const elementPool = (() => {
 	};
 })();
 
-// Then modify createDOMElement to use the pool
-
-function createDOMElement(element: HElement | string): HTMLElement | Text {
-	if (typeof element === "string") {
-		return document.createTextNode(element);
-	}
-
-	const { type, props, children } = element;
-	const domElement = document.createElement(type);
-
-	// Apply props
-	Object.entries(props).forEach(([key, value]) => {
-		if (key === "className") {
-			domElement.className = value;
-		} else if (key === "style" && typeof value === "object") {
-			Object.entries(value).forEach(([styleKey, styleValue]) => {
-				(domElement.style as any)[styleKey] = styleValue;
-			});
-		} else if (!key.startsWith("on") && key !== "_key") {
-			domElement.setAttribute(key, value);
-		}
-	});
-
-	// Attach event handlers
-	delegateEvents(domElement, props);
-
-	// Append children correctly
-	children.forEach((child) => {
-		const childNode = createDOMElement(child);
-		domElement.appendChild(childNode);
-	});
-
-	return domElement;
-}
-
 const diffContextManager = (() => {
 	const componentCache = new Map<string, RenderedComponent>();
 	const pendingUpdates = new Map<string, { element: HElement }>();
@@ -377,6 +342,7 @@ function diffKeyedChildren(
 	}
 	parent.appendChild(fragment);
 }
+
 function updateProps(
 	element: HTMLElement,
 	oldProps: Record<string, any>,
@@ -412,4 +378,39 @@ function updateProps(
 
 	// Now handle events separately
 	delegateEvents(element, newProps);
+}
+
+// Then modify createDOMElement to use the pool
+
+function createDOMElement(element: HElement | string): HTMLElement | Text {
+	if (typeof element === "string") {
+		return document.createTextNode(element);
+	}
+
+	const { type, props, children } = element;
+	const domElement = document.createElement(type);
+
+	// Apply props
+	Object.entries(props).forEach(([key, value]) => {
+		if (key === "className") {
+			domElement.className = value;
+		} else if (key === "style" && typeof value === "object") {
+			Object.entries(value).forEach(([styleKey, styleValue]) => {
+				(domElement.style as any)[styleKey] = styleValue;
+			});
+		} else if (!key.startsWith("on") && key !== "_key") {
+			domElement.setAttribute(key, value);
+		}
+	});
+
+	// Attach event handlers
+	delegateEvents(domElement, props);
+
+	// Append children correctly
+	children.forEach((child) => {
+		const childNode = createDOMElement(child);
+		domElement.appendChild(childNode);
+	});
+
+	return domElement;
 }

@@ -1,22 +1,33 @@
-import { html } from "../lib/html";
-import { component } from "../lib/component";
-import { state } from "../lib/state";
+// import { html } from "../lib/html";
+// import { component } from "../lib/component";
+// import { state } from "../lib/state";
 
-const { div, button } = html;
+import { render } from "../lib";
 
-const counterState = state({
-  count: 0
-});
+// const { div, button } = html;
 
-const counterComponent = () => div(
-  button({ onclick: () => counterState.count-- }, "Decrement"),
-  button({ onclick: () => counterState.count++ }, "Increment"),
-  div(`Count: ${counterState.count}`)
-);
+// const counterState = state({
+//   count: 0
+// });
 
-const Counter = component({
-  state: counterState,
-  render: counterComponent
+// const counterComponent = () => div(
+//   button({ onclick: () => counterState.count-- }, "Decrement"),
+//   button({ onclick: () => counterState.count++ }, "Increment"),
+//   div(`Count: ${counterState.count}`)
+// );
+
+// const Counter = component({
+//   state: counterState,
+//   render: counterComponent
+// }, "#root");
+
+// Counter();
+
+
+render({
+  type: "div",
+  children: [
+    "hello",
+  ]
 }, "#root");
 
-Counter();

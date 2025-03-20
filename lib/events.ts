@@ -1,4 +1,4 @@
-import type { EventFn } from "./types";
+import type { EventFn, Props } from "./types";
 
 /**
  * Creates an event delegation system for the specified root element
@@ -139,10 +139,10 @@ function handleDelegatedEvent(e: Event) {
 // Function to register inline events from props
 export function delegateEvents(
 	element: HTMLElement,
-	props: Record<string, any>,
+	props?: Props,
 ): void {
 	// Find all event handlers in props
-	const eventProps = Object.entries(props).filter(([key]) =>
+	const eventProps = Object.entries(props || {}).filter(([key]) =>
 		key.startsWith("on"),
 	);
 	if (eventProps.length === 0) return;

@@ -7,14 +7,13 @@ export interface Props {
 
 export interface HElement {
 	type: string;
-	props: Props;
-	children: (HElement | string)[];
-	element: string | HElement;
+	props?: Props;
+	children?: (HElement | string)[];
 }
 
 // Simplified render result without event handling
 export interface RenderedComponent {
-	element: HTMLElement;
+	element: HTMLElement | Text;
 	props: HElement;
 	pending: boolean;
 }
@@ -33,3 +32,25 @@ export type StateBase = {
 export type State<T extends Record<string, any>> = T & {
 	set(updates: Partial<T>): void;
 };
+
+export type Renderer<T> = {
+	createTextNode: (text: string) => T;
+	createElement: (type: string) => T;
+	setClassName: (node: T, value: string) => T;
+	setStyle: (node: T, styles: Record<string, any>) => T;
+	setAttribute: (node: T, key: string, value: any) => T;
+	setBooleanAttribute: (node: T, key: string, value: boolean) => T;
+	appendChild: (parent: T, child: T) => T;
+	processNode: (node: T, type: string) => T;
+};
+
+/**
+ * Type definition for string renderer node
+ */
+export interface StringNode {
+	tagName: string;
+	attrsHTML: string;
+	content: string;
+	type: string;
+	html?: string;
+}
