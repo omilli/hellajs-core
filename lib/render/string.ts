@@ -1,5 +1,6 @@
 import type { HNode } from "../types";
-import { escapeHTML, propHandler } from "./utils";
+import { propProcessor } from "./processor";
+import { escapeHTML } from "./utils";
 
 /**
  * Converts an element to its HTML string representation.
@@ -38,7 +39,7 @@ export function renderStringElement(hNode: HNode | string): string {
 function handleProps(props: HNode["props"] = {}) {
 	const html: string[] = [];
 
-	propHandler(props, {
+	propProcessor(props, {
 		classProp(className) {
 			html.push(` class="${escapeHTML(className)}"`);
 		},

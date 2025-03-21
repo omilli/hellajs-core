@@ -40,30 +40,3 @@ export function escapeHTML(str: string): string {
 		.replace(/"/g, "&quot;")
 		.replace(/'/g, "&#039;");
 }
-
-/**
- * Processes a properties object by categorizing and handling different property types.
- *
- * @param props - An object containing properties to be processed
- * @param options - Handler callbacks for different property types
- */
-export function propHandler(
-	props: HNodeProps,
-	{ classProp, boolProp, regularProp }: RenderPropHandler,
-) {
-	Object.entries(props).forEach(([key, value]) => {
-		switch (true) {
-			case key.startsWith("on"):
-				break;
-			case key === "className":
-				classProp(value as string);
-				break;
-			case value === true:
-				boolProp(key);
-				break;
-			case value !== null && value !== undefined && value !== false:
-				regularProp(key, value);
-				break;
-		}
-	});
-}

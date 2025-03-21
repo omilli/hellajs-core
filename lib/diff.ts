@@ -1,7 +1,7 @@
 import type { ContextState, RootContext } from "./context";
 import { getDefaultContext, getRootContext } from "./context";
 import { delegateEvents } from "./events";
-import { propHandler } from "./render/utils";
+import { propProcessor } from "./render";
 import type { HNode } from "./types";
 import { generateKey } from "./utils";
 
@@ -274,7 +274,7 @@ function updateProps(element: HTMLElement, props: HNode["props"] = {}): void {
 	}
 
 	// Apply new props
-	propHandler(props, {
+	propProcessor(props, {
 		classProp(className) {
 			if (element.className !== className) {
 				element.className = className;
