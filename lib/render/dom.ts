@@ -3,7 +3,6 @@ import { delegateEvents } from "../events";
 import type { HNode } from "../types";
 import { generateKey } from "../utils";
 import { storeElement } from "./store";
-import { renderStringElement } from "./string";
 import { propHandler } from "./utils";
 
 /**
@@ -46,7 +45,7 @@ export function renderDomElement(
  * @param hNode - The HNode or string to create the DOM element from.
  * @returns The created HTMLElement, Text node, or DocumentFragment.
  */
-export function createDomElement(
+function createDomElement(
 	hNode: HNode | string | number,
 	rootSelector: string,
 	context: ContextState,
@@ -57,29 +56,11 @@ export function createDomElement(
 
 	const { type, props = {} } = hNode;
 
-	if (hNode.rawHTML !== undefined) {
-		const template = document.createElement("template");
-		template.innerHTML = hNode.rawHTML;
-		const fragment = document.createDocumentFragment();
-
-		while (template.content.firstChild) {
-			fragment.appendChild(template.content.firstChild);
-		}
-
-		return fragment;
-	}
-
 	if (!type) {
 		return handleFragments(hNode, rootSelector, context);
 	}
 
-	const element = document.createElement(type) as HTMLElement;
-
-	const elementKey = generateKey();
-
-	element.dataset.hKey = elementKey;
-
-	storeElement(context, rootSelector, elementKey, element, hNode);
+	const element = handleElement(hNode, rootSelector, context);
 
 	// Apply props to the element
 	handleProps(element, props);
@@ -104,32 +85,18 @@ function handleFragments(
 	return fragment;
 }
 
-/**
- * Appends rendered child elements to the specified DOM element.
- */
-function handleChildren(
-	element: HTMLElement | DocumentFragment,
-	hNode: HNode,
-	rootSelector: string,
-	context: ContextState,
-) {
-	const { children = [] } = hNode;
 
-	// Create a document fragment to batch DOM operations
-	let fragment = document.createDocumentFragment();
+function handleElement(hNode: HNode, rootSelector: string, context: ContextState) {
+	const element = document.createElement(hNode.type!) as HTMLElement;
+	const elementKey = generateKey();
 
-	if (children.length > 99) {
-		fragment = handleLargeRender(hNode, rootSelector, context);
-	} else {
-		children.forEach((child) => {
-			const childElement = createDomElement(child, rootSelector, context);
-			fragment.appendChild(childElement);
-		});
-	}
+	element.dataset.hKey = elementKey;
 
-	// Append all children in one operation
-	element.appendChild(fragment);
+	storeElement(hNode, element, rootSelector, elementKey, context, );
+
+	return element;
 }
+
 
 /**
  * Sets HTML attributes and properties on a DOM element
@@ -163,65 +130,25 @@ function handleEventProps(
 	}
 }
 
-function attachKey(hNode: HNode | string, rootSelector: string) {
-	if (typeof hNode === "string") return;
-
-	const hKey = generateKey();
-	let eKey: string | undefined;
-
-	hNode.props = {
-		...hNode.props,
-		...({
-			"data-h-key": hKey,
-		} as HNode["props"]),
-	};
-
-	const eventProps = Object.entries(hNode.props || {}).filter(([key]) =>
-		key.startsWith("on"),
-	);
-
-	if (eventProps.length > 0) {
-		eKey = generateKey();
-		hNode.props = {
-			...hNode.props,
-			...({
-				"data-e-key": eKey,
-			} as HNode["props"]),
-		};
-		delegateEvents(hNode, rootSelector, eKey as string);
-	}
-
-	(hNode.children || []).forEach((child) => {
-		attachKey(child, rootSelector);
-	});
-
-	return {
-		hKey,
-		eKey,
-	};
-}
-
-function handleLargeRender(
+/**
+ * Appends rendered child elements to the specified DOM element.
+ */
+function handleChildren(
+	element: HTMLElement | DocumentFragment,
 	hNode: HNode,
 	rootSelector: string,
 	context: ContextState,
-): DocumentFragment {
-	const { hKey, eKey } = attachKey(hNode, rootSelector) || {};
-	const htmlString = renderStringElement(hNode);
-	const element = document.createDocumentFragment();
+) {
+	const { children = [] } = hNode;
 
-	const template = document.createElement("template");
-	template.innerHTML = htmlString;
+	// Create a document fragment to batch DOM operations
+	let fragment = document.createDocumentFragment();
 
-	if (template.content.childNodes.length > 0) {
-		template.content.childNodes[0].childNodes.forEach((childNode) => {
-			element.append(childNode);
-		});
-	}
+	children.forEach((child) => {
+		const childElement = createDomElement(child, rootSelector, context);
+		fragment.appendChild(childElement);
+	});
 
-	if (hKey) {
-		storeElement(context, rootSelector, hKey, element, hNode);
-	}
-
-	return element;
+	// Append all children in one operation
+	element.appendChild(fragment);
 }
