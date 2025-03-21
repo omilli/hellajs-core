@@ -17,6 +17,7 @@ type HNodeAttributes<T extends HTMLTagName> = {
 
 export type HNodeProps = HNodeAttributes<HNodeBase["type"]> & {
 	className?: string;
+	key?: string | number;
 };
 
 export interface HNodeBase {

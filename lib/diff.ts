@@ -31,8 +31,12 @@ export function diff(
 			: newElement;
 	} else {
 		// Compare existing children with new virtual DOM
+		const domChildren: (HTMLElement | Text)[] = [];
+		for (let i = 0; i < rootElement.childNodes.length; i++) {
+			domChildren.push(rootElement.childNodes[i] as HTMLElement | Text);
+		}
 		diffChildren(
-			Array.from(rootElement.childNodes) as (HTMLElement | Text)[],
+			domChildren,
 			[newHNode],
 			rootElement,
 			rootContext,
@@ -74,8 +78,12 @@ function diffNode(
 	if (!hNode.type) {
 		if (domNode.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
 			// Update fragment contents
+			const domChildren: (HTMLElement | Text)[] = [];
+			for (let i = 0; i < domNode.childNodes.length; i++) {
+				domChildren.push(domNode.childNodes[i] as HTMLElement | Text);
+			}
 			diffChildren(
-				Array.from(domNode.childNodes) as (HTMLElement | Text)[],
+				domChildren,
 				hNode.children || [],
 				domNode as Element,
 				rootContext,
@@ -133,9 +141,14 @@ function updateElement(
 		delegateEvents(hNode, rootSelector, element.dataset.eKey);
 	}
 
+	const domChildren: (HTMLElement | Text)[] = [];
+	for (let i = 0; i < element.childNodes.length; i++) {
+		domChildren.push(element.childNodes[i] as HTMLElement | Text);
+	}
+
 	// Update children
 	diffChildren(
-		Array.from(element.childNodes) as (HTMLElement | Text)[],
+		domChildren,
 		hNode.children || [],
 		element,
 		rootContext,
@@ -189,42 +202,46 @@ function diffChildren(
  * Updates the props/attributes of an element
  */
 function updateProps(element: HTMLElement, props: HNode["props"] = {}): void {
-	// First, collect current attributes to detect removed ones
-	const currentAttrs = Array.from(element.attributes)
-		.filter((attr) => !attr.name.startsWith("data-") && attr.name !== "class")
-		.map((attr) => attr.name);
-
-	const newAttrs = new Set<string>();
-
-	// Apply new props
-	propHandler(props, {
-		classProp(className) {
-			if (element.className !== className) {
-				element.className = className;
-			}
-			newAttrs.add("class");
-		},
-		boolProp(key) {
-			if (!element.hasAttribute(key)) {
-				element.setAttribute(key, "");
-			}
-			newAttrs.add(key);
-		},
-		regularProp(key, value) {
-			const strValue = String(value);
-			if (element.getAttribute(key) !== strValue) {
-				element.setAttribute(key, strValue);
-			}
-			newAttrs.add(key);
-		},
-	});
-
-	// Remove attributes that are no longer present
-	for (const attr of currentAttrs) {
-		if (!newAttrs.has(attr) && !attr.startsWith("on")) {
-			element.removeAttribute(attr);
-		}
-	}
+  // Use a more efficient Set-based approach for attributes
+  const attrsToRemove = new Set<string>();
+  
+  // Collect current attributes
+  for (let i = 0; i < element.attributes.length; i++) {
+    const attr = element.attributes[i];
+    if (!attr.name.startsWith("data-") && attr.name !== "class") {
+      attrsToRemove.add(attr.name);
+    }
+  }
+  
+  // Apply new props
+  propHandler(props, {
+    classProp(className) {
+      if (element.className !== className) {
+        element.className = className;
+      }
+      // No need to track class separately
+    },
+    boolProp(key) {
+      attrsToRemove.delete(key);
+      if (!element.hasAttribute(key)) {
+        element.setAttribute(key, "");
+      }
+    },
+    regularProp(key, value) {
+      attrsToRemove.delete(key);
+      const strValue = String(value);
+      if (element.getAttribute(key) !== strValue) {
+        element.setAttribute(key, strValue);
+      }
+    },
+  });
+  
+  // Remove attributes that are no longer present
+  attrsToRemove.forEach(attr => {
+    if (!attr.startsWith("on")) {
+      element.removeAttribute(attr);
+    }
+  });
 }
 
 /**

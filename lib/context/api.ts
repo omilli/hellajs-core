@@ -13,7 +13,7 @@ export function createContext(id?: string): ContextState {
 		id,
 		rootStore: new Map(),
 		render: (...args) => render(...args),
-		diff:(...args) => diff(...args)
+		diff: (...args) => diff(...args),
 	});
 
 	return contextStore.get(id)!;
