@@ -1,4 +1,4 @@
-import { html } from "../../lib";
+import { getRootContext, html } from "../../lib";
 import { component } from "../../lib/component";
 import { append, clear, create, useBenchState, remove, select, swapRows, update } from "./state";
 // Rendering
@@ -81,3 +81,5 @@ const render = () => div({ id: "main" },
   );
 
 component(state, render);
+
+console.log(getRootContext("#root"));

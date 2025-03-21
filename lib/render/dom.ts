@@ -93,8 +93,6 @@ function handleElement(
 	const element = document.createElement(hNode.type!) as HTMLElement;
 	const elementKey = generateKey();
 
-	element.dataset.hKey = elementKey;
-
 	storeElement(hNode, element, rootSelector, elementKey, context);
 
 	return element;

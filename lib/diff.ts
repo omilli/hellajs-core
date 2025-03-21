@@ -1,5 +1,5 @@
 import type { ContextState, RootContext } from "./context";
-import { getRootContext } from "./context";
+import { getDefaultContext, getRootContext } from "./context";
 import { delegateEvents } from "./events";
 import { propHandler } from "./render/utils";
 import type { HNode } from "./types";
@@ -12,7 +12,7 @@ import { generateKey } from "./utils";
 export function diff(
 	newHNode: HNode,
 	rootSelector: string,
-	context: ContextState,
+	context = getDefaultContext(),
 ): HTMLElement | Text | DocumentFragment {
 	const rootElement = document.querySelector(rootSelector);
 	if (!rootElement) {
@@ -133,21 +133,6 @@ function updateElement(
 		delegateEvents(hNode, rootSelector, element.dataset.eKey);
 	}
 
-	// Store the updated hNode reference
-	if (element.dataset.hKey && rootContext.elements.has(element.dataset.hKey)) {
-		rootContext.elements.set(element.dataset.hKey, {
-			element,
-			hNode,
-		});
-	} else {
-		const key = element.dataset.hKey || generateKey();
-		element.dataset.hKey = key;
-		rootContext.elements.set(key, {
-			element,
-			hNode,
-		});
-	}
-
 	// Update children
 	diffChildren(
 		Array.from(element.childNodes) as (HTMLElement | Text)[],
@@ -264,8 +249,6 @@ function renderNewElement(
 	}
 
 	const element = document.createElement(hNode.type);
-	const elementKey = generateKey();
-	element.dataset.hKey = elementKey;
 
 	// Apply props
 	updateProps(element, hNode.props);
@@ -278,13 +261,6 @@ function renderNewElement(
 		element.dataset.eKey = generateKey();
 		delegateEvents(hNode, rootSelector, element.dataset.eKey);
 	}
-
-	// Store the element
-	const rootContext = getRootContext(rootSelector, context);
-	rootContext.elements.set(elementKey, {
-		element,
-		hNode,
-	});
 
 	// Process children
 	(hNode.children || []).forEach((child) => {

@@ -1,3 +1,4 @@
+import { diff } from "../diff";
 import { render } from "../render";
 import { generateKey } from "../utils";
 import type { ContextState, RootContext } from "./types";
@@ -11,9 +12,8 @@ export function createContext(id?: string): ContextState {
 	contextStore.set(id, {
 		id,
 		rootStore: new Map(),
-		render(...args) {
-			return render(...args, this);
-		},
+		render: (...args) => render(...args),
+		diff:(...args) => diff(...args)
 	});
 
 	return contextStore.get(id)!;
@@ -40,12 +40,10 @@ export function getRootContext(
 ): RootContext {
 	if (!context.rootStore.has(rootSelector)) {
 		context.rootStore.set(rootSelector, {
-			elements: new Map(),
 			events: {
 				delegates: new Set(),
 				listeners: new Map(),
 			},
-			state: {},
 		});
 	}
 
