@@ -85,18 +85,20 @@ function handleFragments(
 	return fragment;
 }
 
-
-function handleElement(hNode: HNode, rootSelector: string, context: ContextState) {
+function handleElement(
+	hNode: HNode,
+	rootSelector: string,
+	context: ContextState,
+) {
 	const element = document.createElement(hNode.type!) as HTMLElement;
 	const elementKey = generateKey();
 
 	element.dataset.hKey = elementKey;
 
-	storeElement(hNode, element, rootSelector, elementKey, context, );
+	storeElement(hNode, element, rootSelector, elementKey, context);
 
 	return element;
 }
-
 
 /**
  * Sets HTML attributes and properties on a DOM element
@@ -142,7 +144,7 @@ function handleChildren(
 	const { children = [] } = hNode;
 
 	// Create a document fragment to batch DOM operations
-	let fragment = document.createDocumentFragment();
+	const fragment = document.createDocumentFragment();
 
 	children.forEach((child) => {
 		const childElement = createDomElement(child, rootSelector, context);

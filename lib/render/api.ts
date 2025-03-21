@@ -1,4 +1,5 @@
 import { getDefaultContext } from "../context";
+import { diff } from "../diff";
 import type { HNode } from "../types";
 import { renderDomElement } from "./dom";
 import { renderStringElement } from "./string";
@@ -26,7 +27,18 @@ export function render(
 	const rootElement = getRootElement(rootSelector);
 	rootSelector = rootSelector!;
 
-	const element = renderDomElement(hNode, rootElement, rootSelector, context);
+	// Check if it's the first render
+	if (!rootElement.hasChildNodes()) {
+		// For first render, use the direct DOM rendering
+		const element = renderDomElement(hNode, rootElement, rootSelector, context);
+		return {
+			element,
+			hNode,
+		};
+	}
+
+	// For subsequent renders, use the diff algorithm
+	const element = diff(hNode, rootSelector, context);
 
 	return {
 		element,

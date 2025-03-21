@@ -1,7 +1,6 @@
 import { type ContextState, getRootContext } from "../context";
 import type { HNode } from "../types";
 
-
 export function storeElement(
 	hNode: HNode,
 	element: HTMLElement | Text | DocumentFragment,
