@@ -26,3 +26,5 @@ export interface HNodeBase {
 }
 
 export type HNode = Partial<HNodeBase>;
+
+export type StateRender= { _render?: () => void }

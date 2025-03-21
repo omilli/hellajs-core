@@ -1,3 +1,5 @@
+import { StateRender } from "./types";
+
 export function state<T extends object>(initialState: T): T {
 	// Create a mutable version of the state
 	const stateObject = { ...initialState };
@@ -15,9 +17,9 @@ export function state<T extends object>(initialState: T): T {
 
 			// Call the render method if it exists
 			if (
-				typeof (target as T & { _render?: () => void })._render === "function"
+				typeof (target as StateRender)._render === "function"
 			) {
-				(target as T & { _render?: () => void })._render?.();
+				(target as StateRender)._render?.();
 			}
 
 			return true;
