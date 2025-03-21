@@ -8,11 +8,10 @@ export function component<T>(
 	rootSelector = "#root",
 	context = getDefaultContext(),
 ): T {
-	const render = requestAnimationFrame(() =>
-		diff(hNode(), rootSelector, context)
-	);
-	
-	(state as StateRender)._render = () => render
+	(state as StateRender)._render = () =>
+		requestAnimationFrame(() =>
+			diff(hNode(), rootSelector, context)
+		);
 		
 	return state as T;
 }
