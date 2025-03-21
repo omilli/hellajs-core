@@ -62,20 +62,14 @@ export function storeEvent(
 	eventName: string,
 	handler: EventFn,
 ): void {
-	if (!eventStore.has(rootSelector)) {
-		eventStore.set(rootSelector, {
-			delegates: new Set(),
-			events: new Map(),
-		});
-	}
+	initRootEventStore(rootSelector);
 
 	const rootEvents = eventStore.get(rootSelector)!;
 	const { delegates, events } = rootEvents;
 
 	if (!delegates.has(eventName)) {
 		delegates.add(eventName);
-
-		addDelegatedListener(events, elementKey, eventName, rootSelector);
+		addDelegatedListener(events, eventName, rootSelector);
 	}
 
 	if (!events.has(elementKey)) {
@@ -95,15 +89,33 @@ export function getEventHandler(
 
 function addDelegatedListener(
 	events: Map<string, Map<string, EventFn>>,
-	elementKey: string,
 	eventName: string,
 	rootSelector: string,
 ) {
 	document.querySelector(rootSelector)!.addEventListener(eventName, (e) => {
-		const element = e.target as HTMLElement & HellaElementProps;
-		const key = element.getAttribute("key") || "";
-		if (!events.has(key)) {
-			events.get(elementKey)?.get(eventName)?.call(element, e);
+		e.preventDefault();
+		e.stopPropagation();
+
+		let element = e.target as HTMLElement;
+    let key = element.dataset.eKey;
+
+    if(!key) {
+      element = element.closest("[data-e-key]") || element;
+      key = element.dataset.eKey;
+    };
+
+		if (key && events.has(key)) {
+			events.get(key)?.get(eventName)?.(e, element);
 		}
 	});
+}
+
+function initRootEventStore(rootSelector: string){
+  if (!eventStore.has(rootSelector)) {
+		eventStore.set(rootSelector, {
+			delegates: new Set(),
+			events: new Map(),
+		});
+	}
+
 }

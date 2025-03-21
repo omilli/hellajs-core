@@ -19,7 +19,9 @@ render({
   type: "div",
   props: {
     className: "foo",
-    onclick: () => console.log("clicked")
+    onclick(e, el) {
+      console.log(e, el);
+    },
   },
   children: [
     {

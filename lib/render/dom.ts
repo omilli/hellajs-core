@@ -56,14 +56,16 @@ export function createDomElement(
 		return handleFragments(children, rootSelector);
 	}
 
-	props.key = setkeyProp(props);
-
 	// Create a DOM element based on the HellaElement's type
 	const domElement = document.createElement(type) as HTMLElement;
 
+	const elementKey = generateKey();
+
+	domElement.dataset.hKey = elementKey;
+
 	storeElement({
 		domElement,
-		elementKey: props.key,
+		elementKey,
 		hellaElement,
 		rootSelector,
 	});
@@ -72,7 +74,7 @@ export function createDomElement(
 	handleProps(domElement, props);
 
 	// Set up event handlers
-	handleEventProps(hellaElement, props, rootSelector);
+	handleEventProps(domElement, hellaElement, rootSelector);
 
 	// Process and render any children
 	handleChildren(domElement, children, rootSelector);
@@ -131,22 +133,22 @@ function handleProps(
 }
 
 function handleEventProps(
+	domElement: HTMLElement,
 	hellaElement: HellaElement,
-	props: HellaElement["props"] = {},
 	rootSelector: string,
 ): void {
-	const eventProps = Object.entries(props).filter(([key]) =>
+	const eventProps = Object.entries(hellaElement.props || {}).filter(([key]) =>
 		key.startsWith("on"),
 	);
 
 	if (eventProps.length > 0) {
+		domElement.dataset.eKey = generateKey();
 		eventProps.forEach(() =>
-			delegateEvents(hellaElement, rootSelector, props.key as string),
+			delegateEvents(
+				hellaElement,
+				rootSelector,
+				domElement.dataset.eKey as string,
+			),
 		);
 	}
-}
-
-function setkeyProp(props: HellaElement["props"] | undefined = {}): string {
-	props.key ??= generateKey();
-	return props.key;
 }

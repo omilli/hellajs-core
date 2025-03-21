@@ -1,12 +1,21 @@
 export type HTMLTagName = keyof HTMLElementTagNameMap;
 
-export type HTMLElementProps<T extends HTMLTagName> = {
-	[K in keyof HTMLElementTagNameMap[T]]?: HTMLElementTagNameMap[T][K];
+// Define our custom event handler type
+export type EventFn = (e: Event, el?: HTMLElement) => void;
+
+// Create a type that supports both DOM event handlers and our custom EventFn
+export type CustomEventHandlers = {
+  [K in keyof GlobalEventHandlersEventMap as `on${string & K}`]?: 
+    | ((event: GlobalEventHandlersEventMap[K], element?: HTMLElement) => void) 
 };
+
+// Update HTMLElementProps to include our custom event handlers
+export type HTMLElementProps<T extends HTMLTagName> = {
+  [K in keyof HTMLElementTagNameMap[T] as K extends `on${string}` ? never : K]?: HTMLElementTagNameMap[T][K];
+} & CustomEventHandlers;
 
 export type HellaElementProps = HTMLElementProps<HellaElementBase["type"]> & {
 	className?: string;
-	key?: string;
 };
 
 export interface HellaElementBase {
@@ -28,7 +37,6 @@ export interface DiffContext {
 	clearCache(): void;
 }
 
-export type EventFn = (e: Event) => void;
 
 export type StateBase = {
 	setRender?(render: () => RenderedElement): void;
