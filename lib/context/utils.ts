@@ -1,21 +1,4 @@
-import type { ContextState, GlobalContext } from "./types";
-
-export const contextStore: Map<string, ContextState> = new Map();
-let currentContext: ContextState | null = null;
-
-
-export function getCurrentContext(): ContextState | null {
-	return currentContext;
-}
-
-export function setCurrentContext(id?: string): void {
-	currentContext = id ? (contextStore.get(id) ?? null) : null;
-}
-
-export function cleanupContext(id: string): void {
-	contextStore.delete(id);
-}
-
+import type { GlobalContext } from "./types";
 /**
  * Attempts to return the global `this` object in a way that works across different JavaScript environments,
  * including browsers, Node.js, and web workers.

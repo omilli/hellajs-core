@@ -1,6 +1,7 @@
 import { generateKey } from "../utils";
+import { contextStore, getCurrentContext } from "./store";
 import { ContextState, RootContext } from "./types";
-import { contextStore, getCurrentContext, getGlobalThis } from "./utils";
+import { getGlobalThis } from "./utils";
 
 const CONTEXT_KEY = "domContext";
 
