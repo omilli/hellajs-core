@@ -66,7 +66,7 @@ export function createDomElement(args: RenderDomArgs): RenderReturnElement {
 		return document.createTextNode(hellaElement);
 	}
 
-	const { type, props } = hellaElement;
+	const { type } = hellaElement;
 
 	if (!type) {
 		return handleFragments({ hellaElement, rootSelector, context });
@@ -88,10 +88,10 @@ export function createDomElement(args: RenderDomArgs): RenderReturnElement {
 	});
 
 	// Apply props to the element
-	handleProps(domElement, props);
+	handleProps({domElement, hellaElement});
 
 	// Set up event handlers
-	handleEventProps(domElement, hellaElement, rootSelector);
+	handleEvents(domElement, hellaElement, rootSelector);
 
 	// Process and render any children
 	handleChildren({ domElement, hellaElement, rootSelector, context });
@@ -134,23 +134,23 @@ function handleChildren(args: RenderDomArgs) {
  * Sets HTML attributes and properties on a DOM element
  */
 function handleProps(
-	domElement: HTMLElement,
-	props: HellaElement["props"] = {},
+	args: RenderDomArgs
 ): void {
-	propHandler(props, {
+	const { hellaElement, domElement } = getDomArgs(args);
+	propHandler((hellaElement as HellaElement).props || {}, {
 		classProp(className) {
-			domElement.className = className;
+			(domElement as HTMLElement).className = className;
 		},
 		boolProp(key) {
-			domElement.setAttribute(key, "");
+			(domElement as HTMLElement).setAttribute(key, "");
 		},
 		regularProp(key, value) {
-			domElement.setAttribute(key, String(value));
+			(domElement as HTMLElement).setAttribute(key, String(value));
 		},
 	});
 }
 
-function handleEventProps(
+function handleEvents(
 	domElement: HTMLElement,
 	hellaElement: HellaElement,
 	rootSelector: string,
