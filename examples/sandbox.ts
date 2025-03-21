@@ -1,20 +1,31 @@
+import { HNode } from "../lib";
 import { component } from "../lib/component";
 import { state } from "../lib/state";
 
 const myState = state({
-  count: 1,
+  count: 10000,
+  rows: [] as HNode[]
 });
 
-console.log(myState.count)
 
 function increment() {
   myState.count = myState.count + 1;
-  console.log(myState.count)
+  setRows();
 }
 
 function decrement() {
   myState.count = myState.count - 1;
-  console.log(myState.count)
+  setRows();
+}
+
+function setRows() {
+  myState.rows = Array.from({ length: myState.count }, (_, i) => ({
+    type: "div",
+    props: {
+      onclick: () => console.log(i)
+    },
+    children: [String(i)]
+  })).reverse() as HNode[]
 }
 
 component(myState, () => ({
@@ -35,8 +46,8 @@ component(myState, () => ({
       children: ["Decrement"]
     },
     {
-      type: "p",
-      children: [myState.count]
+      type: "div",
+      children: myState.rows
     }
   ]
 }));

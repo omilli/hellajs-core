@@ -22,7 +22,7 @@ export type HNodeProps = HNodeAttributes<HNodeBase["type"]> & {
 export interface HNodeBase {
 	type: HTMLTagName;
 	props?: HNodeProps;
-	children?: (HNode | string | number)[];
+	children?: (HNode | string)[];
 }
 
 export type HNode = Partial<HNodeBase>;

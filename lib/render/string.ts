@@ -9,8 +9,8 @@ import { escapeHTML, propHandler } from "./utils";
  */
 export function renderStringElement(hNode: HNode | string): string {
 	// Handle text nodes
-	if (typeof hNode === "string") {
-		return escapeHTML(hNode);
+	if (typeof hNode === "string" || typeof hNode === "number") {
+		return escapeHTML(String(hNode));
 	}
 
 	const { type, props, children } = hNode;

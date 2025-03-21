@@ -70,8 +70,7 @@ const dataTable = () => table({ className: "table table-hover table-striped test
   )
 )
 
-const render = () => 
-  div({ id: "main" },
+const render = () => div({ id: "main" },
     div({ className: "container" },
       jumbo(),
       dataTable(),
@@ -82,7 +81,4 @@ const render = () =>
     )
   );
 
-export const Benchmark = component({
-  state,
-  render
-},"#root");
+component(state, render);

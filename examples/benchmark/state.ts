@@ -1,13 +1,13 @@
+import { state } from "../../lib/state";
 import { buildData, data } from "./data";
-import { State, state } from "../../lib";
 
-let benchState: State<{
+let benchState: {
   data: {
     id: number;
     label: string;
   }[];
   selected: number | undefined;
-}>;
+};
 
 
 export function useBenchState() {
