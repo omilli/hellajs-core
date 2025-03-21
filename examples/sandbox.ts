@@ -3,20 +3,14 @@ import { component } from "../lib/component";
 import { state } from "../lib/state";
 
 const myState = state({
-  count: 10000,
+  count: 0,
   rows: [] as HNode[]
 });
 
-
-function increment() {
+setInterval(() => {
   myState.count = myState.count + 1;
   setRows();
-}
-
-function decrement() {
-  myState.count = myState.count - 1;
-  setRows();
-}
+}, 1)
 
 function setRows() {
   myState.rows = Array.from({ length: myState.count }, (_, i) => ({
@@ -29,27 +23,7 @@ function setRows() {
 }
 
 component(myState, () => ({
-  type: "div",
-  children: [
-    {
-      type: "button",
-      props: {
-        onclick: increment,
-      },
-      children: ["Increment"]
-    },
-    {
-      type: "button",
-      props: {
-        onclick: decrement,
-      },
-      children: ["Decrement"]
-    },
-    {
-      type: "div",
-      children: myState.rows
-    }
-  ]
+  children: myState.rows
 }));
 
 

@@ -124,10 +124,7 @@ function diffNode(
 	if (domNode.nodeType === 1) {
 		// Use direct constant instead of Node.ELEMENT_NODE
 		// If node types match, update the element - use direct lowercase comparison when possible
-		if (
-			(domNode as HTMLElement).tagName.toLowerCase() ===
-			type.toLowerCase()
-		) {
+		if ((domNode as HTMLElement).tagName.toLowerCase() === type.toLowerCase()) {
 			return updateElement(
 				domNode as HTMLElement,
 				hNode as HNode,
