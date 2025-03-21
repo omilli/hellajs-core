@@ -1,4 +1,4 @@
-import { StateRender } from "./types";
+import type { StateRender } from "./types";
 
 export function state<T extends object>(initialState: T): T {
 	// Create a mutable version of the state
@@ -16,9 +16,7 @@ export function state<T extends object>(initialState: T): T {
 			target[prop as keyof typeof target] = value;
 
 			// Call the render method if it exists
-			if (
-				typeof (target as StateRender)._render === "function"
-			) {
+			if (typeof (target as StateRender)._render === "function") {
 				(target as StateRender)._render?.();
 			}
 
