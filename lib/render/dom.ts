@@ -1,6 +1,7 @@
 import { delegateEvents } from "../events";
-import { generateKey, storeElement } from "../store";
 import type { HellaElement } from "../types";
+import { generateKey } from "../utils";
+import { storeElement } from "./store";
 import { propHandler } from "./utils";
 
 /**

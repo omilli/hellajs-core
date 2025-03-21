@@ -1,4 +1,5 @@
-import { elementStore, eventStore, render } from "../lib";
+import { render } from "../lib";
+import { getRootContext } from "../lib/context";
 import { renderStringElement } from "../lib/render";
 
 // console.log(renderStringElement({
@@ -31,5 +32,4 @@ render({
   ]
 }, "#root");
 
-console.log(elementStore.get("#root"));
-console.log(eventStore);
+console.log(getRootContext("#root"));

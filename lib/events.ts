@@ -1,4 +1,4 @@
-import { storeEvent } from "./store";
+import { getRootContext } from "./context";
 import type { EventFn, HellaElement } from "./types";
 
 /**
@@ -25,7 +25,54 @@ export function delegateEvents(
 			// Extract event name (e.g., "click" from "onClick")
 			const eventName = key.slice(2).toLowerCase();
 			// Store the event handler using the key system
-			storeEvent(rootSelector, elementKey, eventName, value as EventFn);
+			addContextEvent(rootSelector, elementKey, eventName, value as EventFn);
+		}
+	});
+}
+
+// Helper function to store events
+function addContextEvent(
+	rootSelector: string,
+	elementKey: string,
+	eventName: string,
+	handler: EventFn,
+): void {
+	const rootContext = getRootContext(rootSelector);
+
+	const { events } = rootContext;
+	const { delegates, listeners } = events;
+
+	if (!delegates.has(eventName)) {
+		delegates.add(eventName);
+		addDelegatedListener(listeners, eventName, rootSelector);
+	}
+
+	if (!listeners.has(elementKey)) {
+		listeners.set(elementKey, new Map());
+	}
+
+	listeners.get(elementKey)?.set(eventName, handler);
+}
+
+function addDelegatedListener(
+	events: Map<string, Map<string, EventFn>>,
+	eventName: string,
+	rootSelector: string,
+) {
+	document.querySelector(rootSelector)!.addEventListener(eventName, (e) => {
+		e.preventDefault();
+		e.stopPropagation();
+
+		let element = e.target as HTMLElement;
+		let key = element.dataset.eKey;
+
+		if (!key) {
+			element = element.closest("[data-e-key]") || element;
+			key = element.dataset.eKey;
+		}
+
+		if (key && events.has(key)) {
+			events.get(key)?.get(eventName)?.(e, element);
 		}
 	});
 }
