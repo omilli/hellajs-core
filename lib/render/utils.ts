@@ -50,7 +50,7 @@ export function propHandler(
 ) {
 	Object.entries(props).forEach(([key, value]) => {
 		switch (true) {
-			case key === "key":
+			case key.startsWith("on"):
 				break;
 			case key === "className":
 				classProp(value as string);

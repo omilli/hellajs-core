@@ -1,6 +1,7 @@
+import { delegateEvents } from "../events";
+import { generateKey, storeElement } from "../store";
 import type { HellaElement } from "../types";
 import { propHandler } from "./utils";
-import { elementMap } from "../maps";
 
 /**
  * Renders a HellaElement or string into the specified container.
@@ -14,10 +15,7 @@ export function renderDomElement(
 	container: Element,
 	rootSelector: string,
 ): HTMLElement | Text | DocumentFragment {
-	// Create DOM element
 	const domElement = createDomElement(hellaElement, rootSelector);
-
-	elementMap.set(rootSelector, domElement);
 
 	// Clear container more efficiently than using innerHTML
 	container.textContent = "";
@@ -46,7 +44,7 @@ export function renderDomElement(
  */
 export function createDomElement(
 	hellaElement: HellaElement | string,
-	rootSelector: string
+	rootSelector: string,
 ): HTMLElement | Text | DocumentFragment {
 	if (typeof hellaElement === "string") {
 		return document.createTextNode(hellaElement);
@@ -58,14 +56,23 @@ export function createDomElement(
 		return handleFragments(children, rootSelector);
 	}
 
+	props.key = setkeyProp(props);
+
 	// Create a DOM element based on the HellaElement's type
 	const domElement = document.createElement(type) as HTMLElement;
+
+	storeElement({
+		domElement,
+		elementKey: props.key,
+		hellaElement,
+		rootSelector,
+	});
 
 	// Apply props to the element
 	handleProps(domElement, props);
 
 	// Set up event handlers
-	// delegateEvents(domElement, props, rootSelector);
+	handleEventProps(hellaElement, props, rootSelector);
 
 	// Process and render any children
 	handleChildren(domElement, children, rootSelector);
@@ -73,7 +80,10 @@ export function createDomElement(
 	return domElement;
 }
 
-function handleFragments(children: HellaElement["children"], rootSelector: string) {
+function handleFragments(
+	children: HellaElement["children"],
+	rootSelector: string,
+): DocumentFragment {
 	// Handle fragments (when type is undefined or null)
 	const fragment = document.createDocumentFragment();
 	handleChildren(fragment, children, rootSelector);
@@ -86,7 +96,7 @@ function handleFragments(children: HellaElement["children"], rootSelector: strin
 function handleChildren(
 	domElement: HTMLElement | DocumentFragment,
 	hellaChildren: HellaElement["children"] = [],
-	rootSelector: string
+	rootSelector: string,
 ) {
 	// Create a document fragment to batch DOM operations
 	const fragment = document.createDocumentFragment();
@@ -106,7 +116,7 @@ function handleChildren(
 function handleProps(
 	domElement: HTMLElement,
 	props: HellaElement["props"] = {},
-) {
+): void {
 	propHandler(props, {
 		classProp(className) {
 			domElement.className = className;
@@ -118,4 +128,25 @@ function handleProps(
 			domElement.setAttribute(key, String(value));
 		},
 	});
+}
+
+function handleEventProps(
+	hellaElement: HellaElement,
+	props: HellaElement["props"] = {},
+	rootSelector: string,
+): void {
+	const eventProps = Object.entries(props).filter(([key]) =>
+		key.startsWith("on"),
+	);
+
+	if (eventProps.length > 0) {
+		eventProps.forEach(() =>
+			delegateEvents(hellaElement, rootSelector, props.key as string),
+		);
+	}
+}
+
+function setkeyProp(props: HellaElement["props"] | undefined = {}): string {
+	props.key ??= generateKey();
+	return props.key;
 }

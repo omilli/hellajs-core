@@ -1,8 +1,8 @@
-import type { HellaElement, Props } from "./types";
+import type { HTMLTagName, HellaElement, HellaElementProps } from "./types";
 
-function createElement(type: string): (...args: any[]) => HellaElement {
+function createElement(type: HTMLTagName): (...args: any[]) => HellaElement {
 	return (...args: any[]) => {
-		const props: Props =
+		const props: HellaElementProps =
 			args[0] &&
 			typeof args[0] === "object" &&
 			!Array.isArray(args[0]) &&
@@ -26,12 +26,6 @@ function createElement(type: string): (...args: any[]) => HellaElement {
 			}
 		});
 
-		// Support for 'key' property for list items
-		if (props.key !== undefined) {
-			// Store key in a special attribute that our diff algorithm can use
-			props._key = props.key;
-		}
-
 		return { type, props, children, element: "" };
 	};
 }
@@ -42,7 +36,7 @@ export const html = new Proxy(
 	{
 		get: (
 			target: Record<string, (...args: any[]) => HellaElement>,
-			prop: string,
+			prop: HTMLTagName,
 		) => {
 			// Return cached function if it exists
 			if (prop in target) {
