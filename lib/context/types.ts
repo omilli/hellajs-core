@@ -18,8 +18,7 @@ export type RootStore = Map<string, RootContext>;
 
 export type ContextState = {
 	id: string;
-	rootStore: RootStore;
-	elementPool: Map<string, HTMLElement[]>;
+	root: RootStore;
 };
 
 export type GlobalContext = (Window & typeof globalThis) & {

@@ -25,13 +25,13 @@ export function delegateEvents(
 			// Extract event name (e.g., "click" from "onClick")
 			const eventName = key.slice(2).toLowerCase();
 			// Store the event handler using the key system
-			addContextEvent(rootSelector, elementKey, eventName, value as EventFn);
+			addEvent(rootSelector, elementKey, eventName, value as EventFn);
 		}
 	});
 }
 
 // Helper function to store events
-function addContextEvent(
+function addEvent(
 	rootSelector: string,
 	elementKey: string,
 	eventName: string,
