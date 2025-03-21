@@ -3,7 +3,7 @@ import { generateKey } from "../utils";
 import type { ContextState, RootContext } from "./types";
 import { getGlobalThis } from "./utils";
 
-export const contextStore: Map<string, ContextState> = new Map();
+const contextStore: Map<string, ContextState> = new Map();
 
 export function createContext(id?: string): ContextState {
 	id ??= `hella-dom-${generateKey()}`;
@@ -17,6 +17,10 @@ export function createContext(id?: string): ContextState {
 	});
 
 	return contextStore.get(id)!;
+}
+
+export function getContextStore() {
+	return contextStore;
 }
 
 export function getDefaultContext(): ContextState {
