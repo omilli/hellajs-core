@@ -14,6 +14,7 @@ export type ContextState = {
 	rootStore: RootStore;
 	render: (element: HNode, rootSelector: string) => void;
 	diff: (element: HNode, rootSelector: string) => void;
+	elementPool?: Map<string, HTMLElement[]>;
 };
 
 export type GlobalContext = (Window & typeof globalThis) & {

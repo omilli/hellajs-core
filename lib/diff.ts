@@ -14,6 +14,7 @@ export function diff(
 	rootSelector: string,
 	context = getDefaultContext(),
 ): HTMLElement | Text | DocumentFragment {
+	// Cache selector results when possible
 	const rootElement = document.querySelector(rootSelector);
 	if (!rootElement) {
 		throw new Error(`Root element not found: ${rootSelector}`);
@@ -30,11 +31,13 @@ export function diff(
 			? (rootElement as HTMLElement)
 			: newElement;
 	} else {
-		// Compare existing children with new virtual DOM
-		const domChildren: (HTMLElement | Text)[] = [];
-		for (let i = 0; i < rootElement.childNodes.length; i++) {
-			domChildren.push(rootElement.childNodes[i] as HTMLElement | Text);
+		// Use direct property access instead of creating a new array
+		const childCount = rootElement.childNodes.length;
+		const domChildren = new Array(childCount);
+		for (let i = 0; i < childCount; i++) {
+			domChildren[i] = rootElement.childNodes[i] as HTMLElement | Text;
 		}
+
 		diffChildren(
 			domChildren,
 			[newHNode],
@@ -58,33 +61,43 @@ function diffNode(
 	rootSelector: string,
 	context: ContextState,
 ): HTMLElement | Text | DocumentFragment {
-	// Handle text nodes
-	if (typeof hNode === "string" || typeof hNode === "number") {
-		if (domNode.nodeType === Node.TEXT_NODE) {
+	// Handle text nodes - faster primitive type check
+	const hNodeType = typeof hNode;
+	if (hNodeType === "string" || hNodeType === "number") {
+		const nodeType = domNode.nodeType;
+		const hNodeStr = String(hNode);
+
+		if (nodeType === 3) {
+			// Use direct constant instead of Node.TEXT_NODE
 			// Update text content if different
-			if (domNode.textContent !== String(hNode)) {
-				domNode.textContent = String(hNode);
+			if (domNode.textContent !== hNodeStr) {
+				domNode.textContent = hNodeStr;
 			}
 			return domNode;
 		} else {
 			// Replace with a new text node
-			const newNode = document.createTextNode(String(hNode));
+			const newNode = document.createTextNode(hNodeStr);
 			parentElement.replaceChild(newNode, domNode);
 			return newNode;
 		}
 	}
 
+	const { type, children = [] } = hNode as HNode;
+
 	// Handle fragment (when type is undefined or null)
-	if (!hNode.type) {
-		if (domNode.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
-			// Update fragment contents
-			const domChildren: (HTMLElement | Text)[] = [];
-			for (let i = 0; i < domNode.childNodes.length; i++) {
-				domChildren.push(domNode.childNodes[i] as HTMLElement | Text);
+	if (!type) {
+		if (domNode.nodeType === 11) {
+			// Use direct constant (DocumentFragment)
+			// Update fragment contents - optimize array creation
+			const childCount = domNode.childNodes.length;
+			const domChildren = new Array(childCount);
+			for (let i = 0; i < childCount; i++) {
+				domChildren[i] = domNode.childNodes[i] as HTMLElement | Text;
 			}
+
 			diffChildren(
 				domChildren,
-				hNode.children || [],
+				children,
 				domNode as Element,
 				rootContext,
 				rootSelector,
@@ -92,22 +105,36 @@ function diffNode(
 			);
 			return domNode;
 		} else {
-			// Replace with a fragment
+			// Replace with a fragment - use document fragment for batch operation
 			const fragment = document.createDocumentFragment();
-			(hNode.children || []).forEach((child) => {
-				fragment.appendChild(renderNewElement(child, rootSelector, context));
-			});
+			const len = children.length;
+
+			for (let i = 0; i < len; i++) {
+				fragment.appendChild(
+					renderNewElement(children[i], rootSelector, context),
+				);
+			}
+
 			parentElement.replaceChild(fragment, domNode);
 			return fragment;
 		}
 	}
 
 	// Handle regular elements
-	if (domNode.nodeType === Node.ELEMENT_NODE) {
-		const element = domNode as HTMLElement;
-		// If node types match, update the element
-		if (element.tagName.toLowerCase() === hNode.type.toLowerCase()) {
-			return updateElement(element, hNode, rootContext, rootSelector, context);
+	if (domNode.nodeType === 1) {
+		// Use direct constant instead of Node.ELEMENT_NODE
+		// If node types match, update the element - use direct lowercase comparison when possible
+		if (
+			(domNode as HTMLElement).tagName.toLowerCase() ===
+			type.toLowerCase()
+		) {
+			return updateElement(
+				domNode as HTMLElement,
+				hNode as HNode,
+				rootContext,
+				rootSelector,
+				context,
+			);
 		}
 	}
 
@@ -127,13 +154,25 @@ function updateElement(
 	rootSelector: string,
 	context: ContextState,
 ): HTMLElement {
-	// Update props
-	updateProps(element, hNode.props || {});
+	const props = hNode.props || {};
 
-	// Update event handlers
-	const hasEventProps = Object.keys(hNode.props || {}).some((key) =>
-		key.startsWith("on"),
-	);
+	// Update props
+	updateProps(element, props);
+
+	// Update event handlers - use pre-check to avoid unnecessary work
+	const keys = Object.keys(props);
+	let hasEventProps = false;
+
+	// Micro-optimization: check for 'on' prefix using charCodeAt instead of startsWith
+	for (let i = 0, len = keys.length; i < len; i++) {
+		const key = keys[i];
+		if (key.charCodeAt(0) === 111 && key.charCodeAt(1) === 110) {
+			// 'o'=111, 'n'=110
+			hasEventProps = true;
+			break;
+		}
+	}
+
 	if (hasEventProps) {
 		if (!element.dataset.eKey) {
 			element.dataset.eKey = generateKey();
@@ -141,9 +180,11 @@ function updateElement(
 		delegateEvents(hNode, rootSelector, element.dataset.eKey);
 	}
 
-	const domChildren: (HTMLElement | Text)[] = [];
-	for (let i = 0; i < element.childNodes.length; i++) {
-		domChildren.push(element.childNodes[i] as HTMLElement | Text);
+	// Optimize DOM children collection with pre-allocated array
+	const childCount = element.childNodes.length;
+	const domChildren = new Array(childCount);
+	for (let i = 0; i < childCount; i++) {
+		domChildren[i] = element.childNodes[i] as HTMLElement | Text;
 	}
 
 	// Update children
@@ -170,17 +211,25 @@ function diffChildren(
 	rootSelector: string,
 	context: ContextState,
 ): void {
+	const domLen = domChildren.length;
+	const vdomLen = hNodeChildren.length;
+
 	// Handle case where we have more DOM children than virtual children
-	while (domChildren.length > hNodeChildren.length) {
-		parentElement.removeChild(parentElement.lastChild!);
-		domChildren.pop();
+	// Batch removals by removing from end to avoid layout thrashing
+	if (domLen > vdomLen) {
+		// Bulk removal is faster than one-by-one
+		const removeCount = domLen - vdomLen;
+		for (let i = 0; i < removeCount; i++) {
+			parentElement.removeChild(parentElement.lastChild!);
+		}
+		domChildren.length = vdomLen; // Truncate array directly
 	}
 
 	// Process each child
-	for (let i = 0; i < hNodeChildren.length; i++) {
+	for (let i = 0; i < vdomLen; i++) {
 		const hNodeChild = hNodeChildren[i];
 
-		if (i < domChildren.length) {
+		if (i < domLen) {
 			// Update existing node
 			diffNode(
 				domChildren[i],
@@ -192,8 +241,9 @@ function diffChildren(
 			);
 		} else {
 			// Add new node
-			const newNode = renderNewElement(hNodeChild, rootSelector, context);
-			parentElement.appendChild(newNode);
+			parentElement.appendChild(
+				renderNewElement(hNodeChild, rootSelector, context),
+			);
 		}
 	}
 }
@@ -202,46 +252,59 @@ function diffChildren(
  * Updates the props/attributes of an element
  */
 function updateProps(element: HTMLElement, props: HNode["props"] = {}): void {
-  // Use a more efficient Set-based approach for attributes
-  const attrsToRemove = new Set<string>();
-  
-  // Collect current attributes
-  for (let i = 0; i < element.attributes.length; i++) {
-    const attr = element.attributes[i];
-    if (!attr.name.startsWith("data-") && attr.name !== "class") {
-      attrsToRemove.add(attr.name);
-    }
-  }
-  
-  // Apply new props
-  propHandler(props, {
-    classProp(className) {
-      if (element.className !== className) {
-        element.className = className;
-      }
-      // No need to track class separately
-    },
-    boolProp(key) {
-      attrsToRemove.delete(key);
-      if (!element.hasAttribute(key)) {
-        element.setAttribute(key, "");
-      }
-    },
-    regularProp(key, value) {
-      attrsToRemove.delete(key);
-      const strValue = String(value);
-      if (element.getAttribute(key) !== strValue) {
-        element.setAttribute(key, strValue);
-      }
-    },
-  });
-  
-  // Remove attributes that are no longer present
-  attrsToRemove.forEach(attr => {
-    if (!attr.startsWith("on")) {
-      element.removeAttribute(attr);
-    }
-  });
+	// Use a more efficient Set-based approach for attributes
+	const attrsToRemove = new Set<string>();
+	const attrs = element.attributes;
+	const attrLen = attrs.length;
+
+	// Collect current attributes - use direct comparisons instead of startsWith
+	for (let i = 0; i < attrLen; i++) {
+		const attr = attrs[i];
+		const name = attr.name;
+		// Check if name starts with 'data-' without using startsWith
+		if (
+			!(
+				name.charCodeAt(0) === 100 &&
+				name.charCodeAt(1) === 97 &&
+				name.charCodeAt(2) === 116 &&
+				name.charCodeAt(3) === 97 &&
+				name.charCodeAt(4) === 45
+			) &&
+			name !== "class"
+		) {
+			attrsToRemove.add(name);
+		}
+	}
+
+	// Apply new props
+	propHandler(props, {
+		classProp(className) {
+			if (element.className !== className) {
+				element.className = className;
+			}
+		},
+		boolProp(key) {
+			attrsToRemove.delete(key);
+			if (!element.hasAttribute(key)) {
+				element.setAttribute(key, "");
+			}
+		},
+		regularProp(key, value) {
+			attrsToRemove.delete(key);
+			const strValue = String(value);
+			if (element.getAttribute(key) !== strValue) {
+				element.setAttribute(key, strValue);
+			}
+		},
+	});
+
+	// Remove attributes in bulk if possible
+	attrsToRemove.forEach((attr) => {
+		// Check if starts with 'on' without using startsWith
+		if (!(attr.charCodeAt(0) === 111 && attr.charCodeAt(1) === 110)) {
+			element.removeAttribute(attr);
+		}
+	});
 }
 
 /**
@@ -252,38 +315,55 @@ function renderNewElement(
 	rootSelector: string,
 	context: ContextState,
 ): HTMLElement | Text | DocumentFragment {
-	if (typeof hNode === "string" || typeof hNode === "number") {
+	const hNodeType = typeof hNode;
+	if (hNodeType === "string" || hNodeType === "number") {
 		return document.createTextNode(String(hNode));
 	}
 
-	if (!hNode.type) {
+	const { type, props = {}, children = [] } = hNode as HNode;
+
+	if (!(hNode as HNode).type) {
 		const fragment = document.createDocumentFragment();
-		(hNode.children || []).forEach((child) => {
-			const childElement = renderNewElement(child, rootSelector, context);
-			fragment.appendChild(childElement);
-		});
+		const len = children.length;
+
+		// Use for loop instead of forEach for better performance
+		for (let i = 0; i < len; i++) {
+			fragment.appendChild(
+				renderNewElement(children[i], rootSelector, context),
+			);
+		}
 		return fragment;
 	}
 
-	const element = document.createElement(hNode.type);
+	const element = document.createElement(type as string);
 
 	// Apply props
-	updateProps(element, hNode.props);
+	updateProps(element, props);
 
-	// Set up event handlers
-	const hasEventProps = Object.keys(hNode.props || {}).some((key) =>
-		key.startsWith("on"),
-	);
-	if (hasEventProps) {
-		element.dataset.eKey = generateKey();
-		delegateEvents(hNode, rootSelector, element.dataset.eKey);
+	// Set up event handlers - use same optimization as in updateElement
+	const keys = Object.keys(props);
+	let hasEventProps = false;
+
+	for (let i = 0, len = keys.length; i < len; i++) {
+		const key = keys[i];
+		if (key.charCodeAt(0) === 111 && key.charCodeAt(1) === 110) {
+			// 'o'=111, 'n'=110
+			hasEventProps = true;
+			break;
+		}
 	}
 
-	// Process children
-	(hNode.children || []).forEach((child) => {
-		const childElement = renderNewElement(child, rootSelector, context);
-		element.appendChild(childElement);
-	});
+	if (hasEventProps) {
+		element.dataset.eKey = generateKey();
+		delegateEvents(hNode as HNode, rootSelector, element.dataset.eKey);
+	}
+
+	// Process children - use for loop instead of forEach
+	const childLen = children.length;
+
+	for (let i = 0; i < childLen; i++) {
+		element.appendChild(renderNewElement(children[i], rootSelector, context));
+	}
 
 	return element;
 }
