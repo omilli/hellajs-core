@@ -2,7 +2,6 @@ import type { ContextState } from "../context";
 import { delegateEvents } from "../events";
 import type { HNode } from "../types";
 import { generateKey } from "../utils";
-import { storeElement } from "./store";
 import { propHandler } from "./utils";
 
 /**
@@ -60,7 +59,7 @@ function createDomElement(
 		return handleFragments(hNode, rootSelector, context);
 	}
 
-	const element = handleElement(hNode, rootSelector, context);
+	const element = document.createElement(type);
 
 	// Apply props to the element
 	handleProps(element, props);
@@ -83,19 +82,6 @@ function handleFragments(
 	const fragment = document.createDocumentFragment();
 	handleChildren(fragment, hNode, rootSelector, context);
 	return fragment;
-}
-
-function handleElement(
-	hNode: HNode,
-	rootSelector: string,
-	context: ContextState,
-) {
-	const element = document.createElement(hNode.type!) as HTMLElement;
-	const elementKey = generateKey();
-
-	storeElement(hNode, element, rootSelector, elementKey, context);
-
-	return element;
 }
 
 /**

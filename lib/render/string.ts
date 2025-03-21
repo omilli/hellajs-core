@@ -13,11 +13,6 @@ export function renderStringElement(hNode: HNode | string): string {
 		return escapeHTML(String(hNode));
 	}
 
-	// Handle raw HTML
-	if (hNode.rawHTML !== undefined) {
-		return hNode.rawHTML;
-	}
-
 	const { type, props, children } = hNode;
 
 	// Handle fragments (when type is undefined or null)
