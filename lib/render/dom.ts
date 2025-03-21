@@ -61,7 +61,7 @@ export function createDomElement(
 		return handleFragments(hNode, rootSelector, context);
 	}
 
-	const element = document.createElement(type) as HTMLElement
+	const element = document.createElement(type) as HTMLElement;
 
 	const elementKey = generateKey();
 
@@ -104,19 +104,16 @@ function handleChildren(
 	const { children = [] } = hNode;
 
 	// Create a document fragment to batch DOM operations
-	const fragment = document.createDocumentFragment();
+	let fragment = document.createDocumentFragment();
 
 	if (children.length > 10) {
-		fragment.appendChild(handleLargeRender(hNode));
+		fragment = handleLargeRender(hNode);
 	} else {
 		children.forEach((child) => {
 			const childElement = createDomElement(child, rootSelector, context);
 			fragment.appendChild(childElement);
 		});
 	}
-
-
-	
 
 	// Append all children in one operation
 	element.appendChild(fragment);
@@ -125,10 +122,7 @@ function handleChildren(
 /**
  * Sets HTML attributes and properties on a DOM element
  */
-function handleProps(
-	element: HTMLElement,
-	props: HNode["props"] = {},
-): void {
+function handleProps(element: HTMLElement, props: HNode["props"] = {}): void {
 	propHandler(props, {
 		classProp(className) {
 			element.className = className;
@@ -154,29 +148,40 @@ function handleEventProps(
 	if (eventProps.length > 0) {
 		element.dataset.eKey = generateKey();
 		eventProps.forEach(() =>
-			delegateEvents(
-				hNode,
-				rootSelector,
-				element.dataset.eKey as string,
-			),
+			delegateEvents(hNode, rootSelector, element.dataset.eKey as string),
 		);
 	}
 }
 
+function check(node: HNode | string) {
+	if (typeof node === "string") return;
+
+	node.props = {
+		...node.props,
+		...({
+			"data-h-key": generateKey(),
+		} as HNode["props"]),
+	};
+
+	(node.children || []).forEach((child) => {
+		check(child);
+	});
+}
+
 function handleLargeRender(hNode: HNode): DocumentFragment {
-  const htmlString = renderStringElement(hNode);
-  const element = document.createDocumentFragment();
-  
-  const template = document.createElement('template');
-  template.innerHTML = htmlString;
-  
-  if (template.content.childNodes.length > 0) {
-		template.content.childNodes.forEach((node) => {
-			node.childNodes.forEach((childNode) => {
-				element.append(childNode);
-			});
+	
+	check(hNode);
+
+	const htmlString = renderStringElement(hNode);
+	const element = document.createDocumentFragment();
+
+	const template = document.createElement("template");
+	template.innerHTML = htmlString;
+
+	if (template.content.childNodes.length > 0) {
+		template.content.childNodes[0].childNodes.forEach((childNode) => {
+			element.append(childNode);
 		});
-  }
-	  
-  return element;
+	}
+	return element;
 }

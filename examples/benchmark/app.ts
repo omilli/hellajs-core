@@ -42,7 +42,6 @@ const dataTable = () => table({ className: "table table-hover table-striped test
       tr({
           "data-id": item.id.toString(),
           className: state.selected === item.id ? "danger" : "",
-          key: item.id,
         },
         td({ className: "col-md-1" }, item.id.toString()),
         td({ className: "col-md-4" },

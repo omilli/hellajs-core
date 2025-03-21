@@ -31,21 +31,21 @@ export function renderStringElement(hNode: HNode | string): string {
  *
  */
 function handleProps(props: HNode["props"] = {}) {
-	let html = ``;
+	const html: string[] = [];
 
 	propHandler(props, {
 		classProp(className) {
-			html += ` class="${escapeHTML(className)}"`;
+			html.push(` class="${escapeHTML(className)}"`);
 		},
 		boolProp(key) {
-			html += ` ${key}`;
+			html.push(` ${key}`);
 		},
 		regularProp(key, value) {
-			html += ` ${key}="${escapeHTML(String(value))}"`;
+			html.push(` ${key}="${escapeHTML(String(value))}"`);
 		},
 	});
 
-	return html;
+	return html.join("");
 }
 
 /**
@@ -55,11 +55,14 @@ function handleProps(props: HNode["props"] = {}) {
  * @param children - Array of child elements to be rendered and appended
  */
 function handleChildren(children: HNode["children"] = []) {
-	let html = "";
+	if (!children || children.length === 0) return "";
 
-	children.forEach((child) => {
-		html += renderStringElement(child);
-	});
+	// Pre-allocate array for better performance
+	const html = new Array(children.length);
 
-	return html;
+	for (let i = 0; i < children.length; i++) {
+		html[i] = renderStringElement(children[i]);
+	}
+
+	return html.join("");
 }

@@ -25,14 +25,8 @@ export function render(
 	// Client environment
 	const rootElement = getRootElement(rootSelector);
 	rootSelector = rootSelector!;
-	
 
-	const element = renderDomElement(
-		hNode,
-		rootElement,
-		rootSelector,
-		context,
-	);
+	const element = renderDomElement(hNode, rootElement, rootSelector, context);
 
 	return {
 		element,
