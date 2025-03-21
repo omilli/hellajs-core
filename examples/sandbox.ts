@@ -1,37 +1,44 @@
-import { createContext } from "../lib/context";
+import { component } from "../lib/component";
+import { state } from "../lib/state";
 
-// console.log(renderStringElement({
-//   props: {
-//     className: "foo"
-//   },
-//   children: [
-//     {
-//       type: "div",
-//       children:["Hello"]
-//     },
-//     "Hi",
-//   ]
-// }))
+const myState = state({
+  count: 1,
+});
 
-const ctx = createContext("foo");
+console.log(myState.count)
 
+function increment() {
+  myState.count = myState.count + 1;
+  console.log(myState.count)
+}
 
-ctx.render({
+function decrement() {
+  myState.count = myState.count - 1;
+  console.log(myState.count)
+}
+
+component(myState, () => ({
   type: "div",
-  props: {
-    className: "foo",
-    onclick(e, el) {
-      console.log(e, el);
-    },
-  },
   children: [
     {
-      type: "p",
-      children:["Hello"]
+      type: "button",
+      props: {
+        onclick: increment,
+      },
+      children: ["Increment"]
     },
+    {
+      type: "button",
+      props: {
+        onclick: decrement,
+      },
+      children: ["Decrement"]
+    },
+    {
+      type: "p",
+      children: [myState.count]
+    }
   ]
-}, "#root");
-
-console.log(ctx)
+}));
 
 

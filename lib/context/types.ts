@@ -8,6 +8,7 @@ export type RootContext = {
 			hNode: HNode;
 		}
 	>;
+	state: Record<string, unknown>;
 	events: {
 		delegates: Set<string>;
 		listeners: Map<string, Map<string, EventFn>>;

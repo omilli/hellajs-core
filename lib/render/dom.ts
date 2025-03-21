@@ -46,12 +46,12 @@ export function renderDomElement(
  * @returns The created HTMLElement, Text node, or DocumentFragment.
  */
 export function createDomElement(
-	hnode: HNode | string,
+	hnode: HNode | string | number,
 	rootSelector: string,
 	context: ContextState,
 ): HTMLElement | Text | DocumentFragment {
-	if (typeof hnode === "string") {
-		return document.createTextNode(hnode);
+	if (typeof hnode === "string" || typeof hnode === "number") {
+		return document.createTextNode(String(hnode));
 	}
 
 	const { type, props = {}, children = [] } = hnode;

@@ -45,6 +45,7 @@ export function getRootContext(
 				delegates: new Set(),
 				listeners: new Map(),
 			},
+			state: {},
 		});
 	}
 
