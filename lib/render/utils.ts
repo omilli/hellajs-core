@@ -1,4 +1,4 @@
-import type { HellaElementProps } from "../types";
+import type { HNodeProps } from "../types";
 import type { RenderPropHandler } from "./types";
 
 /**
@@ -45,7 +45,7 @@ export function escapeHTML(str: string): string {
  * @param options - Handler callbacks for different property types
  */
 export function propHandler(
-	props: HellaElementProps,
+	props: HNodeProps,
 	{ classProp, boolProp, regularProp }: RenderPropHandler,
 ) {
 	Object.entries(props).forEach(([key, value]) => {

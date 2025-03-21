@@ -1,17 +1,17 @@
 import { getDefaultContext } from "../context";
 import { delegateEvents } from "../events";
-import type { HellaElement } from "../types";
+import type { HNode } from "../types";
 import { generateKey } from "../utils";
 import { storeElement } from "./store";
-import type { RenderDomArgs, RenderReturnElement } from "./types";
+import type { RenderDomArgs, RenderedElement } from "./types";
 import { propHandler } from "./utils";
 
 const getDomArgs = (args: RenderDomArgs) =>
 	({
 		...{
-			hellaElement: {},
+			hNode: {},
 			rootElement: document.body,
-			domElement: document.createDocumentFragment(),
+			element: document.createDocumentFragment(),
 			rootSelector: "body",
 			context: getDefaultContext(),
 		},
@@ -19,107 +19,107 @@ const getDomArgs = (args: RenderDomArgs) =>
 	}) as Required<RenderDomArgs>;
 
 /**
- * Renders a HellaElement or string into the specified container.
+ * Renders a HNode or string into the specified container.
  *
- * @param hellaElement - The element to render, which can be a HellaElement object or a string
+ * @param hNode - The element to render, which can be a HNode object or a string
  * @param container - The DOM element that will contain the rendered element
  * @returns The rendered DOM element (HTMLElement) or text node (Text)
  */
-export function renderDomElement(args: RenderDomArgs): RenderReturnElement {
-	const { hellaElement, rootElement, rootSelector, context } = getDomArgs(args);
+export function renderDomElement(args: RenderDomArgs): RenderedElement {
+	const { hNode, rootElement, rootSelector, context } = getDomArgs(args);
 
 	if (!rootElement) {
 		throw new Error("Root element is required");
 	}
 
-	const domElement = createDomElement({ hellaElement, rootSelector, context });
+	const element = createDomElement({ hNode, rootSelector, context });
 
 	// Clear container more efficiently than using innerHTML
 	rootElement.textContent = "";
 
 	// Append the new element
-	if (domElement instanceof DocumentFragment) {
-		rootElement.appendChild(domElement);
+	if (element instanceof DocumentFragment) {
+		rootElement.appendChild(element);
 		// Return the container as we can't return the fragment after it's been appended
 		return rootElement as HTMLElement;
 	} else {
-		rootElement.appendChild(domElement);
-		return domElement;
+		rootElement.appendChild(element);
+		return element;
 	}
 }
 
 /**
- * Creates a DOM element based on a HellaElement or a string.
+ * Creates a DOM element based on a HNode or a string.
  *
  * If the input is a string, it creates aexport { events } from "./events";
  text node.
- * If the input is a HellaElement, it creates an element of the specified type,
+ * If the input is a HNode, it creates an element of the specified type,
  * applies the given properties, and processes any children.
  *
- * @param hellaElement - The HellaElement or string to create the DOM element from.
+ * @param hNode - The HNode or string to create the DOM element from.
  * @returns The created HTMLElement, Text node, or DocumentFragment.
  */
-export function createDomElement(args: RenderDomArgs): RenderReturnElement {
-	const { hellaElement, rootSelector, context } = getDomArgs(args);
+export function createDomElement(args: RenderDomArgs): RenderedElement {
+	const { hNode, rootSelector, context } = getDomArgs(args);
 
-	if (typeof hellaElement === "string") {
-		return document.createTextNode(hellaElement);
+	if (typeof hNode === "string") {
+		return document.createTextNode(hNode);
 	}
 
-	const { type } = hellaElement;
+	const { type } = hNode;
 
 	if (!type) {
-		return handleFragments({ hellaElement, rootSelector, context });
+		return handleFragments({ hNode, rootSelector, context });
 	}
 
-	// Create a DOM element based on the HellaElement's type
-	const domElement = document.createElement(type) as HTMLElement;
+	// Create a DOM element based on the HNode's type
+	const element = document.createElement(type) as HTMLElement;
 
 	const elementKey = generateKey();
 
-	domElement.dataset.hKey = elementKey;
+	element.dataset.hKey = elementKey;
 
 	storeElement({
 		context,
-		domElement,
+		element,
 		elementKey,
-		hellaElement,
+		hNode,
 		rootSelector,
 	});
 
 	// Apply props to the element
-	handleProps({domElement, hellaElement});
+	handleProps({element, hNode});
 
 	// Set up event handlers
-	handleEvents(domElement, hellaElement, rootSelector);
+	handleEvents(element, hNode, rootSelector);
 
 	// Process and render any children
-	handleChildren({ domElement, hellaElement, rootSelector, context });
+	handleChildren({ element, hNode, rootSelector, context });
 
-	return domElement;
+	return element;
 }
 
 function handleFragments(args: RenderDomArgs): DocumentFragment {
-	const { hellaElement, rootSelector, context } = getDomArgs(args);
-	const domElement = document.createDocumentFragment();
+	const { hNode, rootSelector, context } = getDomArgs(args);
+	const element = document.createDocumentFragment();
 
-	handleChildren({ domElement, hellaElement, rootSelector, context });
+	handleChildren({ element, hNode, rootSelector, context });
 
-	return domElement;
+	return element;
 }
 
 /**
  * Appends rendered child elements to the specified DOM element.
  */
 function handleChildren(args: RenderDomArgs) {
-	const { hellaElement, rootSelector, context, domElement } = getDomArgs(args);
+	const { hNode, rootSelector, context, element } = getDomArgs(args);
 
 	// Create a document fragment to batch DOM operations
 	const fragment = document.createDocumentFragment();
 
-	(hellaElement as HellaElement).children?.forEach((child) => {
+	(hNode as HNode).children?.forEach((child) => {
 		const childElement = createDomElement({
-			hellaElement: child,
+			hNode: child,
 			rootSelector,
 			context,
 		});
@@ -127,7 +127,7 @@ function handleChildren(args: RenderDomArgs) {
 	});
 
 	// Append all children in one operation
-	domElement.appendChild(fragment);
+	element.appendChild(fragment);
 }
 
 /**
@@ -136,36 +136,36 @@ function handleChildren(args: RenderDomArgs) {
 function handleProps(
 	args: RenderDomArgs
 ): void {
-	const { hellaElement, domElement } = getDomArgs(args);
-	propHandler((hellaElement as HellaElement).props || {}, {
+	const { hNode, element } = getDomArgs(args);
+	propHandler((hNode as HNode).props || {}, {
 		classProp(className) {
-			(domElement as HTMLElement).className = className;
+			(element as HTMLElement).className = className;
 		},
 		boolProp(key) {
-			(domElement as HTMLElement).setAttribute(key, "");
+			(element as HTMLElement).setAttribute(key, "");
 		},
 		regularProp(key, value) {
-			(domElement as HTMLElement).setAttribute(key, String(value));
+			(element as HTMLElement).setAttribute(key, String(value));
 		},
 	});
 }
 
 function handleEvents(
-	domElement: HTMLElement,
-	hellaElement: HellaElement,
+	element: HTMLElement,
+	hNode: HNode,
 	rootSelector: string,
 ): void {
-	const eventProps = Object.entries(hellaElement.props || {}).filter(([key]) =>
+	const eventProps = Object.entries(hNode.props || {}).filter(([key]) =>
 		key.startsWith("on"),
 	);
 
 	if (eventProps.length > 0) {
-		domElement.dataset.eKey = generateKey();
+		element.dataset.eKey = generateKey();
 		eventProps.forEach(() =>
 			delegateEvents(
-				hellaElement,
+				hNode,
 				rootSelector,
-				domElement.dataset.eKey as string,
+				element.dataset.eKey as string,
 			),
 		);
 	}

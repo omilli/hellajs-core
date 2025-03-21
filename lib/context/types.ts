@@ -1,11 +1,11 @@
-import type { EventFn, HellaElement } from "../types";
+import type { EventFn, HNode } from "../types";
 
 export type RootContext = {
 	elements: Map<
 		string,
 		{
-			domElement: HTMLElement | Text | DocumentFragment;
-			hellaElement: HellaElement;
+			element: HTMLElement | Text | DocumentFragment;
+			hNode: HNode;
 		}
 	>;
 	events: {
@@ -19,7 +19,7 @@ export type RootStore = Map<string, RootContext>;
 export type ContextState = {
 	id: string;
 	rootStore: RootStore;
-	render: (element: HellaElement, rootSelector: string) => void;
+	render: (element: HNode, rootSelector: string) => void;
 };
 
 export type GlobalContext = (Window & typeof globalThis) & {

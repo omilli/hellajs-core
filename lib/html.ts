@@ -1,8 +1,8 @@
-import type { HTMLTagName, HellaElement, HellaElementProps } from "./types";
+import type { HTMLTagName, HNode, HNodeProps } from "./types";
 
-function createElement(type: HTMLTagName): (...args: any[]) => HellaElement {
+function createElement(type: HTMLTagName): (...args: any[]) => HNode {
 	return (...args: any[]) => {
-		const props: HellaElementProps =
+		const props: HNodeProps =
 			args[0] &&
 			typeof args[0] === "object" &&
 			!Array.isArray(args[0]) &&
@@ -35,7 +35,7 @@ export const html = new Proxy(
 	{},
 	{
 		get: (
-			target: Record<string, (...args: any[]) => HellaElement>,
+			target: Record<string, (...args: any[]) => HNode>,
 			prop: HTMLTagName,
 		) => {
 			// Return cached function if it exists

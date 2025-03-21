@@ -1,5 +1,5 @@
 import type { ContextState } from "../context";
-import type { HellaElement } from "../types";
+import type { HNode } from "../types";
 
 export type RenderPropHandler = {
 	classProp(className: string): void;
@@ -8,11 +8,16 @@ export type RenderPropHandler = {
 };
 
 export type RenderDomArgs = {
-	hellaElement?: HellaElement | string;
+	hNode?: HNode | string;
 	rootElement?: Element;
-	domElement?: RenderReturnElement;
+	element?: RenderedElement;
 	rootSelector?: string;
 	context?: ContextState;
 };
 
-export type RenderReturnElement = HTMLElement | Text | DocumentFragment;
+export type RenderedElement = HTMLElement | Text | DocumentFragment;
+
+export interface RenderedNode {
+	element: DocumentFragment | HTMLElement | Text;
+	hNode: HNode;
+}

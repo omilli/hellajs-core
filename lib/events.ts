@@ -1,5 +1,5 @@
 import { getRootContext } from "./context";
-import type { EventFn, HellaElement } from "./types";
+import type { EventFn, HNode } from "./types";
 
 /**
  * Extracts event handlers from props and stores them in the eventStore
@@ -11,16 +11,16 @@ import type { EventFn, HellaElement } from "./types";
  */
 
 export function delegateEvents(
-	hellaElement: HellaElement,
+	hNode: HNode,
 	rootSelector: string,
 	elementKey: string,
 ) {
-	if (!hellaElement.props) {
+	if (!hNode.props) {
 		return;
 	}
 
 	// For each property that starts with "on" (e.g., onClick, onChange)
-	Object.entries(hellaElement.props).forEach(([key, value]) => {
+	Object.entries(hNode.props).forEach(([key, value]) => {
 		if (key.startsWith("on") && typeof value === "function") {
 			// Extract event name (e.g., "click" from "onClick")
 			const eventName = key.slice(2).toLowerCase();
