@@ -1,5 +1,5 @@
 import { render } from "../lib";
-import { getRootContext } from "../lib/context";
+import { createContext, getRootContext } from "../lib/context";
 import { renderStringElement } from "../lib/render";
 
 // console.log(renderStringElement({
@@ -15,8 +15,10 @@ import { renderStringElement } from "../lib/render";
 //   ]
 // }))
 
+const ctx = createContext("foo");
 
-render({
+
+ctx.render({
   type: "div",
   props: {
     className: "foo",
@@ -32,4 +34,6 @@ render({
   ]
 }, "#root");
 
-console.log(getRootContext("#root"));
+console.log(ctx)
+
+

@@ -1,49 +1,49 @@
+import { render } from "../render";
+import type { HellaElement } from "../types";
 import { generateKey } from "../utils";
-import { contextStore, getCurrentContext } from "./store";
-import { ContextState, RootContext } from "./types";
+import type { ContextState, RootContext } from "./types";
 import { getGlobalThis } from "./utils";
 
-const CONTEXT_KEY = "domContext";
+export const contextStore: Map<string, ContextState> = new Map();
 
 export function createContext(id?: string): ContextState {
-  id ??= `hella-dom-${generateKey()}`;
+	id ??= `hella-dom-${generateKey()}`;
 
-  contextStore.set(id, {
-    id,
-    root: new Map(),
-  });
+	contextStore.set(id, {
+		id,
+		rootStore: new Map(),
+		render(hellaElement: HellaElement, rootSelector?: string) {
+			return render(hellaElement, rootSelector, this);
+		},
+	});
 
-  return contextStore.get(id)!;
+	return contextStore.get(id)!;
 }
 
-export function getContext(): ContextState {
-  const currentContext = getCurrentContext();
+export function getDefaultContext(): ContextState {
+	const context = getGlobalThis();
+	const key = "domContext";
 
-  if (currentContext) {
-    return currentContext;
-  }
+	if (!context[key]) {
+		context[key] = createContext();
+	}
 
-  const context = getGlobalThis();
-
-  if (!context[CONTEXT_KEY]) {
-    context[CONTEXT_KEY] = createContext();
-  }
-
-  return context[CONTEXT_KEY] as ContextState;
+	return context[key];
 }
 
-export function getRootContext(rootSelector: string): RootContext {
-  const ctx = getContext();
+export function getRootContext(
+	rootSelector: string,
+	context = getDefaultContext(),
+): RootContext {
+	if (!context.rootStore.has(rootSelector)) {
+		context.rootStore.set(rootSelector, {
+			elements: new Map(),
+			events: {
+				delegates: new Set(),
+				listeners: new Map(),
+			},
+		});
+	}
 
-  if (!ctx.root.has(rootSelector)) {
-    ctx.root.set(rootSelector, {
-      elements: new Map(),
-      events: {
-        delegates: new Set(),
-        listeners: new Map(),
-      },
-    });
-  }
-
-  return ctx.root.get(rootSelector)!;
+	return context.rootStore.get(rootSelector)!;
 }

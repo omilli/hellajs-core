@@ -18,7 +18,8 @@ export type RootStore = Map<string, RootContext>;
 
 export type ContextState = {
 	id: string;
-	root: RootStore;
+	rootStore: RootStore;
+	render: (element: HellaElement, rootSelector: string) => void;
 };
 
 export type GlobalContext = (Window & typeof globalThis) & {

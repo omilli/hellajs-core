@@ -1,8 +1,22 @@
+import { getDefaultContext } from "../context";
 import { delegateEvents } from "../events";
 import type { HellaElement } from "../types";
 import { generateKey } from "../utils";
 import { storeElement } from "./store";
+import type { RenderDomArgs, RenderReturnElement } from "./types";
 import { propHandler } from "./utils";
+
+const getDomArgs = (args: RenderDomArgs) =>
+	({
+		...{
+			hellaElement: {},
+			rootElement: document.body,
+			domElement: document.createDocumentFragment(),
+			rootSelector: "body",
+			context: getDefaultContext(),
+		},
+		...args,
+	}) as Required<RenderDomArgs>;
 
 /**
  * Renders a HellaElement or string into the specified container.
@@ -11,23 +25,25 @@ import { propHandler } from "./utils";
  * @param container - The DOM element that will contain the rendered element
  * @returns The rendered DOM element (HTMLElement) or text node (Text)
  */
-export function renderDomElement(
-	hellaElement: HellaElement,
-	container: Element,
-	rootSelector: string,
-): HTMLElement | Text | DocumentFragment {
-	const domElement = createDomElement(hellaElement, rootSelector);
+export function renderDomElement(args: RenderDomArgs): RenderReturnElement {
+	const { hellaElement, rootElement, rootSelector, context } = getDomArgs(args);
+
+	if (!rootElement) {
+		throw new Error("Root element is required");
+	}
+
+	const domElement = createDomElement({ hellaElement, rootSelector, context });
 
 	// Clear container more efficiently than using innerHTML
-	container.textContent = "";
+	rootElement.textContent = "";
 
 	// Append the new element
 	if (domElement instanceof DocumentFragment) {
-		container.appendChild(domElement);
+		rootElement.appendChild(domElement);
 		// Return the container as we can't return the fragment after it's been appended
-		return container as HTMLElement;
+		return rootElement as HTMLElement;
 	} else {
-		container.appendChild(domElement);
+		rootElement.appendChild(domElement);
 		return domElement;
 	}
 }
@@ -43,18 +59,17 @@ export function renderDomElement(
  * @param hellaElement - The HellaElement or string to create the DOM element from.
  * @returns The created HTMLElement, Text node, or DocumentFragment.
  */
-export function createDomElement(
-	hellaElement: HellaElement | string,
-	rootSelector: string,
-): HTMLElement | Text | DocumentFragment {
+export function createDomElement(args: RenderDomArgs): RenderReturnElement {
+	const { hellaElement, rootSelector, context } = getDomArgs(args);
+
 	if (typeof hellaElement === "string") {
 		return document.createTextNode(hellaElement);
 	}
 
-	const { type, props = {}, children = [] } = hellaElement;
+	const { type, props } = hellaElement;
 
 	if (!type) {
-		return handleFragments(children, rootSelector);
+		return handleFragments({ hellaElement, rootSelector, context });
 	}
 
 	// Create a DOM element based on the HellaElement's type
@@ -65,6 +80,7 @@ export function createDomElement(
 	domElement.dataset.hKey = elementKey;
 
 	storeElement({
+		context,
 		domElement,
 		elementKey,
 		hellaElement,
@@ -78,34 +94,35 @@ export function createDomElement(
 	handleEventProps(domElement, hellaElement, rootSelector);
 
 	// Process and render any children
-	handleChildren(domElement, children, rootSelector);
+	handleChildren({ domElement, hellaElement, rootSelector, context });
 
 	return domElement;
 }
 
-function handleFragments(
-	children: HellaElement["children"],
-	rootSelector: string,
-): DocumentFragment {
-	// Handle fragments (when type is undefined or null)
-	const fragment = document.createDocumentFragment();
-	handleChildren(fragment, children, rootSelector);
-	return fragment;
+function handleFragments(args: RenderDomArgs): DocumentFragment {
+	const { hellaElement, rootSelector, context } = getDomArgs(args);
+	const domElement = document.createDocumentFragment();
+
+	handleChildren({ domElement, hellaElement, rootSelector, context });
+
+	return domElement;
 }
 
 /**
  * Appends rendered child elements to the specified DOM element.
  */
-function handleChildren(
-	domElement: HTMLElement | DocumentFragment,
-	hellaChildren: HellaElement["children"] = [],
-	rootSelector: string,
-) {
+function handleChildren(args: RenderDomArgs) {
+	const { hellaElement, rootSelector, context, domElement } = getDomArgs(args);
+
 	// Create a document fragment to batch DOM operations
 	const fragment = document.createDocumentFragment();
 
-	hellaChildren.forEach((child) => {
-		const childElement = createDomElement(child, rootSelector);
+	(hellaElement as HellaElement).children?.forEach((child) => {
+		const childElement = createDomElement({
+			hellaElement: child,
+			rootSelector,
+			context,
+		});
 		fragment.appendChild(childElement);
 	});
 
