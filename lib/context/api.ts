@@ -1,5 +1,4 @@
 import { render } from "../render";
-import type { HellaElement } from "../types";
 import { generateKey } from "../utils";
 import type { ContextState, RootContext } from "./types";
 import { getGlobalThis } from "./utils";
@@ -12,8 +11,8 @@ export function createContext(id?: string): ContextState {
 	contextStore.set(id, {
 		id,
 		rootStore: new Map(),
-		render(hellaElement: HellaElement, rootSelector?: string) {
-			return render(hellaElement, rootSelector, this);
+		render(...args) {
+			return render(...args, this);
 		},
 	});
 
