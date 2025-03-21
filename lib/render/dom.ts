@@ -91,7 +91,7 @@ export function createDomElement(args: RenderDomArgs): RenderedElement {
 	handleProps({element, hNode});
 
 	// Set up event handlers
-	handleEvents(element, hNode, rootSelector);
+	handleEvents({element, hNode, rootSelector});
 
 	// Process and render any children
 	handleChildren({ element, hNode, rootSelector, context });
@@ -112,12 +112,13 @@ function handleFragments(args: RenderDomArgs): DocumentFragment {
  * Appends rendered child elements to the specified DOM element.
  */
 function handleChildren(args: RenderDomArgs) {
-	const { hNode, rootSelector, context, element } = getDomArgs(args);
-
+	let { hNode, rootSelector, context, element } = getDomArgs(args);
+	hNode = hNode as HNode
+	
 	// Create a document fragment to batch DOM operations
 	const fragment = document.createDocumentFragment();
 
-	(hNode as HNode).children?.forEach((child) => {
+	hNode.children?.forEach((child) => {
 		const childElement = createDomElement({
 			hNode: child,
 			rootSelector,
@@ -136,25 +137,30 @@ function handleChildren(args: RenderDomArgs) {
 function handleProps(
 	args: RenderDomArgs
 ): void {
-	const { hNode, element } = getDomArgs(args);
-	propHandler((hNode as HNode).props || {}, {
+	let { hNode, element } = getDomArgs(args);
+	hNode = hNode as HNode
+	element = element as HTMLElement
+
+	propHandler(hNode.props || {}, {
 		classProp(className) {
-			(element as HTMLElement).className = className;
+			element.className = className;
 		},
 		boolProp(key) {
-			(element as HTMLElement).setAttribute(key, "");
+			element.setAttribute(key, "");
 		},
 		regularProp(key, value) {
-			(element as HTMLElement).setAttribute(key, String(value));
+			element.setAttribute(key, String(value));
 		},
 	});
 }
 
 function handleEvents(
-	element: HTMLElement,
-	hNode: HNode,
-	rootSelector: string,
+	args: RenderDomArgs
 ): void {
+	let { hNode, element, rootSelector } = getDomArgs(args);
+	hNode = hNode as HNode;
+	element = element as HTMLElement;
+
 	const eventProps = Object.entries(hNode.props || {}).filter(([key]) =>
 		key.startsWith("on"),
 	);
