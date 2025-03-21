@@ -30,6 +30,9 @@ export function getRootElement(rootSelector?: string): Element {
  * @returns The escaped HTML string
  */
 export function escapeHTML(str: string): string {
+	// Only process strings that need escaping
+	if (!/[&<>"']/.test(str)) return str;
+
 	return str
 		.replace(/&/g, "&amp;")
 		.replace(/</g, "&lt;")

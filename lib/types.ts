@@ -23,6 +23,7 @@ export interface HNodeBase {
 	type: HTMLTagName;
 	props?: HNodeProps;
 	children?: (HNode | string)[];
+	rawHTML?: string;
 }
 
 export type HNode = Partial<HNodeBase>;

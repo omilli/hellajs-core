@@ -57,6 +57,18 @@ export function createDomElement(
 
 	const { type, props = {} } = hNode;
 
+	if (hNode.rawHTML !== undefined) {
+		const template = document.createElement("template");
+		template.innerHTML = hNode.rawHTML;
+		const fragment = document.createDocumentFragment();
+
+		while (template.content.firstChild) {
+			fragment.appendChild(template.content.firstChild);
+		}
+
+		return fragment;
+	}
+
 	if (!type) {
 		return handleFragments(hNode, rootSelector, context);
 	}
@@ -106,8 +118,8 @@ function handleChildren(
 	// Create a document fragment to batch DOM operations
 	let fragment = document.createDocumentFragment();
 
-	if (children.length > 10) {
-		fragment = handleLargeRender(hNode);
+	if (children.length > 99) {
+		fragment = handleLargeRender(hNode, rootSelector, context);
 	} else {
 		children.forEach((child) => {
 			const childElement = createDomElement(child, rootSelector, context);
@@ -147,31 +159,54 @@ function handleEventProps(
 
 	if (eventProps.length > 0) {
 		element.dataset.eKey = generateKey();
-		eventProps.forEach(() =>
-			delegateEvents(hNode, rootSelector, element.dataset.eKey as string),
-		);
+		delegateEvents(hNode, rootSelector, element.dataset.eKey as string);
 	}
 }
 
-function check(node: HNode | string) {
-	if (typeof node === "string") return;
+function attachKey(hNode: HNode | string, rootSelector: string) {
+	if (typeof hNode === "string") return;
 
-	node.props = {
-		...node.props,
+	const hKey = generateKey();
+	let eKey: string | undefined;
+
+	hNode.props = {
+		...hNode.props,
 		...({
-			"data-h-key": generateKey(),
+			"data-h-key": hKey,
 		} as HNode["props"]),
 	};
 
-	(node.children || []).forEach((child) => {
-		check(child);
+	const eventProps = Object.entries(hNode.props || {}).filter(([key]) =>
+		key.startsWith("on"),
+	);
+
+	if (eventProps.length > 0) {
+		eKey = generateKey();
+		hNode.props = {
+			...hNode.props,
+			...({
+				"data-e-key": eKey,
+			} as HNode["props"]),
+		};
+		delegateEvents(hNode, rootSelector, eKey as string);
+	}
+
+	(hNode.children || []).forEach((child) => {
+		attachKey(child, rootSelector);
 	});
+
+	return {
+		hKey,
+		eKey,
+	};
 }
 
-function handleLargeRender(hNode: HNode): DocumentFragment {
-	
-	check(hNode);
-
+function handleLargeRender(
+	hNode: HNode,
+	rootSelector: string,
+	context: ContextState,
+): DocumentFragment {
+	const { hKey, eKey } = attachKey(hNode, rootSelector) || {};
 	const htmlString = renderStringElement(hNode);
 	const element = document.createDocumentFragment();
 
@@ -183,5 +218,10 @@ function handleLargeRender(hNode: HNode): DocumentFragment {
 			element.append(childNode);
 		});
 	}
+
+	if (hKey) {
+		storeElement(context, rootSelector, hKey, element, hNode);
+	}
+
 	return element;
 }

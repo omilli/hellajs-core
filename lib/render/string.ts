@@ -13,6 +13,11 @@ export function renderStringElement(hNode: HNode | string): string {
 		return escapeHTML(String(hNode));
 	}
 
+	// Handle raw HTML
+	if (hNode.rawHTML !== undefined) {
+		return hNode.rawHTML;
+	}
+
 	const { type, props, children } = hNode;
 
 	// Handle fragments (when type is undefined or null)
@@ -20,7 +25,12 @@ export function renderStringElement(hNode: HNode | string): string {
 		return handleChildren(children);
 	}
 
-	return `<${type}${handleProps(props)}>${handleChildren(children)}</${type}>`;
+	const html: string[] = [];
+	html.push(`<${type}${handleProps(props)}>`);
+	html.push(handleChildren(children));
+	html.push(`</${type}>`);
+
+	return html.join("");
 }
 
 /**
