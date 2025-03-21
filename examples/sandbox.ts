@@ -1,6 +1,4 @@
-import { render } from "../lib";
-import { createContext, getRootContext } from "../lib/context";
-import { renderStringElement } from "../lib/render";
+import { createContext } from "../lib/context";
 
 // console.log(renderStringElement({
 //   props: {

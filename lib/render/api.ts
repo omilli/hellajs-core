@@ -2,7 +2,7 @@ import { getDefaultContext } from "../context";
 import type { HNode } from "../types";
 import { renderDomElement } from "./dom";
 import { renderStringElement } from "./string";
-import { RenderedNode } from "./types";
+import type { RenderedNode } from "./types";
 import { getRootElement } from "./utils";
 
 /**
@@ -26,12 +26,12 @@ export function render(
 	const rootElement = getRootElement(rootSelector);
 	rootSelector = rootSelector!;
 
-	const element = renderDomElement({
+	const element = renderDomElement(
 		hNode,
 		rootElement,
 		rootSelector,
 		context,
-	});
+	);
 
 	return {
 		element,

@@ -1,38 +1,24 @@
-import { getDefaultContext } from "../context";
+import type { ContextState } from "../context";
 import { delegateEvents } from "../events";
 import type { HNode } from "../types";
 import { generateKey } from "../utils";
 import { storeElement } from "./store";
-import type { RenderDomArgs, RenderedElement } from "./types";
 import { propHandler } from "./utils";
-
-const getDomArgs = (args: RenderDomArgs) =>
-	({
-		...{
-			hNode: {},
-			rootElement: document.body,
-			element: document.createDocumentFragment(),
-			rootSelector: "body",
-			context: getDefaultContext(),
-		},
-		...args,
-	}) as Required<RenderDomArgs>;
 
 /**
  * Renders a HNode or string into the specified container.
  *
- * @param hNode - The element to render, which can be a HNode object or a string
+ * @param hnode - The element to render, which can be a HNode object or a string
  * @param container - The DOM element that will contain the rendered element
  * @returns The rendered DOM element (HTMLElement) or text node (Text)
  */
-export function renderDomElement(args: RenderDomArgs): RenderedElement {
-	const { hNode, rootElement, rootSelector, context } = getDomArgs(args);
-
-	if (!rootElement) {
-		throw new Error("Root element is required");
-	}
-
-	const element = createDomElement({ hNode, rootSelector, context });
+export function renderDomElement(
+	hnode: HNode,
+	rootElement: Element,
+	rootSelector: string,
+	context: ContextState,
+): HTMLElement | Text | DocumentFragment {
+	const element = createDomElement(hnode, rootSelector, context);
 
 	// Clear container more efficiently than using innerHTML
 	rootElement.textContent = "";
@@ -56,20 +42,22 @@ export function renderDomElement(args: RenderDomArgs): RenderedElement {
  * If the input is a HNode, it creates an element of the specified type,
  * applies the given properties, and processes any children.
  *
- * @param hNode - The HNode or string to create the DOM element from.
+ * @param hnode - The HNode or string to create the DOM element from.
  * @returns The created HTMLElement, Text node, or DocumentFragment.
  */
-export function createDomElement(args: RenderDomArgs): RenderedElement {
-	const { hNode, rootSelector, context } = getDomArgs(args);
-
-	if (typeof hNode === "string") {
-		return document.createTextNode(hNode);
+export function createDomElement(
+	hnode: HNode | string,
+	rootSelector: string,
+	context: ContextState,
+): HTMLElement | Text | DocumentFragment {
+	if (typeof hnode === "string") {
+		return document.createTextNode(hnode);
 	}
 
-	const { type } = hNode;
+	const { type, props = {}, children = [] } = hnode;
 
 	if (!type) {
-		return handleFragments({ hNode, rootSelector, context });
+		return handleFragments(children, rootSelector, context);
 	}
 
 	// Create a DOM element based on the HNode's type
@@ -79,51 +67,45 @@ export function createDomElement(args: RenderDomArgs): RenderedElement {
 
 	element.dataset.hKey = elementKey;
 
-	storeElement({
-		context,
-		element,
-		elementKey,
-		hNode,
-		rootSelector,
-	});
+	storeElement(context, rootSelector, elementKey, element, hnode);
 
 	// Apply props to the element
-	handleProps({element, hNode});
+	handleProps(element, props);
 
 	// Set up event handlers
-	handleEvents({element, hNode, rootSelector});
+	handleEventProps(element, hnode, rootSelector);
 
 	// Process and render any children
-	handleChildren({ element, hNode, rootSelector, context });
+	handleChildren(element, children, rootSelector, context);
 
 	return element;
 }
 
-function handleFragments(args: RenderDomArgs): DocumentFragment {
-	const { hNode, rootSelector, context } = getDomArgs(args);
-	const element = document.createDocumentFragment();
-
-	handleChildren({ element, hNode, rootSelector, context });
-
-	return element;
+function handleFragments(
+	children: HNode["children"],
+	rootSelector: string,
+	context: ContextState,
+): DocumentFragment {
+	// Handle fragments (when type is undefined or null)
+	const fragment = document.createDocumentFragment();
+	handleChildren(fragment, children, rootSelector, context);
+	return fragment;
 }
 
 /**
  * Appends rendered child elements to the specified DOM element.
  */
-function handleChildren(args: RenderDomArgs) {
-	let { hNode, rootSelector, context, element } = getDomArgs(args);
-	hNode = hNode as HNode
-	
+function handleChildren(
+	element: HTMLElement | DocumentFragment,
+	children: HNode["children"] = [],
+	rootSelector: string,
+	context: ContextState,
+) {
 	// Create a document fragment to batch DOM operations
 	const fragment = document.createDocumentFragment();
 
-	hNode.children?.forEach((child) => {
-		const childElement = createDomElement({
-			hNode: child,
-			rootSelector,
-			context,
-		});
+	children.forEach((child) => {
+		const childElement = createDomElement(child, rootSelector, context);
 		fragment.appendChild(childElement);
 	});
 
@@ -135,13 +117,10 @@ function handleChildren(args: RenderDomArgs) {
  * Sets HTML attributes and properties on a DOM element
  */
 function handleProps(
-	args: RenderDomArgs
+	element: HTMLElement,
+	props: HNode["props"] = {},
 ): void {
-	let { hNode, element } = getDomArgs(args);
-	hNode = hNode as HNode
-	element = element as HTMLElement
-
-	propHandler(hNode.props || {}, {
+	propHandler(props, {
 		classProp(className) {
 			element.className = className;
 		},
@@ -154,14 +133,12 @@ function handleProps(
 	});
 }
 
-function handleEvents(
-	args: RenderDomArgs
+function handleEventProps(
+	element: HTMLElement,
+	hnode: HNode,
+	rootSelector: string,
 ): void {
-	let { hNode, element, rootSelector } = getDomArgs(args);
-	hNode = hNode as HNode;
-	element = element as HTMLElement;
-
-	const eventProps = Object.entries(hNode.props || {}).filter(([key]) =>
+	const eventProps = Object.entries(hnode.props || {}).filter(([key]) =>
 		key.startsWith("on"),
 	);
 
@@ -169,7 +146,7 @@ function handleEvents(
 		element.dataset.eKey = generateKey();
 		eventProps.forEach(() =>
 			delegateEvents(
-				hNode,
+				hnode,
 				rootSelector,
 				element.dataset.eKey as string,
 			),

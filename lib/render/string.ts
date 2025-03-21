@@ -7,9 +7,7 @@ import { escapeHTML, propHandler } from "./utils";
  * @param hNode - The element to convert, either an HNode object or a string (text node)
  * @returns The HTML string representation of the element
  */
-export function renderStringElement(
-	hNode: HNode | string,
-): string {
+export function renderStringElement(hNode: HNode | string): string {
 	// Handle text nodes
 	if (typeof hNode === "string") {
 		return escapeHTML(hNode);

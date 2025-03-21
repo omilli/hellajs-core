@@ -1,4 +1,4 @@
-import type { HTMLTagName, HNode, HNodeProps } from "./types";
+import type { HNode, HNodeProps, HTMLTagName } from "./types";
 
 function createElement(type: HTMLTagName): (...args: any[]) => HNode {
 	return (...args: any[]) => {
