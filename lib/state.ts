@@ -1,6 +1,6 @@
 import type { StateRender } from "./types";
 
-export function state<T extends object>(initialState: T): T {
+export function createState<T extends object>(initialState: T): T {
 	// Create a mutable version of the state
 	const stateObject = { ...initialState };
 
