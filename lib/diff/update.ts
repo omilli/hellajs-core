@@ -1,7 +1,6 @@
 import {
 	type ContextState,
 	type RootContext,
-	getDefaultContext,
 } from "../context";
 import { delegateEvents } from "../events";
 import type { HNode } from "../types";
@@ -17,7 +16,7 @@ export function updateElement(
 	hNode: HNode,
 	rootContext: RootContext,
 	rootSelector: string,
-	context = getDefaultContext(),
+	context: ContextState,
 ): HTMLElement {
 	const { props = {}, children = [] } = hNode;
 
