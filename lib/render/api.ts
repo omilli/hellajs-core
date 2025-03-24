@@ -1,9 +1,9 @@
 import { getDefaultContext } from "../context";
 import type { HNode } from "../types";
+import { getRootElement } from "../utils";
 import { renderDomElement } from "./dom";
 import { renderStringElement } from "./string";
 import type { RenderedNode } from "./types";
-import { getRootElement } from "../utils";
 
 /**
  * Renders an HNode to either a string (server environment) or the DOM (client environment).

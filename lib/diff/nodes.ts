@@ -38,7 +38,8 @@ export function diffNode(
 	// Handle regular elements
 	if (domNode.nodeType === 1) {
 		// If node types match, update the element - use direct lowercase comparison when possible
-		const isMatch = (domNode as HTMLElement).tagName.toLowerCase() === type.toLowerCase();
+		const isMatch =
+			(domNode as HTMLElement).tagName.toLowerCase() === type.toLowerCase();
 		if (isMatch) {
 			return updateElement(
 				domNode as HTMLElement,

@@ -38,3 +38,20 @@ const todoView = () =>
 
 // Define component with rendering logic
 component(todoState, todoView);
+
+
+const state1 = state({ count: 0 });
+const state2 = state({ count: 0 });
+
+const Counter = (props: { state: {count: number} }) => {
+  const { count } = props.state;
+  return div({}, 
+    button({ onclick: () => props.state.count++ }, "+"),
+    div({}, count),
+    button({ onclick: () => props.state.count-- }, "-")
+  );
+};
+
+
+Counter({ state: state1 });
+Counter({ state: state2 });
