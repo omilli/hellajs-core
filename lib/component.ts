@@ -2,14 +2,12 @@ import { getDefaultContext } from "./context";
 import { diff } from "./diff";
 import type { HNode, StateRender } from "./types";
 
-export function component<T>(
-	state: T,
+export function createComponent<T>(
 	hNode: () => HNode,
 	rootSelector = "#root",
+	state: T = {} as T,
 	context = getDefaultContext(),
-): T {
+) {
 	(state as StateRender)._render = () =>
 		requestAnimationFrame(() => diff(hNode(), rootSelector, context));
-
-	return state as T;
 }

@@ -1,4 +1,4 @@
-import { type ContextState } from "../context";
+import type { Context } from "../context";
 import { delegateEvents } from "../events";
 import type { HNode } from "../types";
 import { generateKey } from "../utils";
@@ -10,7 +10,7 @@ import { updateProps } from "./props";
 export function renderElement(
 	hNode: HNode | string | number,
 	rootSelector: string,
-	context: ContextState,
+	context: Context<unknown>,
 ): HTMLElement | Text | DocumentFragment {
 	const hNodeType = typeof hNode;
 	if (hNodeType === "string" || hNodeType === "number") {
@@ -37,7 +37,7 @@ export function renderElement(
 function handleFragment(
 	children: HNode["children"] = [],
 	rootSelector: string,
-	context: ContextState,
+	context: Context<unknown>,
 ): DocumentFragment {
 	const fragment = document.createDocumentFragment();
 	const len = children.length;
@@ -78,7 +78,7 @@ function handleChildren(
 	children: HNode["children"] = [],
 	element: HTMLElement,
 	rootSelector: string,
-	context: ContextState,
+	context: Context<unknown>,
 ) {
 	const childLen = children.length;
 

@@ -9,14 +9,16 @@ export type RootContext = {
 
 export type RootStore = Map<string, RootContext>;
 
-export type ContextState = {
+export type Context<T> = {
 	id: string;
 	rootStore: RootStore;
+	state: T;
 	render: (element: HNode, rootSelector: string) => void;
 	diff: (element: HNode, rootSelector: string) => void;
+	component: (hNode: () => HNode, rootSelector?: string) => void;
 	elementPool?: Map<string, HTMLElement[]>;
 };
 
 export type GlobalContext = (Window & typeof globalThis) & {
-	[key: string]: ContextState;
+	[key: string]: Context<unknown>;
 };

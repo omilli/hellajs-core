@@ -1,7 +1,4 @@
-import {
-	type ContextState,
-	type RootContext,
-} from "../context";
+import type { Context, RootContext } from "../context";
 import { delegateEvents } from "../events";
 import type { HNode } from "../types";
 import { generateKey } from "../utils";
@@ -16,7 +13,7 @@ export function updateElement(
 	hNode: HNode,
 	rootContext: RootContext,
 	rootSelector: string,
-	context: ContextState,
+	context: Context<unknown>,
 ): HTMLElement {
 	const { props = {}, children = [] } = hNode;
 
@@ -58,7 +55,7 @@ function handleChildren(
 	children: HNode["children"] = [],
 	element: HTMLElement,
 	rootSelector: string,
-	context: ContextState,
+	context: Context<unknown>,
 	rootContext: RootContext,
 ) {
 	const childCount = element.childNodes.length;

@@ -1,18 +1,16 @@
-import { html } from "../lib";
-import { component } from "../lib/component";
-import { createState } from "../lib/state";
+import { createContext, html } from "../lib";
 
 const { div, ul, li, input, button } = html;
 
-const todoState = createState({
+const todo = createContext({
   todos: ['Learn Hella DOM', 'Build an app'],
   newTodo: ''
 })
 
 function addTodo() {
-  if (todoState.newTodo.trim()) {
-    todoState.todos = [...todoState.todos, todoState.newTodo];
-    todoState.newTodo = '';
+  if (todo.state.newTodo.trim()) {
+    todo.state.todos = [...todo.state.todos, todo.state.newTodo];
+    todo.state.newTodo = '';
   }
 }
 
@@ -20,20 +18,21 @@ function addTodo() {
 const todoView = () =>
   div({ className: 'todo-app' },
     input({
-      value: todoState.newTodo,
+      value: todo.state.newTodo,
       oninput: (_: InputEvent, el: HTMLInputElement) => {
-        todoState.newTodo = el.value
+        todo.state.newTodo = el.value
       },
       placeholder: 'Enter a new todo'
     }),
     button({
       onclick: () => addTodo()
     }, 'Add Todo'),
-    ul(...todoState.todos.map(todo => 
+    ul(...todo.state.todos.map(todo => 
         li({}, todo)
       )
     )
   );
 
+  console.log(todo.component(todoView))
+
 // Define component with rendering logic
-component(todoState, todoView);
