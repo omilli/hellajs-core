@@ -1,6 +1,6 @@
 import type { ContextState } from "../context";
 import type { HNode } from "../types";
-import { processEventProps, processProps } from "./processor";
+import { processEventProps, processProps } from "./props";
 
 /**
  * Renders a HNode or string into the specified container.

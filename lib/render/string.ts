@@ -1,5 +1,5 @@
 import type { HNode } from "../types";
-import { propProcessor } from "./processor";
+import { propProcessor } from "./props";
 import { escapeHTML } from "./utils";
 
 /**
@@ -18,12 +18,12 @@ export function renderStringElement(hNode: HNode | string): string {
 
 	// Handle fragments (when type is undefined or null)
 	if (!type) {
-		return handleChildren(children);
+		return renderChildren(children);
 	}
 
 	const html: string[] = [];
 	html.push(`<${type}${handleProps(props)}>`);
-	html.push(handleChildren(children));
+	html.push(renderChildren(children));
 	html.push(`</${type}>`);
 
 	return html.join("");
@@ -60,7 +60,7 @@ function handleProps(props: HNode["props"] = {}) {
  * @param element - The parent HTML element to append children to
  * @param children - Array of child elements to be rendered and appended
  */
-function handleChildren(children: HNode["children"] = []) {
+function renderChildren(children: HNode["children"] = []) {
 	if (!children || children.length === 0) return "";
 
 	// Pre-allocate array for better performance
