@@ -10,7 +10,7 @@ import { updateProps } from "./props";
 export function renderElement(
 	hNode: HNode | string | number,
 	rootSelector: string,
-	context: ContextState,
+	context = getDefaultContext(),
 ): HTMLElement | Text | DocumentFragment {
 	const hNodeType = typeof hNode;
 	if (hNodeType === "string" || hNodeType === "number") {

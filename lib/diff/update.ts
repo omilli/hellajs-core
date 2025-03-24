@@ -1,8 +1,12 @@
-import type { ContextState, RootContext } from "../context";
+import {
+	type ContextState,
+	type RootContext,
+	getDefaultContext,
+} from "../context";
 import { delegateEvents } from "../events";
 import type { HNode } from "../types";
 import { generateKey } from "../utils";
-import { diffChildren } from "./nodes";
+import { diffChildren } from "./children";
 import { updateProps } from "./props";
 
 /**
@@ -13,13 +17,13 @@ export function updateElement(
 	hNode: HNode,
 	rootContext: RootContext,
 	rootSelector: string,
-	context: ContextState,
+	context = getDefaultContext(),
 ): HTMLElement {
 	const { props = {}, children = [] } = hNode;
 
 	updateProps(element, props);
 
-  handleEvents(hNode, element, rootSelector);
+	handleEvents(hNode, element, rootSelector);
 
 	handleChildren(children, element, rootSelector, context, rootContext);
 
@@ -27,7 +31,7 @@ export function updateElement(
 }
 
 function handleEvents(
-  hNode: HNode,
+	hNode: HNode,
 	element: HTMLElement,
 	rootSelector: string,
 ) {
@@ -51,13 +55,12 @@ function handleEvents(
 	}
 }
 
-
 function handleChildren(
-  children: HNode["children"] = [],
-  element: HTMLElement,
-  rootSelector: string,
-  context: ContextState,
-  rootContext: RootContext,
+	children: HNode["children"] = [],
+	element: HTMLElement,
+	rootSelector: string,
+	context: ContextState,
+	rootContext: RootContext,
 ) {
 	const childCount = element.childNodes.length;
 	const domChildren = new Array(childCount);

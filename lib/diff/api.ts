@@ -1,7 +1,7 @@
 import { getDefaultContext, getRootContext } from "../context";
 import { getRootElement } from "../render";
 import type { HNode } from "../types";
-import { diffChildren } from "./nodes";
+import { diffChildren } from "./children";
 import { renderElement } from "./render";
 import type { DiffConfig } from "./types";
 
