@@ -1,29 +1,40 @@
-import { HNode } from "../lib";
+import { html } from "../lib";
 import { component } from "../lib/component";
 import { state } from "../lib/state";
 
-const myState = state({
-  count: 0,
-  rows: [] as HNode[]
+const { div, ul, li, input, button } = html;
+
+// Create state object with initial values
+const todoState = state({
+  todos: ['Learn Hella DOM', 'Build an app'],
+  newTodo: ''
 });
 
-setInterval(() => {
-  myState.count = myState.count + 1;
-  setRows();
-}, 1)
-
-function setRows() {
-  myState.rows = Array.from({ length: myState.count }, (_, i) => ({
-    type: "div",
-    props: {
-      onclick: () => console.log(i)
-    },
-    children: [String(i)]
-  })).reverse() as HNode[]
+function addTodo() {
+  if (todoState.newTodo.trim()) {
+    todoState.todos = [...todoState.todos, todoState.newTodo];
+    todoState.newTodo = '';
+  }
 }
 
-component(myState, () => ({
-  children: myState.rows
-}));
+// Create a function that returns a hNode
+const todoView = () =>
+  div({ className: 'todo-app' },
+    input({
+      value: todoState.newTodo,
+      oninput: (e: InputEvent, el: HTMLInputElement) => {
+        todoState.newTodo = el.value
+      },
+      placeholder: 'Enter a new todo'
+    }),
+    button({
+      onclick: () => addTodo()
+    }, 'Add Todo'),
+    ul(...todoState.todos.map(todo => 
+        li({}, todo)
+      )
+    )
+  );
 
-
+// Define component with rendering logic
+component(todoState, todoView);
