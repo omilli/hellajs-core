@@ -1,7 +1,7 @@
 import { delegateEvents } from "../events";
-import { HNode, HNodeProps } from "../types";
+import type { HNode, HNodeProps } from "../types";
 import { generateKey } from "../utils";
-import { RenderPropHandler } from "./types";
+import type { RenderPropHandler } from "./types";
 
 /**
  * Processes a properties object by categorizing and handling different property types.
@@ -32,7 +32,10 @@ export function propProcessor(
 /**
  * Sets HTML attributes and properties on a DOM element
  */
-export function processProps(element: HTMLElement, props: HNode["props"] = {}): void {
+export function processProps(
+	element: HTMLElement,
+	props: HNode["props"] = {},
+): void {
 	propProcessor(props, {
 		classProp(className) {
 			element.className = className;

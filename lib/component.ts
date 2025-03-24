@@ -9,9 +9,7 @@ export function component<T>(
 	context = getDefaultContext(),
 ): T {
 	(state as StateRender)._render = () =>
-		requestAnimationFrame(() =>
-			diff(hNode(), rootSelector, context)
-		);
-		
+		requestAnimationFrame(() => diff(hNode(), rootSelector, context));
+
 	return state as T;
 }
