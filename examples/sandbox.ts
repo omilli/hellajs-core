@@ -1,8 +1,8 @@
-import { createContext, html } from "../lib";
+import { context, html } from "../lib";
 
 const { div, ul, li, input, button } = html;
 
-const todo = createContext({
+const todo = context({
   todos: ['Learn Hella DOM', 'Build an app'],
   newTodo: ''
 })
@@ -33,6 +33,6 @@ const todoView = () =>
     )
   );
 
-  console.log(todo.component(todoView))
+todo.component(todoView)
 
 // Define component with rendering logic

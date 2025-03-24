@@ -2,7 +2,7 @@ import { getDefaultContext } from "./context";
 import { diff } from "./diff";
 import type { HNode, StateRender } from "./types";
 
-export function createComponent<T>(
+export function component<T>(
 	hNode: () => HNode,
 	rootSelector = "#root",
 	state: T = {} as T,

@@ -1,4 +1,4 @@
-import { createComponent } from "../component";
+import { component } from "../component";
 import { diff } from "../diff";
 import { render } from "../render";
 import { createState } from "../state";
@@ -9,7 +9,7 @@ import { getGlobalThis } from "./utils";
 
 const contextStore: Map<string, Context<unknown>> = new Map();
 
-export function createContext<T extends {}>(state?: T, id?: string): Context<T> {
+export function context<T extends {}>(state?: T, id?: string): Context<T> {
 	id ??= `hella-dom-${generateKey()}`;
 
 	const contextState = createState(state || {});
@@ -19,7 +19,7 @@ export function createContext<T extends {}>(state?: T, id?: string): Context<T> 
 		rootStore: new Map(),
 		render: (...args) => render(...args),
 		diff: (...args) => diff(...args),
-		component: (hNode: () => HNode, rootSelector) => createComponent(hNode, rootSelector, contextState, contextStore.get(id)!),
+		component: (hNode: () => HNode, rootSelector) => component(hNode, rootSelector, contextState, contextStore.get(id)!),
 		elementPool: new Map(),
 		state: contextState,
 	});
@@ -32,14 +32,14 @@ export function getContextStore() {
 }
 
 export function getDefaultContext(): Context<unknown> {
-	const context = getGlobalThis();
+	const globalContext = getGlobalThis();
 	const key = "domContext";
 
-	if (!context[key]) {
-		context[key] = createContext();
+	if (!globalContext[key]) {
+		globalContext[key] = context();
 	}
 
-	return context[key];
+	return globalContext[key];
 }
 
 export function getRootContext(
