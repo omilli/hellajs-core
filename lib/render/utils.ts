@@ -1,6 +1,3 @@
-import type { HNodeProps } from "../types";
-import type { RenderPropHandler } from "./types";
-
 /**
  * Retrieves a DOM element using the provided CSS selector.
  *
