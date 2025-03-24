@@ -1,4 +1,4 @@
-# Hella DOM
+# Hella Core
 
 A lightweight and performant DOM manipulation library that uses JSON-like virtual DOM objects for efficient rendering and diffing without JSX.
 
