@@ -22,21 +22,26 @@ function checkProps(element: HTMLElement, attrsToRemove: Set<string>): void {
 		const attr = attrs[i];
 		const name = attr.name;
 		// Check if name starts with 'data-'
-		const shouldRemoveProp = !(
-			name.charCodeAt(0) === 100 &&
-			name.charCodeAt(1) === 97 &&
-			name.charCodeAt(2) === 116 &&
-			name.charCodeAt(3) === 97 &&
-			name.charCodeAt(4) === 45
-		) && name !== "class";
-		
+		const shouldRemoveProp =
+			!(
+				name.charCodeAt(0) === 100 &&
+				name.charCodeAt(1) === 97 &&
+				name.charCodeAt(2) === 116 &&
+				name.charCodeAt(3) === 97 &&
+				name.charCodeAt(4) === 45
+			) && name !== "class";
+
 		if (shouldRemoveProp) {
 			attrsToRemove.add(name);
 		}
 	}
 }
 
-function applyProps(props: HNode["props"] = {}, element: HTMLElement, attrsToRemove: Set<string>): void {
+function applyProps(
+	props: HNode["props"] = {},
+	element: HTMLElement,
+	attrsToRemove: Set<string>,
+): void {
 	propProcessor(props, {
 		classProp(className) {
 			if (element.className !== className) {

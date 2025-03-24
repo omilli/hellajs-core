@@ -2,7 +2,7 @@ import { getDefaultContext, getRootContext } from "../context";
 import { getRootElement } from "../render";
 import type { HNode } from "../types";
 import { diffChildren } from "./nodes";
-import { renderNewElement } from "./render";
+import { renderElement } from "./render";
 import type { DiffConfig } from "./types";
 
 /**
@@ -62,7 +62,7 @@ function handleChildess({
 	rootElement,
 	context,
 }: DiffConfig) {
-	const element = renderNewElement(hNode, rootSelector, context);
+	const element = renderElement(hNode, rootSelector, context);
 	rootElement.appendChild(element);
 	return element instanceof DocumentFragment
 		? (rootElement as HTMLElement)

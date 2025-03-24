@@ -1,6 +1,7 @@
 import type { ContextState, RootContext } from "../context";
 import type { HNode } from "../types";
-import { renderNewElement, updateElement } from "./render";
+import { renderElement } from "./render";
+import { updateElement } from "./update";
 
 /**
  * Compares an existing DOM node with a new virtual node and updates as needed
@@ -62,9 +63,7 @@ export function diffNode(
 			const len = children.length;
 
 			for (let i = 0; i < len; i++) {
-				fragment.appendChild(
-					renderNewElement(children[i], rootSelector, context),
-				);
+				fragment.appendChild(renderElement(children[i], rootSelector, context));
 			}
 
 			parentElement.replaceChild(fragment, domNode);
@@ -88,7 +87,7 @@ export function diffNode(
 	}
 
 	// Types don't match, create a new element and replace
-	const newElement = renderNewElement(hNode, rootSelector, context);
+	const newElement = renderElement(hNode, rootSelector, context);
 	parentElement.replaceChild(newElement, domNode);
 	return newElement;
 }
@@ -135,7 +134,7 @@ export function diffChildren(
 		} else {
 			// Add new node
 			parentElement.appendChild(
-				renderNewElement(hNodeChild, rootSelector, context),
+				renderElement(hNodeChild, rootSelector, context),
 			);
 		}
 	}
