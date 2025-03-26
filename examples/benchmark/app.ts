@@ -1,10 +1,9 @@
 import { html } from "../../lib";
-import { mount } from "../../lib/mount";
-import { append, clear, create, useBenchState, remove, select, swapRows, update } from "./state";
+import { append, clear, create, useBenchContext, remove, select, swapRows, update } from "./context";
 // Rendering
 const { div, table, tbody, tr, td, span, button, a, h1 } = html;
 
-const state = useBenchState();
+const { state, mount } = useBenchContext();
 
 const actionButton = (label: string, id: string, fn: () => void) =>
   div(
@@ -80,4 +79,4 @@ const render = () => div({ id: "main" },
     )
   );
 
-mount(render, "#root", state);
+mount(render);

@@ -1,7 +1,7 @@
 import { mount } from "../mount";
 import { diff } from "../diff";
 import { render } from "../render";
-import { createState } from "../state";
+import { createState } from "./state";
 import { HNode } from "../types";
 import { generateKey } from "../utils";
 import type { Context, RootContext } from "./types";

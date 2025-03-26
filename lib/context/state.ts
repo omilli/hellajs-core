@@ -1,4 +1,4 @@
-import type { StateRender } from "./types";
+import type { StateRender } from "../types";
 
 export function createState<T extends object>(initialState: T): T {
 	// Create a mutable version of the state

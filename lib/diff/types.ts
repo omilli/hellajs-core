@@ -5,5 +5,5 @@ export type DiffConfig = {
 	hNode: HNode;
 	rootSelector: string;
 	rootElement: Element;
-	context: Context;
+	context: Context<unknown>;
 };

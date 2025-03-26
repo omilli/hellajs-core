@@ -2,9 +2,21 @@ import { context, html } from "../lib";
 
 const { div, ul, li, input, button } = html;
 
-const todo = context({
+type Todo = {
+  todos: string[];
+  newTodo: string;
+  addTodo(): void;
+}
+
+const todo = context<Todo>({
   todos: ['Learn Hella DOM', 'Build an app'],
-  newTodo: ''
+  newTodo: '',
+  addTodo() {
+    if (this.newTodo.trim()) {
+      this.todos = [...this.todos, this.newTodo];
+      this.newTodo = '';
+    }
+  }
 })
 
 function addTodo() {
