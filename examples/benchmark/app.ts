@@ -1,5 +1,5 @@
 import { html } from "../../lib";
-import { component } from "../../lib/component";
+import { mount } from "../../lib/mount";
 import { append, clear, create, useBenchState, remove, select, swapRows, update } from "./state";
 // Rendering
 const { div, table, tbody, tr, td, span, button, a, h1 } = html;
@@ -80,4 +80,4 @@ const render = () => div({ id: "main" },
     )
   );
 
-component(state, render);
+mount(render, "#root", state);

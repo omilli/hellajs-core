@@ -33,6 +33,6 @@ const todoView = () =>
     )
   );
 
-todo.component(todoView)
+todo.mount(todoView)
 
 // Define component with rendering logic

@@ -15,7 +15,7 @@ export type Context<T> = {
 	state: T;
 	render: (element: HNode, rootSelector: string) => void;
 	diff: (element: HNode, rootSelector: string) => void;
-	component: (hNode: () => HNode, rootSelector?: string) => void;
+	mount: (hNode: () => HNode, rootSelector?: string) => void;
 	elementPool?: Map<string, HTMLElement[]>;
 };
 

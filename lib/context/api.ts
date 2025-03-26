@@ -1,4 +1,4 @@
-import { component } from "../component";
+import { mount } from "../mount";
 import { diff } from "../diff";
 import { render } from "../render";
 import { createState } from "../state";
@@ -19,7 +19,7 @@ export function context<T extends {}>(state?: T, id?: string): Context<T> {
 		rootStore: new Map(),
 		render: (...args) => render(...args),
 		diff: (...args) => diff(...args),
-		component: (hNode: () => HNode, rootSelector) => component(hNode, rootSelector, contextState, contextStore.get(id)!),
+		mount: (hNode: () => HNode, rootSelector) => mount(hNode, rootSelector, contextState, contextStore.get(id)!),
 		elementPool: new Map(),
 		state: contextState,
 	});
