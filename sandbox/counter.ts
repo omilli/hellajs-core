@@ -1,4 +1,5 @@
-import { html, signal } from "../lib";
+import { html } from "../lib/dom/html";
+import { signal } from "../lib/reactive/core/signal";
 import { mount } from "../lib/mount";
 
 const {div, button} = html;

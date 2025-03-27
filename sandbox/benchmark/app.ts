@@ -1,4 +1,5 @@
-import { html, mount } from "../../lib";
+import { html } from "../../lib/dom/html";
+import { mount } from "../../lib/mount";
 import { append, benchState, clear, create, remove, select, swapRows, update } from "./store";
 // Rendering
 const { div, table, tbody, tr, td, span, button, a, h1 } = html;
