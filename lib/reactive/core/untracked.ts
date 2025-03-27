@@ -11,7 +11,10 @@ import { NOT_TRACKING, setActiveTracker } from "../utils";
  * @param {() => T} fn The function to execute without tracking dependencies.
  * @returns The result of the function execution.
  */
-export function untracked<T>(fn: () => T, {reactive} = getDefaultContext()): T {
+export function untracked<T>(
+	fn: () => T,
+	{ reactive } = getDefaultContext(),
+): T {
 	const prevEffect = reactive.activeTracker;
 
 	// Mark as not tracking during execution

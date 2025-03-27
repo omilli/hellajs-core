@@ -15,9 +15,8 @@ import { getActiveTracker, queueEffects } from "../utils";
 export function signal<T>(
 	initialValue: T,
 	options?: SignalOptions<T>,
-	{reactive} = getDefaultContext()
+	{ reactive } = getDefaultContext(),
 ): Signal<T> {
-
 	// Extract options with defaults
 	const { name, validators = [] } = options || {};
 
@@ -38,7 +37,8 @@ export function signal<T>(
 		// If so, establish bidirectional links between effect and signal
 		if (activeEffect) {
 			// Get/create the set of signals this effect depends on
-			const effectDeps = reactive.effectDependencies.get(activeEffect) || new Set();
+			const effectDeps =
+				reactive.effectDependencies.get(activeEffect) || new Set();
 			// Add this effect as a subscriber to the signal
 			subscribers.add(new WeakRef(activeEffect));
 			// Add this signal to the effect's dependencies

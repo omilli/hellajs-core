@@ -1,4 +1,4 @@
-import { type ReactiveContext } from "../../context";
+import type { ReactiveContext } from "../../context";
 import type { EffectFn, Signal, SignalBase } from "../types";
 import { scheduleEffects } from "./effect";
 import { getActiveTracker, hasActiveTracker } from "./tracker";
@@ -21,7 +21,10 @@ export function addDependency(
  * Track the current effect as dependent on a signal
  * This is called when a signal is read within an effect
  */
-export function trackDependency(reactive: ReactiveContext, signal: SignalBase): void {
+export function trackDependency(
+	reactive: ReactiveContext,
+	signal: SignalBase,
+): void {
 	// Only track if there's an active effect
 	if (!hasActiveTracker(reactive)) return;
 
@@ -82,9 +85,14 @@ export function notifyDependents(
 /**
  * Remove an effect from all its dependencies
  */
-export function unsubscribeDependencies(effect: EffectFn, reactive: ReactiveContext) {
+export function unsubscribeDependencies(
+	effect: EffectFn,
+	reactive: ReactiveContext,
+) {
 	// Get dependencies from both context-specific storage
-	const ctxDeps = reactive.effectDependencies.get(effect) as Set<Signal<unknown>>;
+	const ctxDeps = reactive.effectDependencies.get(effect) as Set<
+		Signal<unknown>
+	>;
 
 	// Thorough cleanup of dependency sets
 	const allDeps = new Set(ctxDeps);

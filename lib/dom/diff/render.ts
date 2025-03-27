@@ -69,8 +69,8 @@ function handleEvents(
 	}
 
 	if (hasEventProps) {
-		element.dataset['eKey'] = generateKey();
-		delegateEvents(hNode as HNode, rootSelector, element.dataset['eKey']);
+		element.dataset["eKey"] = generateKey();
+		delegateEvents(hNode as HNode, rootSelector, element.dataset["eKey"]);
 	}
 }
 

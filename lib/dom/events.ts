@@ -68,11 +68,11 @@ function addDelegatedListener(
 		if (props.stopPropagation) e.stopPropagation();
 
 		let element = e.target as HTMLElement;
-		let key = element.dataset['eKey'];
+		let key = element.dataset["eKey"];
 
 		if (!key) {
 			element = element.closest("[data-e-key]") || element;
-			key = element.dataset['eKey'];
+			key = element.dataset["eKey"];
 		}
 
 		if (key && events.has(key)) {

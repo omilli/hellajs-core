@@ -1,10 +1,14 @@
 import { getDefaultContext } from "./context";
-import { diff, type HNode } from "./dom";
+import { type HNode, diff } from "./dom";
 import { computed, effect } from "./reactive";
 
-export function mount(hNodeEffect: () => HNode, rootSelector = "#root", context = getDefaultContext()) {
-  const component = computed(hNodeEffect);
-  effect(() => {
-    diff(component(), rootSelector, context);
-  })
+export function mount(
+	hNodeEffect: () => HNode,
+	rootSelector = "#root",
+	context = getDefaultContext(),
+) {
+	const component = computed(hNodeEffect);
+	effect(() => {
+		diff(component(), rootSelector, context);
+	});
 }

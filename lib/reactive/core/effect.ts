@@ -1,4 +1,4 @@
-import { getDefaultContext, type ReactiveContext } from "../../context";
+import { type ReactiveContext, getDefaultContext } from "../../context";
 import type { EffectFn, EffectOptions } from "../types";
 import { setActiveTracker } from "../utils";
 import { unsubscribeDependencies } from "../utils/dependency";
@@ -12,7 +12,11 @@ import { unsubscribeDependencies } from "../utils/dependency";
  * @param options - Optional configuration for the effect behavior
  * @returns A dispose function that can be called to clean up the effect
  */
-export function effect(fn: EffectFn, options?: EffectOptions, {reactive} = getDefaultContext()): EffectFn {
+export function effect(
+	fn: EffectFn,
+	options?: EffectOptions,
+	{ reactive } = getDefaultContext(),
+): EffectFn {
 	const { name, scheduler, once, debounce, onError, onCleanup } = options || {};
 
 	// Store user's cleanup function if provided

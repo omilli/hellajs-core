@@ -91,7 +91,7 @@ export function flushEffects(reactive: ReactiveContext): void {
  * Gets the currently active effect if there is one
  * @returns The current effect function or null if not in an effect
  */
-export function getCurrentEffect({reactive}: Context): EffectFn | null {
+export function getCurrentEffect({ reactive }: Context): EffectFn | null {
 	return reactive.activeTracker === NOT_TRACKING ||
 		typeof reactive.activeTracker === "symbol"
 		? null
