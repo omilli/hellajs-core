@@ -6,9 +6,9 @@ import type { GlobalContext } from "./types";
  * @returns The global `this` object. This could be `globalThis`, `window`, `global`, `self`, or the result of `Function("return this")()`.
  */
 export function getGlobalThis(): GlobalContext {
-	if (typeof globalThis !== "undefined") return globalThis as GlobalContext;
-	if (typeof window !== "undefined") return window as GlobalContext;
-	if (typeof global !== "undefined") return global as GlobalContext;
-	if (typeof self !== "undefined") return self as GlobalContext;
-	return Function("return this")();
+  if (typeof globalThis !== "undefined") return globalThis as GlobalContext;
+  if (typeof window !== "undefined") return window as GlobalContext;
+  if (typeof global !== "undefined") return global as GlobalContext;
+  if (typeof self !== "undefined") return self as GlobalContext;
+  return Function("return this")();
 }

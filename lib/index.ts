@@ -1,6 +1,4 @@
-export { html } from "./html";
-export { render } from "./render";
-export { diff } from "./diff";
-export { mount } from "./mount";
-export { context, getRootContext } from "./context";
-export * from "./types";
+export * from "./context";
+export * from "./dom";
+export * from "./reactive";
+export * from "./mount";

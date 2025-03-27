@@ -1,4 +1,4 @@
-import type { Context, RootContext } from "../context";
+import type { Context, RootContext } from "../../context";
 import { delegateEvents } from "../events";
 import type { HNode } from "../types";
 import { generateKey } from "../utils";
@@ -13,7 +13,7 @@ export function updateElement(
 	hNode: HNode,
 	rootContext: RootContext,
 	rootSelector: string,
-	context: Context<unknown>,
+	context: Context,
 ): HTMLElement {
 	const { props = {}, children = [] } = hNode;
 
@@ -46,8 +46,8 @@ function handleEvents(
 	}
 
 	if (hasEventProps) {
-		element.dataset.eKey ??= generateKey();
-		delegateEvents(hNode, rootSelector, element.dataset.eKey);
+		element.dataset['eKey'] ??= generateKey();
+		delegateEvents(hNode, rootSelector, element.dataset['eKey']);
 	}
 }
 
@@ -55,7 +55,7 @@ function handleChildren(
 	children: HNode["children"] = [],
 	element: HTMLElement,
 	rootSelector: string,
-	context: Context<unknown>,
+	context: Context,
 	rootContext: RootContext,
 ) {
 	const childCount = element.childNodes.length;

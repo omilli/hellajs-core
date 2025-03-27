@@ -1,9 +1,7 @@
-import { html } from "../../lib";
-import { append, clear, create, useBenchContext, remove, select, swapRows, update } from "./context";
+import { html, mount } from "../../lib";
+import { append, benchState, clear, create, remove, select, swapRows, update } from "./store";
 // Rendering
 const { div, table, tbody, tr, td, span, button, a, h1 } = html;
-
-const { state, mount } = useBenchContext();
 
 const actionButton = (label: string, id: string, fn: () => void) =>
   div(
@@ -38,10 +36,10 @@ const jumbo = () => div({ className: "jumbotron" },
 
 const dataTable = () => table({ className: "table table-hover table-striped test-data" },
   tbody({ id: "tbody" },
-    ...state.data.map((item) =>
+    ...benchState.data().map((item) =>
       tr({
           "data-id": item.id.toString(),
-          className: state.selected === item.id ? "danger" : "",
+          className: benchState.selected() === item.id ? "danger" : "",
         },
         td({ className: "col-md-1" }, item.id.toString()),
         td({ className: "col-md-4" },

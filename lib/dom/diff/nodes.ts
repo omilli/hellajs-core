@@ -1,4 +1,4 @@
-import type { Context, RootContext } from "../context";
+import type { Context, RootContext } from "../../context";
 import type { HNode } from "../types";
 import { diffChildren } from "./children";
 import { renderElement } from "./render";
@@ -13,7 +13,7 @@ export function diffNode(
 	parentElement: Element | DocumentFragment,
 	rootContext: RootContext,
 	rootSelector: string,
-	context: Context<unknown>,
+	context: Context,
 ): HTMLElement | Text | DocumentFragment {
 	// Handle text nodes - faster primitive type check
 	const hNodeType = typeof hNode;
@@ -63,7 +63,7 @@ function handleFragment(
 	rootSelector: string,
 	parentElement: Element | DocumentFragment,
 	rootContext: RootContext,
-	context: Context<unknown>,
+	context: Context,
 ) {
 	if (domNode.nodeType === 11) {
 		// Use direct constant (DocumentFragment)

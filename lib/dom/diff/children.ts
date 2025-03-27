@@ -1,4 +1,4 @@
-import type { Context, RootContext } from "../context";
+import type { Context, RootContext } from "../../context";
 import type { HNode } from "../types";
 import { diffNode } from "./nodes";
 import { renderElement } from "./render";
@@ -12,7 +12,7 @@ export function diffChildren(
 	parentElement: Element | DocumentFragment,
 	rootContext: RootContext,
 	rootSelector: string,
-	context: Context<unknown>,
+	context: Context,
 ): void {
 	const domLen = domChildren.length;
 	const vdomLen = hNodeChildren.length;

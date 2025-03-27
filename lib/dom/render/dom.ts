@@ -1,4 +1,4 @@
-import type { Context } from "../context";
+import type { Context } from "../../context";
 import type { HNode } from "../types";
 import { processEventProps, processProps } from "./props";
 
@@ -13,7 +13,7 @@ export function renderDomElement(
 	hNode: HNode,
 	rootElement: Element,
 	rootSelector: string,
-	context: Context<unknown>,
+	context: Context,
 ): HTMLElement | Text | DocumentFragment {
 	const element = createDomElement(hNode, rootSelector, context);
 
@@ -45,7 +45,7 @@ export function renderDomElement(
 function createDomElement(
 	hNode: HNode | string | number,
 	rootSelector: string,
-	context: Context<unknown>,
+	context: Context,
 ): HTMLElement | Text | DocumentFragment {
 	if (typeof hNode === "string" || typeof hNode === "number") {
 		return document.createTextNode(String(hNode));
@@ -74,7 +74,7 @@ function createDomElement(
 function renderFragments(
 	hNode: HNode,
 	rootSelector: string,
-	context: Context<unknown>,
+	context: Context,
 ): DocumentFragment {
 	// Handle fragments (when type is undefined or null)
 	const fragment = document.createDocumentFragment();
@@ -89,7 +89,7 @@ function renderChildren(
 	element: HTMLElement | DocumentFragment,
 	hNode: HNode,
 	rootSelector: string,
-	context: Context<unknown>,
+	context: Context,
 ) {
 	const { children = [] } = hNode;
 

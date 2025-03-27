@@ -1,4 +1,4 @@
-import type { Context } from "../context";
+import type { Context } from "../../context";
 import { delegateEvents } from "../events";
 import type { HNode } from "../types";
 import { generateKey } from "../utils";
@@ -10,7 +10,7 @@ import { updateProps } from "./props";
 export function renderElement(
 	hNode: HNode | string | number,
 	rootSelector: string,
-	context: Context<unknown>,
+	context: Context,
 ): HTMLElement | Text | DocumentFragment {
 	const hNodeType = typeof hNode;
 	if (hNodeType === "string" || hNodeType === "number") {
@@ -37,7 +37,7 @@ export function renderElement(
 function handleFragment(
 	children: HNode["children"] = [],
 	rootSelector: string,
-	context: Context<unknown>,
+	context: Context,
 ): DocumentFragment {
 	const fragment = document.createDocumentFragment();
 	const len = children.length;
@@ -69,8 +69,8 @@ function handleEvents(
 	}
 
 	if (hasEventProps) {
-		element.dataset.eKey = generateKey();
-		delegateEvents(hNode as HNode, rootSelector, element.dataset.eKey);
+		element.dataset['eKey'] = generateKey();
+		delegateEvents(hNode as HNode, rootSelector, element.dataset['eKey']);
 	}
 }
 
@@ -78,7 +78,7 @@ function handleChildren(
 	children: HNode["children"] = [],
 	element: HTMLElement,
 	rootSelector: string,
-	context: Context<unknown>,
+	context: Context,
 ) {
 	const childLen = children.length;
 

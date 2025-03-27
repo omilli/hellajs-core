@@ -1,4 +1,4 @@
-import { getDefaultContext } from "../context";
+import { getDefaultContext } from "../../context";
 import type { HNode } from "../types";
 import { getRootElement } from "../utils";
 import { renderDomElement } from "./dom";
