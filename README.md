@@ -183,17 +183,3 @@ ctx.effect(() => {
   console.log(`Count: ${count()}, Double: ${double()}`);
 });
 ```
-
-## Browser Support
-
-Hella supports all modern browsers (Chrome, Firefox, Safari, Edge).
-
-## Installation
-
-```bash
-npm install @hellajs/reactive
-```
-
-## License
-
-MIT
