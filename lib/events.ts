@@ -25,13 +25,14 @@ export function delegateEvents(
 			// Extract event name (e.g., "click" from "onClick")
 			const eventName = key.slice(2).toLowerCase();
 			// Store the event handler using the key system
-			addEvent(rootSelector, elementKey, eventName, value as EventFn);
+			addEvent(hNode, rootSelector, elementKey, eventName, value as EventFn);
 		}
 	});
 }
 
 // Helper function to store events
 function addEvent(
+	hNode: HNode,
 	rootSelector: string,
 	elementKey: string,
 	eventName: string,
@@ -44,7 +45,7 @@ function addEvent(
 
 	if (!delegates.has(eventName)) {
 		delegates.add(eventName);
-		addDelegatedListener(listeners, eventName, rootSelector);
+		addDelegatedListener(hNode, listeners, eventName, rootSelector);
 	}
 
 	if (!listeners.has(elementKey)) {
@@ -55,13 +56,16 @@ function addEvent(
 }
 
 function addDelegatedListener(
+	hNode: HNode,
 	events: Map<string, Map<string, EventFn>>,
 	eventName: string,
 	rootSelector: string,
 ) {
 	document.querySelector(rootSelector)!.addEventListener(eventName, (e) => {
-		e.preventDefault();
-		e.stopPropagation();
+		const { props = {} } = hNode;
+
+		if (props.preventDefault) e.preventDefault();
+		if (props.stopPropagation) e.stopPropagation();
 
 		let element = e.target as HTMLElement;
 		let key = element.dataset.eKey;

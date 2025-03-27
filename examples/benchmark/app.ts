@@ -14,6 +14,7 @@ const actionButton = (label: string, id: string, fn: () => void) =>
         className: "btn btn-primary btn-block",
         type: "button",
         onclick: fn,
+        preventDefault: true,        
       },
       label
     )
