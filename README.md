@@ -1,112 +1,199 @@
-# Hella DOM
+# Hella
 
-A lightweight and performant DOM manipulation library that uses JSON-like virtual DOM objects for efficient rendering and diffing without JSX.
+A lightweight, high-performance reactive DOM library with a fine-grained reactivity system and efficient virtual DOM diffing.
 
-## Features
+## Core Features
 
-- 🚀 Fast diffing algorithm
-- 🎯 Zero dependencies
-- 💡 Simple JSON-like syntax
-- 🔄 State management with reactive updates
-- 📦 Component-based architecture
-- 🎨 Event delegation 
-- 🌐 Server-side rendering support
-- 🛠️ TypeScript support
+- **🚀 Fine-grained Reactivity**: Precise dependency tracking with signals, computed values, and effects
+- **⚡ Efficient DOM Updates**: Fast diffing algorithm that minimizes DOM operations
+- **🧩 Functional Component Model**: Simple functional approach to building UI components
+- **📦 Zero Dependencies**: Standalone implementation with no external requirements
+- **🔄 Batched Updates**: Optimized rendering with intelligent update batching
+- **🎯 Event Delegation**: Efficient event handling that minimizes listeners
+- **📝 TypeScript Support**: Full TypeScript support with comprehensive type definitions
 
-## Core Concepts
+## Reactive Primitives
 
-### Virtual DOM with hNode
+### Signals
 
-The core of Hella DOM is the `hNode` structure - a simple JavaScript object that represents DOM elements:
+Signals are reactive values that trigger updates when they change:
 
 ```typescript
-// An hNode representing a button
-const buttonNode = {
-  type: 'button',
-  props: {
-    className: 'primary-btn',
-    onclick: () => console.log('Clicked!')
-  },
-  children: ['Click me']
-};
+import { signal, effect } from "@hellajs/reactive";
+
+// Create a reactive value
+const count = signal(0);
+
+// Read the value
+console.log(count()); // 0
+
+// Update the value
+count.set(1);
+// or 
+count.update(prev => prev + 1);
+
+// Automatically track changes with effects
+effect(() => {
+  console.log(`Count changed: ${count()}`);
+});
 ```
 
-### Components with State Management
+### Computed Values
 
-Components combine state and rendering logic for reactive UI updates:
+Computed values derive from other reactive values:
 
 ```typescript
-import { component, state, html } from '@hellajs/dom';
+import { signal, computed } from "@hellajs/reactive";
 
-const { div, ul, li, input, button } = html;
+const firstName = signal("John");
+const lastName = signal("Doe");
 
-// Create state object with initial values
-const todoState = state({
-  todos: ['Learn Hella', 'Build an app'],
-  newTodo: ''
+const fullName = computed(() => `${firstName()} ${lastName()}`);
+
+console.log(fullName()); // "John Doe"
+
+// Updates when dependencies change
+firstName.set("Jane");
+console.log(fullName()); // "Jane Doe"
+```
+
+### Effects
+
+Effects run when their reactive dependencies change:
+
+```typescript
+import { signal, effect } from "@hellajs/reactive";
+
+const user = signal({ name: "John", age: 30 });
+
+effect(() => {
+  console.log(`User updated: ${user().name}, ${user().age}`);
 });
 
-function addTodo() {
-  if (todoState.newTodo.trim()) {
-    todoState.todos = [...todoState.todos, todoState.newTodo];
-    todoState.newTodo = '';
-  }
-}
-
-// Create a function that returns a hNode
-const todoView = () =>
-  div({ className: 'todo-app' },
-    input({
-      value: todoState.newTodo,
-      oninput: (e: InputEvent, el: HTMLInputElement) => {
-        todoState.newTodo = el.value
-      },
-      placeholder: 'Enter a new todo'
-    }),
-    button({
-      onclick: () => addTodo()
-    }, 'Add Todo'),
-    ul(...todoState.todos.map(todo => 
-        li({}, todo)
-      )
-    )
-  );
-
-// Define component with rendering logic
-component(todoState, todoView);
+// Effect runs automatically when user changes
+user.set({ name: "Jane", age: 28 });
 ```
+
+## DOM Rendering
 
 ### HTML Helper
 
-The `html` helper provides a cleaner way to create elements:
+Create DOM nodes with a simple, familiar syntax:
 
 ```typescript
-import { html } from '@hellajs/dom';
+import { html } from "@hellajs/reactive";
+
 const { div, button, span } = html;
 
-const myComponent = () => 
-  div({ className: 'container' },
+// Create a div with a button
+const view = () => 
+  div({ className: "container" },
     button({ 
-      className: 'btn',
-      onclick: () => console.log('clicked!')
-    },
-    'Click me!'
+      className: "btn",
+      onClick: () => console.log("Clicked!") 
+    }, 
+    "Click me!"
     )
   );
 ```
 
-### Server-Side Rendering
+### Mounting Components
 
-Hella DOM works in server environments too:
+Combine signals with HTML helpers to create reactive components:
 
 ```typescript
-import { render } from '@hellajs/dom';
+import { signal, html, mount } from "@hellajs/reactive";
 
-const element = {
-  type: 'div',
-  props: { className: 'server' },
-  children: ['Hello Server!']
-};
+const { div, button } = html;
 
-const html = render(element); // Returns HTML string in server environment
+// Create a counter component
+function Counter() {
+  const count = signal(0);
+  
+  const increment = () => count.set(count() + 1);
+  const decrement = () => count.set(count() - 1);
+  
+  return () => div({ className: "counter" },
+    button({ onClick: decrement }, "-"),
+    div({ className: "count" }, count()),
+    button({ onClick: increment }, "+")
+  );
+}
+
+// Mount the component to the DOM
+mount(Counter());
 ```
+
+## Batch Updates
+
+Group multiple updates to prevent unnecessary re-renders:
+
+```typescript
+import { signal, batch } from "@hellajs/reactive";
+
+const firstName = signal("John");
+const lastName = signal("Doe");
+const age = signal(30);
+
+// All three signals update in a single batch
+batch(() => {
+  firstName.set("Jane");
+  lastName.set("Smith");
+  age.set(28);
+});
+```
+
+## Advanced Features
+
+### Untracked Reads
+
+Read reactive values without creating dependencies:
+
+```typescript
+import { signal, effect, untracked } from "@hellajs/reactive";
+
+const count = signal(0);
+const debug = signal(true);
+
+effect(() => {
+  console.log(`Count: ${count()}`);
+  
+  // This read won't create a dependency
+  if (untracked(() => debug())) {
+    console.log("Debug mode is on");
+  }
+});
+```
+
+### Context Management
+
+Create isolated instances of the reactive system:
+
+```typescript
+import { context } from "@hellajs/reactive";
+
+// Create a custom context
+const ctx = context("my-app");
+
+// Use context-specific APIs
+const count = ctx.signal(0);
+const double = ctx.computed(() => count() * 2);
+
+ctx.effect(() => {
+  console.log(`Count: ${count()}, Double: ${double()}`);
+});
+```
+
+## Browser Support
+
+Hella supports all modern browsers (Chrome, Firefox, Safari, Edge).
+
+## Installation
+
+```bash
+npm install @hellajs/reactive
+```
+
+## License
+
+MIT
