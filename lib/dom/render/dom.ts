@@ -2,12 +2,18 @@ import type { Context } from "../../context";
 import type { HNode } from "../types";
 import { processEventProps, processProps } from "./props";
 
+
 /**
- * Renders a HNode or string into the specified container.
- *
- * @param hNode - The element to render, which can be a HNode object or a string
- * @param container - The DOM element that will contain the rendered element
- * @returns The rendered DOM element (HTMLElement) or text node (Text)
+ * Renders an HNode to the DOM by creating a DOM element and appending it to the specified root element.
+ * Clears the root element's content before appending the new element.
+ * 
+ * @param hNode - The hierarchical node to render
+ * @param rootElement - The DOM element that will contain the rendered element
+ * @param rootSelector - A CSS selector for the root element
+ * @param context - The context object for rendering
+ * 
+ * @returns The rendered DOM element, text node, or in case of a DocumentFragment, 
+ *          returns the root element since fragments get emptied when appended
  */
 export function renderDomElement(
 	hNode: HNode,
@@ -32,15 +38,18 @@ export function renderDomElement(
 }
 
 /**
- * Creates a DOM element based on a HNode or a string.
- *
- * If the input is a string, it creates aexport { events } from "./events";
- text node.
- * If the input is a HNode, it creates an element of the specified type,
- * applies the given properties, and processes any children.
- *
- * @param hNode - The HNode or string to create the DOM element from.
- * @returns The created HTMLElement, Text node, or DocumentFragment.
+ * Creates a DOM element based on the provided HNode.
+ * 
+ * This function handles different types of HNodes:
+ * - If the HNode is a string or number, it creates a text node.
+ * - If the HNode has a type, it creates an HTML element of that type.
+ * - If the HNode has no type, it treats it as a fragment and processes its children.
+ * 
+ * @param hNode - The hierarchical node to render
+ * @param rootSelector - A CSS selector for the root element
+ * @param context - The context object for rendering
+ * 
+ * @returns The created DOM element, text node, or document fragment
  */
 function createDomElement(
 	hNode: HNode | string | number,
@@ -71,6 +80,15 @@ function createDomElement(
 	return element;
 }
 
+/**
+ * Renders a fragment by creating a document fragment and appending its children.
+ * 
+ * @param hNode - The hierarchical node to render
+ * @param rootSelector - A CSS selector for the root element
+ * @param context - The context object for rendering
+ * 
+ * @returns A DocumentFragment containing the rendered children
+ */
 function renderFragments(
 	hNode: HNode,
 	rootSelector: string,
@@ -83,7 +101,12 @@ function renderFragments(
 }
 
 /**
- * Appends rendered child elements to the specified DOM element.
+ * Renders the children of a given HNode into the specified DOM element.
+ * 
+ * @param element - The DOM element to which the children will be appended
+ * @param hNode - The hierarchical node containing the children to render
+ * @param rootSelector - A CSS selector for the root element
+ * @param context - The context object for rendering
  */
 function renderChildren(
 	element: HTMLElement | DocumentFragment,

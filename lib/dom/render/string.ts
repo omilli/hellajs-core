@@ -32,7 +32,6 @@ export function renderStringElement(hNode: HNode | string): string {
 /**
  * Sets HTML attributes and properties on a DOM element based on a provided props object.
  *
- * @param element - The HTML element to apply attributes and properties to
  * @param props - An object containing the properties to apply to the element
  *
  */
@@ -54,11 +53,13 @@ function handleProps(props: HNode["props"] = {}) {
 	return html.join("");
 }
 
+
 /**
- * Appends rendered child elements to the specified DOM element.
- *
- * @param element - The parent HTML element to append children to
- * @param children - Array of child elements to be rendered and appended
+ * Renders an array of child nodes into an HTML string.
+ * 
+ * @param children - The array of child nodes to render. Defaults to an empty array.
+ * @returns A string containing the HTML representation of all child nodes concatenated together.
+ *          Returns an empty string if children is falsy or empty.
  */
 function renderChildren(children: HNode["children"] = []) {
 	if (!children || children.length === 0) return "";

@@ -29,8 +29,12 @@ export function propProcessor(
 		}
 	});
 }
+
 /**
- * Sets HTML attributes and properties on a DOM element
+ * Processes and applies properties to a given DOM element.
+ *
+ * @param element - The DOM element to which properties will be applied
+ * @param props - An object containing properties to be applied to the element
  */
 export function processProps(
 	element: HTMLElement,
@@ -49,6 +53,13 @@ export function processProps(
 	});
 }
 
+/**
+ * Processes event properties for a given HNode and sets up event delegation.
+ *
+ * @param element - The DOM element to which event properties will be applied
+ * @param hNode - The HNode containing event properties
+ * @param rootSelector - A CSS selector for the root element
+ */
 export function processEventProps(
 	element: HTMLElement,
 	hNode: HNode,
