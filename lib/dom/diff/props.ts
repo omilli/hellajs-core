@@ -13,10 +13,10 @@ export function updateProps(
 /**
  * Checks an HTML element's attributes and identifies those that should be removed.
  * An attribute is marked for removal if it doesn't start with 'data-' and is not 'class'.
- * 
+ *
  * @param element - The HTML element whose attributes are to be checked
  * @param attrsToRemove - A Set to which the names of attributes to be removed will be added
- * 
+ *
  * @remarks
  * The function identifies data attribute names by directly comparing character codes:
  * - 100, 97, 116, 97, 45 correspond to 'd', 'a', 't', 'a', '-'
@@ -47,18 +47,18 @@ function checkProps(element: HTMLElement, attrsToRemove: Set<string>): void {
 
 /**
  * Applies a set of properties to an HTML element.
- * 
+ *
  * @param props - The properties to apply to the element.
  * @param element - The HTML element to apply properties to.
  * @param attrsToRemove - A set of attribute names that should be removed from the element.
  *                        Attributes that are processed will be deleted from this set.
- * 
+ *
  * @remarks
  * This function processes three types of properties:
  * - Class properties: Updates the element's className if different from the provided value.
  * - Boolean properties: Ensures the attribute exists on the element.
  * - Regular properties: Sets the attribute value on the element if different from the current value.
- * 
+ *
  * All processed attributes are removed from the attrsToRemove set, indicating they should be kept.
  */
 function applyProps(

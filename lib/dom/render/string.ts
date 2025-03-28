@@ -53,10 +53,9 @@ function handleProps(props: HNode["props"] = {}) {
 	return html.join("");
 }
 
-
 /**
  * Renders an array of child nodes into an HTML string.
- * 
+ *
  * @param children - The array of child nodes to render. Defaults to an empty array.
  * @returns A string containing the HTML representation of all child nodes concatenated together.
  *          Returns an empty string if children is falsy or empty.

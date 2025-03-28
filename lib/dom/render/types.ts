@@ -3,22 +3,21 @@ import type { HNode } from "../types";
 export type RenderPropHandler = {
 	/**
 	 * Handles className properties.
-	 * @param className 
+	 * @param className
 	 */
 	classProp(className: string): void;
 	/**
 	 * Handles boolean properties (e.g., checked, disabled).
-	 * @param key 
+	 * @param key
 	 */
 	boolProp(key: string): void;
 	/**
 	 * Handles regular properties (e.g., id, value).
-	 * @param key 
-	 * @param value 
+	 * @param key
+	 * @param value
 	 */
 	regularProp(key: string, value: any): void;
 };
-
 
 export type RenderedElement = HTMLElement | Text | DocumentFragment;
 

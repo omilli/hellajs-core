@@ -4,26 +4,25 @@ import { diffChildren } from "./children";
 import { renderElement } from "./render";
 import { updateElement } from "./update";
 
-
 /**
  * Compares and reconciles a real DOM node with a virtual node (HNode) representation.
  * This is the core diffing function that handles different node types and updates the DOM efficiently.
- * 
+ *
  * @param domNode - The existing DOM node to be updated
  * @param hNode - The virtual node representation to reconcile with
  * @param parentElement - The parent element in the DOM tree where replacements would occur if necessary
  * @param rootContext - Root context containing state and global handlers
  * @param rootSelector - CSS selector string identifying the root element
  * @param context - Current context with scoped state and handlers
- * 
+ *
  * @returns The updated DOM node (which might be a new node if replacement occurred)
- * 
+ *
  * @remarks
  * The function handles three main cases:
  * 1. Text nodes (when hNode is a string or number)
  * 2. Fragment nodes (when hNode.type is undefined or null)
  * 3. Regular HTML elements
- * 
+ *
  * If the node types don't match, the old DOM node is replaced with a new one.
  */
 export function diffNode(
@@ -78,13 +77,13 @@ export function diffNode(
 
 /**
  * Handles the rendering and diffing of DocumentFragment nodes in the virtual DOM.
- * 
+ *
  * This function has two modes of operation:
  * 1. If the provided node is already a DocumentFragment (nodeType === 11), it efficiently updates its contents
  *    by diffing the current children with the new virtual node children.
  * 2. If the provided node is not a DocumentFragment, it creates a new DocumentFragment, renders the children
  *    into it, and replaces the original node in the parent element.
- * 
+ *
  * @param domNode - The DOM node to update or replace
  * @param children - Virtual node children to render into the fragment
  * @param rootSelector - Selector string identifying the root element
@@ -135,12 +134,12 @@ function handleFragment(
 
 /**
  * Updates or replaces a DOM node with text content based on a hyperscript value.
- * 
+ *
  * @param domNode - The existing DOM Text node to update or replace
  * @param hNode - The hyperscript value (string or number) to use as text content
  * @param parentElement - The parent element containing the DOM node
  * @returns The updated or newly created Text node
- * 
+ *
  * If the existing node is already a Text node (nodeType === 3), its content will be updated.
  * Otherwise, the node will be replaced with a new Text node in the parent element.
  */

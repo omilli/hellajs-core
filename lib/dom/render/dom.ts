@@ -2,17 +2,16 @@ import type { Context } from "../../context";
 import type { HNode } from "../types";
 import { processEventProps, processProps } from "./props";
 
-
 /**
  * Renders an HNode to the DOM by creating a DOM element and appending it to the specified root element.
  * Clears the root element's content before appending the new element.
- * 
+ *
  * @param hNode - The hierarchical node to render
  * @param rootElement - The DOM element that will contain the rendered element
  * @param rootSelector - A CSS selector for the root element
  * @param context - The context object for rendering
- * 
- * @returns The rendered DOM element, text node, or in case of a DocumentFragment, 
+ *
+ * @returns The rendered DOM element, text node, or in case of a DocumentFragment,
  *          returns the root element since fragments get emptied when appended
  */
 export function renderDomElement(
@@ -39,16 +38,16 @@ export function renderDomElement(
 
 /**
  * Creates a DOM element based on the provided HNode.
- * 
+ *
  * This function handles different types of HNodes:
  * - If the HNode is a string or number, it creates a text node.
  * - If the HNode has a type, it creates an HTML element of that type.
  * - If the HNode has no type, it treats it as a fragment and processes its children.
- * 
+ *
  * @param hNode - The hierarchical node to render
  * @param rootSelector - A CSS selector for the root element
  * @param context - The context object for rendering
- * 
+ *
  * @returns The created DOM element, text node, or document fragment
  */
 function createDomElement(
@@ -82,11 +81,11 @@ function createDomElement(
 
 /**
  * Renders a fragment by creating a document fragment and appending its children.
- * 
+ *
  * @param hNode - The hierarchical node to render
  * @param rootSelector - A CSS selector for the root element
  * @param context - The context object for rendering
- * 
+ *
  * @returns A DocumentFragment containing the rendered children
  */
 function renderFragments(
@@ -102,7 +101,7 @@ function renderFragments(
 
 /**
  * Renders the children of a given HNode into the specified DOM element.
- * 
+ *
  * @param element - The DOM element to which the children will be appended
  * @param hNode - The hierarchical node containing the children to render
  * @param rootSelector - A CSS selector for the root element

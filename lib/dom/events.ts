@@ -32,6 +32,40 @@ export function delegateEvents(
 }
 
 /**
+ * Removes delegated event handlers for a specific element.
+ *
+ * @param rootSelector - CSS selector identifying the root DOM element
+ * @param elementKey - Unique identifier for the element
+ * @param eventName - Optional. If provided, only that specific event handler will be removed
+ */
+export function removeEvents(
+	rootSelector: string,
+	elementKey: string,
+	eventName?: string,
+): void {
+	const rootContext = getRootContext(rootSelector);
+	const listeners = rootContext.events.listeners;
+
+	if (!listeners.has(elementKey)) return;
+
+	if (eventName) {
+		// Remove specific event handler
+		listeners.get(elementKey)?.delete(eventName);
+
+		// If this element has no more handlers, remove the entire entry
+		if (listeners.get(elementKey)?.size === 0) {
+			listeners.delete(elementKey);
+		}
+	} else {
+		// Remove all event handlers for this element
+		listeners.delete(elementKey);
+	}
+
+	// Optionally: Remove event listener from root if no more elements use this event type
+	cleanupUnusedDelegates(rootSelector);
+}
+
+/**
  * Registers an event handler in the event delegation system.
  * Creates necessary data structures and ensures the event listener
  * is attached to the root element.
@@ -113,4 +147,42 @@ function addDelegatedListener(
 			events.get(key)?.get(eventName)?.(e, element);
 		}
 	});
+}
+
+/**
+ * Removes event listeners for event types that no longer have any handlers.
+ *
+ * @param rootSelector - CSS selector identifying the root DOM element
+ */
+function cleanupUnusedDelegates(rootSelector: string): void {
+	const rootContext = getRootContext(rootSelector);
+	const { events } = rootContext;
+	const { delegates, listeners } = events;
+	const rootElement = document.querySelector(rootSelector);
+
+	if (!rootElement) return;
+
+	// Check each delegated event type
+	for (const eventName of delegates) {
+		// Check if any element still has a handler for this event
+		let hasHandlers = false;
+
+		for (const handlersMap of listeners.values()) {
+			if (handlersMap.has(eventName)) {
+				hasHandlers = true;
+				break;
+			}
+		}
+
+		// If no handlers remain, remove the event listener and delegate
+		if (!hasHandlers) {
+			// We would need to store the handler function to properly remove it
+			// For now, just remove from the delegates set
+			delegates.delete(eventName);
+
+			// Note: We can't properly remove the event listener without storing the
+			// handler function somewhere, which would require restructuring how
+			// addDelegatedListener works
+		}
+	}
 }

@@ -5,7 +5,6 @@ import { renderDomElement } from "./dom";
 import { renderStringElement } from "./string";
 import type { RenderedNode } from "./types";
 
-
 /**
  * Renders a hypertext node (HNode) as either a DOM element or a string.
  *
@@ -16,7 +15,7 @@ import type { RenderedNode } from "./types";
  * @param hNode - The hypertext node to render
  * @param rootSelector - Optional CSS selector to target the DOM element where rendering should occur
  * @param context - The rendering context, defaults to value from getDefaultContext()
- * 
+ *
  * @returns In server environments, returns a string representation of the rendered element.
  *          In client environments, returns a {@link RenderedNode} object containing the rendered DOM element and original hNode.
  */
