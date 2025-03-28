@@ -15,15 +15,15 @@ const contextStore: Map<string, Context> = new Map();
 
 /**
  * Creates and initializes a new reactive context.
- * 
+ *
  * A context is the central container for managing reactive state and DOM operations.
  * It provides methods for creating and managing signals, effects, computed values,
  * and rendering to the DOM.
- * 
+ *
  * @param id - Optional identifier for the context. If not provided, a unique ID will be generated
  * with the prefix "context-".
  * @returns A new Context object with initialized reactive state management and DOM utilities.
- * 
+ *
  */
 export function context(id = `context-${generateKey()}`): Context {
 	// Create a new context object
@@ -61,11 +61,11 @@ export function context(id = `context-${generateKey()}`): Context {
 
 /**
  * Retrieves the default context from the global scope.
- * 
+ *
  * This function ensures that a single shared context instance exists in the global scope.
  * If the context doesn't already exist, it creates a new one using the `context()` function
  * and stores it in the global object under the key "domContext".
- * 
+ *
  * @returns The default context instance.
  */
 export function getDefaultContext(): Context {

@@ -1,7 +1,14 @@
-// Generate a unique key if one isn't provided
 const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 const charlength = chars.length;
 
+/**
+ * Generates a random string key of 6 characters.
+ * 
+ * The key is composed of characters randomly selected from the 
+ * predefined character set (`chars`).
+ * 
+ * @returns A random 6-character string
+ */
 export function generateKey(): string {
 	let result = "";
 	for (let i = 0; i < 6; i++) {

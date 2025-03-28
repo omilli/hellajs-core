@@ -1,36 +1,9 @@
 import type { HNode, HNodeProps, HTMLTagName } from "./types";
 
-function createElement(type: HTMLTagName): (...args: any[]) => HNode {
-	return (...args: any[]) => {
-		const props: HNodeProps =
-			args[0] &&
-			typeof args[0] === "object" &&
-			!Array.isArray(args[0]) &&
-			!(args[0].type && args[0].props && args[0].children)
-				? args.shift()
-				: {};
-
-		const children = args.flat().map((child) => {
-			if (typeof child === "string" || typeof child === "number") {
-				return String(child);
-			} else if (
-				child &&
-				typeof child === "object" &&
-				"type" in child &&
-				"props" in child &&
-				"children" in child
-			) {
-				return child;
-			} else {
-				return String(child);
-			}
-		});
-
-		return { type, props, children, element: "" };
-	};
-}
-
-// Create HTML element factory functions dynamically using a Proxy
+/**
+ * The html object provides a JSX-like API for creating virtual DOM elements.
+ * It uses a Proxy to dynamically generate element creation functions for any HTML tag.
+ */
 export const html = new Proxy(
 	{},
 	{
@@ -43,10 +16,60 @@ export const html = new Proxy(
 				return target[prop];
 			}
 
-			// Create new element function and cache it
+			// Create new element function and cache it for future use
+			// This avoids recreating functions for commonly used elements
 			const elementFn = createElement(prop);
 			target[prop] = elementFn;
 			return elementFn;
 		},
 	},
 );
+
+/**
+ * Creates a function that generates virtual DOM nodes for a specific HTML tag type.
+ * The returned function accepts props and children, handling various input formats.
+ *
+ * @param type - The HTML tag name (e.g., 'div', 'span', 'button')
+ * @returns A function that creates virtual DOM nodes (HNode objects)
+ */
+function createElement(type: HTMLTagName): (...args: any[]) => HNode {
+	return (...args: any[]) => {
+		// Extract props object if the first argument is a valid props object
+		// Otherwise use an empty object as props
+		const props: HNodeProps =
+			args[0] &&
+			typeof args[0] === "object" &&
+			!Array.isArray(args[0]) &&
+			!(args[0].type && args[0].props && args[0].children)
+				? args.shift()
+				: {};
+
+		// Process children, handling different types:
+		// - Strings and numbers are converted to text nodes
+		// - Nested HNode objects are kept as-is
+		// - Other values are stringified
+		const children = args.flat().map((child) => {
+			if (typeof child === "string" || typeof child === "number") {
+				// Text nodes are represented as strings
+				return String(child);
+			} else if (
+				child &&
+				typeof child === "object" &&
+				"type" in child &&
+				"props" in child &&
+				"children" in child
+			) {
+				// Child is already an HNode, pass through unchanged
+				return child;
+			} else {
+				// Convert other values to strings
+				return String(child);
+			}
+		});
+
+		// Create and return the virtual DOM node
+		// The element property is initially empty and will be
+		// populated when the virtual node is rendered to the DOM
+		return { type, props, children, element: "" };
+	};
+}
