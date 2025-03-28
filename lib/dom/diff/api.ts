@@ -6,8 +6,16 @@ import { renderElement } from "./render";
 import type { DiffConfig } from "./types";
 
 /**
- * Main diffing function that compares a new virtual DOM tree with the existing DOM
- * and performs minimal updates to bring the DOM in sync with the virtual DOM
+ * Updates an existing DOM tree with changes from a virtual DOM node.
+ * This is the main entry point for the virtual DOM diffing algorithm.
+ *
+ * When the root element already has children, it performs an intelligent diff
+ * to minimize DOM operations. Otherwise, it performs a fresh render.
+ *
+ * @param hNode - The virtual DOM node representing the new state
+ * @param rootSelector - CSS selector string identifying where to mount the DOM
+ * @param context - Optional context object with reactivity settings (uses default if not provided)
+ * @returns The resulting DOM element, text node, or document fragment
  */
 export function diff(
 	hNode: HNode,
@@ -31,6 +39,13 @@ export function diff(
 	}
 }
 
+/**
+ * Handles diffing when the root element already has children.
+ * This efficiently updates existing DOM nodes instead of recreating them.
+ *
+ * @param diffConfig - Configuration object containing the virtual node, root element, and context
+ * @returns The updated root element after diffing
+ */
 function handleChildren({
 	hNode,
 	rootSelector,
@@ -56,6 +71,13 @@ function handleChildren({
 	return rootElement as HTMLElement;
 }
 
+/**
+ * Handles diffing when the root element has no children.
+ * This performs a fresh render and appends the new elements to the root.
+ *
+ * @param diffConfig - Configuration object containing the virtual node, root element, and context
+ * @returns The newly created element or the root element for fragments
+ */
 function handleChildess({
 	hNode,
 	rootSelector,

@@ -13,10 +13,10 @@ export type EventFn = (e: Event, el?: HTMLElement) => void;
  * Uses template literals to convert event names to their 'on*' format.
  */
 type HNodeEventHandlers = {
-    [K in keyof GlobalEventHandlersEventMap as `on${string & K}`]?: (
-        event: GlobalEventHandlersEventMap[K],
-        element?: HTMLElement,
-    ) => void;
+	[K in keyof GlobalEventHandlersEventMap as `on${string & K}`]?: (
+		event: GlobalEventHandlersEventMap[K],
+		element?: HTMLElement,
+	) => void;
 };
 
 /**
@@ -24,9 +24,9 @@ type HNodeEventHandlers = {
  * Excludes event handlers (which are handled separately) and combines with HNodeEventHandlers.
  */
 type HNodeAttributes<T extends HTMLTagName> = {
-    [K in keyof HTMLElementTagNameMap[T] as K extends `on${string}`
-        ? never
-        : K]?: HTMLElementTagNameMap[T][K];
+	[K in keyof HTMLElementTagNameMap[T] as K extends `on${string}`
+		? never
+		: K]?: HTMLElementTagNameMap[T][K];
 } & HNodeEventHandlers;
 
 /**
@@ -34,10 +34,10 @@ type HNodeAttributes<T extends HTMLTagName> = {
  * Combines element-specific attributes with common properties.
  */
 export type HNodeProps = HNodeAttributes<HNodeBase["type"]> & {
-    className?: string;
-    key?: string | number;
-    preventDefault?: boolean;
-    stopPropagation?: boolean;
+	className?: string;
+	key?: string | number;
+	preventDefault?: boolean;
+	stopPropagation?: boolean;
 };
 
 /**
@@ -45,9 +45,9 @@ export type HNodeProps = HNodeAttributes<HNodeBase["type"]> & {
  * Represents an HTML element with its type, properties, and children.
  */
 export interface HNodeBase {
-    type: HTMLTagName;
-    props?: HNodeProps;
-    children?: (HNode | string)[];
+	type: HTMLTagName;
+	props?: HNodeProps;
+	children?: (HNode | string)[];
 }
 
 /**

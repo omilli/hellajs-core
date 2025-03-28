@@ -3,8 +3,25 @@ import type { HNode } from "../types";
 import { diffNode } from "./nodes";
 import { renderElement } from "./render";
 
+
 /**
- * Compares and updates children of an element
+ * Reconciles differences between actual DOM children and virtual DOM node children.
+ * This function is responsible for efficiently updating the DOM to match the virtual representation.
+ * 
+ * The function handles three main cases:
+ * 1. If there are more DOM children than virtual children, it removes excess DOM nodes
+ * 2. For existing DOM nodes that have a corresponding virtual node, it updates them via diffNode
+ * 3. For virtual nodes that don't have a corresponding DOM node, it creates and appends new DOM nodes
+ * 
+ * @param domChildren - Array of actual DOM elements (HTMLElement or Text nodes)
+ * @param hNodeChildren - Array of virtual DOM nodes (HNode objects or primitive values like strings/numbers)
+ * @param parentElement - The parent DOM element containing the children being diffed
+ * @param rootContext - Context object for the component root
+ * @param rootSelector - CSS selector string that identifies the root
+ * @param context - Additional context information for rendering
+ * 
+ * @remarks
+ * The function optimizes DOM operations by batching removals from the end to avoid layout thrashing.
  */
 export function diffChildren(
 	domChildren: (HTMLElement | Text)[],
