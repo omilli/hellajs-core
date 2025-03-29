@@ -114,7 +114,7 @@ function addEvent(
 
 	// Extract the events tracking system from the root context
 	const { events } = rootContext;
-	const { delegates, handlers, listeners } = events;
+	const { delegates, handlers, listeners = new Map() } = events;
 
 	// If this event type hasn't been delegated yet, set it up
 	if (!delegates.has(eventName)) {
