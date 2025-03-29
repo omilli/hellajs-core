@@ -1,4 +1,5 @@
 import type { Context, RootContext } from "../../context";
+import { removeDelegatedEvents } from "../events";
 import type { HNode } from "../types";
 import { diffNode } from "./nodes";
 import { renderElement } from "./render";
@@ -36,6 +37,17 @@ export function diffChildren(
 	// Handle case where we have more DOM children than virtual children
 	// Batch removals by removing from end to avoid layout thrashing
 	if (domLen > vdomLen) {
+		// Clean up event handlers for removed elements before removing them
+		for (let i = vdomLen; i < domLen; i++) {
+			const element = domChildren[i] as HTMLElement;
+			if (element.nodeType === 1) {
+				// Element node
+				const elementKey = element.dataset["eKey"];
+				if (elementKey) {
+					removeDelegatedEvents(rootSelector, elementKey);
+				}
+			}
+		}
 		// Bulk removal is faster than one-by-one
 		const removeCount = domLen - vdomLen;
 		for (let i = 0; i < removeCount; i++) {
