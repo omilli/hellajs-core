@@ -92,7 +92,11 @@ export type RootContext = {
 		/**
 		 * A mapping of event types to their corresponding event handlers.
 		 */
-		listeners: Map<string, Map<string, EventFn>>;
+		handlers: Map<string, Map<string, EventFn>>;
+		/**
+		 * A mapping of element keys to their corresponding event handlers.
+		 */
+		listeners: Map<string, EventListener>;
 	};
 };
 

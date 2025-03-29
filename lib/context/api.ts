@@ -94,7 +94,7 @@ export function getRootContext(
 		dom.rootStore.set(rootSelector, {
 			events: {
 				delegates: new Set(),
-				listeners: new Map(),
+				handlers: new Map(),
 			},
 		});
 	}

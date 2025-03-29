@@ -9,7 +9,7 @@ A lightweight, high-performance reactive DOM library with a fine-grained reactiv
 - **🧩 Functional Component Model**: Simple functional approach to building UI components
 - **📦 Zero Dependencies**: Standalone implementation with no external requirements
 - **🔄 Batched Updates**: Optimized rendering with intelligent update batching
-- **🎯 Event Delegation**: Efficient event handling that minimizes listeners
+- **🎯 Event Delegation**: Efficient event handling that minimizes handlers
 - **📝 TypeScript Support**: Full TypeScript support with comprehensive type definitions
 
 ## Reactive Primitives

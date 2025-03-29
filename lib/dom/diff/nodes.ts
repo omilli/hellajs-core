@@ -1,4 +1,5 @@
 import type { Context, RootContext } from "../../context";
+import { removeDelegatedEvents } from "../events";
 import type { HNode } from "../types";
 import { diffChildren } from "./children";
 import { renderElement } from "./render";
@@ -55,6 +56,15 @@ export function diffNode(
 
 	// Handle regular elements
 	if (domNode.nodeType === 1) {
+		// Check if the DOM node has event handlers that need to be cleaned up
+    const oldElement = domNode as HTMLElement;
+    const elementKey = oldElement.dataset["eKey"];
+    
+    if (elementKey) {
+        // Clean up event handlers for this element
+        removeDelegatedEvents(rootSelector, elementKey);
+    }
+
 		// If node types match, update the element - use direct lowercase comparison when possible
 		const isMatch =
 			(domNode as HTMLElement).tagName.toLowerCase() === type.toLowerCase();
