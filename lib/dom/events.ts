@@ -48,7 +48,7 @@ export function cleanupAllDelegatedEvents(rootSelector: string): void {
 
 	// Remove all event listeners
 	for (const [eventName, handler] of listeners.entries()) {
-			rootElement.removeEventListener(eventName, handler);
+		rootElement.removeEventListener(eventName, handler);
 	}
 
 	// Clear data structures
