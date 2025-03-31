@@ -68,7 +68,7 @@ export function context(id = `context-${generateKey()}`): Context {
  */
 export function getDefaultContext(): Context {
 	const globalContext = getGlobalThis();
-	const key = "context-default";
+	const key = "hellaContext";
 
 	if (!globalContext[key]) {
 		globalContext[key] = context();
