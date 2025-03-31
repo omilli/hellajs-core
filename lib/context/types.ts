@@ -1,4 +1,4 @@
-import type { EventFn, HNode } from "../dom";
+import type { EventFn, VNode } from "../dom";
 import type {
 	EffectFn,
 	EffectOptions,
@@ -46,11 +46,11 @@ export type Context = {
 	/**
 	 * Renders a virtual node to the DOM at the specified selector
 	 */
-	render: (element: HNode, rootSelector: string) => void;
+	render: (element: VNode, rootSelector: string) => void;
 	/**
 	 * Updates an existing DOM node with changes from a virtual node
 	 */
-	diff: (element: HNode, rootSelector: string) => void;
+	diff: (element: VNode, rootSelector: string) => void;
 	/**
 	 * Provides reactive context utilities
 	 */

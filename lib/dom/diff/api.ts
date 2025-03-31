@@ -1,5 +1,5 @@
 import { getDefaultContext } from "../../context";
-import type { HNode } from "../types";
+import type { VNode } from "../types";
 import { getRootElement } from "../utils";
 import { diffChildren } from "./children";
 import { renderElement } from "./render";
@@ -12,13 +12,13 @@ import type { DiffConfig } from "./types";
  * When the root element already has children, it performs an intelligent diff
  * to minimize DOM operations. Otherwise, it performs a fresh render.
  *
- * @param hNode - The virtual DOM node representing the new state
+ * @param vNode - The virtual DOM node representing the new state
  * @param rootSelector - CSS selector string identifying where to mount the DOM
  * @param context - Optional context object with reactivity settings (uses default if not provided)
  * @returns The resulting DOM element, text node, or document fragment
  */
 export function diff(
-	hNode: HNode,
+	vNode: VNode,
 	rootSelector: string,
 	context = getDefaultContext(),
 ): HTMLElement | Text | DocumentFragment {
@@ -26,7 +26,7 @@ export function diff(
 
 	const hasChildren = rootElement.childNodes.length > 0;
 	const diffConfig: DiffConfig = {
-		hNode,
+		vNode,
 		rootSelector,
 		rootElement,
 		context,
@@ -47,7 +47,7 @@ export function diff(
  * @returns The updated root element after diffing
  */
 function handleChildren({
-	hNode,
+	vNode,
 	rootSelector,
 	rootElement,
 	context,
@@ -58,13 +58,7 @@ function handleChildren({
 		children[i] = rootElement.childNodes[i] as HTMLElement | Text;
 	}
 
-	diffChildren(
-		children,
-		[hNode],
-		rootElement,
-		rootSelector,
-		context,
-	);
+	diffChildren(children, [vNode], rootElement, rootSelector, context);
 
 	return rootElement as HTMLElement;
 }
@@ -77,12 +71,12 @@ function handleChildren({
  * @returns The newly created element or the root element for fragments
  */
 function handleChildess({
-	hNode,
+	vNode,
 	rootSelector,
 	rootElement,
 	context,
 }: DiffConfig) {
-	const element = renderElement(hNode, rootSelector, context);
+	const element = renderElement(vNode, rootSelector, context);
 	rootElement.appendChild(element);
 	return element instanceof DocumentFragment
 		? (rootElement as HTMLElement)

@@ -1,6 +1,6 @@
-import { getRootContext, type Context } from "../../context";
+import { type Context, getRootContext } from "../../context";
 import { cleanupEventHandlers } from "../events";
-import type { HNode } from "../types";
+import type { VNode } from "../types";
 import { diffNode } from "./nodes";
 import { renderElement } from "./render";
 
@@ -14,7 +14,7 @@ import { renderElement } from "./render";
  * 3. For virtual nodes that don't have a corresponding DOM node, it creates and appends new DOM nodes
  *
  * @param domChildren - Array of actual DOM elements (HTMLElement or Text nodes)
- * @param hNodeChildren - Array of virtual DOM nodes (HNode objects or primitive values like strings/numbers)
+ * @param vNodeChildren - Array of virtual DOM nodes (VNode objects or primitive values like strings/numbers)
  * @param parentElement - The parent DOM element containing the children being diffed
  * @param rootSelector - CSS selector string that identifies the root
  * @param context - Additional context information for rendering
@@ -24,13 +24,13 @@ import { renderElement } from "./render";
  */
 export function diffChildren(
 	domChildren: (HTMLElement | Text)[],
-	hNodeChildren: (HNode | string | number)[],
+	vNodeChildren: (VNode | string | number)[],
 	parentElement: Element | DocumentFragment,
 	rootSelector: string,
 	context: Context,
 ): void {
 	const domLen = domChildren.length;
-	const vdomLen = hNodeChildren.length;
+	const vdomLen = vNodeChildren.length;
 	const rootContext = getRootContext(rootSelector, context);
 
 	// Handle case where we have more DOM children than virtual children
@@ -48,13 +48,13 @@ export function diffChildren(
 
 	// Process each child
 	for (let i = 0; i < vdomLen; i++) {
-		const hNodeChild = hNodeChildren[i];
+		const vNodeChild = vNodeChildren[i];
 
 		if (i < domLen) {
 			// Update existing node
 			diffNode(
 				domChildren[i],
-				hNodeChild,
+				vNodeChild,
 				parentElement,
 				rootSelector,
 				context,
@@ -62,7 +62,7 @@ export function diffChildren(
 		} else {
 			// Add new node
 			parentElement.appendChild(
-				renderElement(hNodeChild, rootSelector, context),
+				renderElement(vNodeChild, rootSelector, context),
 			);
 		}
 	}

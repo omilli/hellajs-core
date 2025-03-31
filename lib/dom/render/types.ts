@@ -1,4 +1,4 @@
-import type { HNode } from "../types";
+import type { VNode } from "../types";
 
 export type RenderPropHandler = {
 	/**
@@ -27,7 +27,7 @@ export interface RenderedNode {
 	 */
 	element: DocumentFragment | HTMLElement | Text;
 	/**
-	 * The original hierarchical node (HNode) that was rendered.
+	 * The original hierarchical node (VNode) that was rendered.
 	 */
-	hNode: HNode;
+	vNode: VNode;
 }

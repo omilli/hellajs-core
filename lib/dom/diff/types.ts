@@ -1,8 +1,8 @@
 import type { Context } from "../../context";
-import type { HNode } from "../types";
+import type { VNode } from "../types";
 
 export type DiffConfig = {
-	hNode: HNode;
+	vNode: VNode;
 	rootSelector: string;
 	rootElement: Element;
 	context: Context;

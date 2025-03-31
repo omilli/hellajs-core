@@ -1,15 +1,15 @@
 import type { Context } from "../../context";
-import type { HNode } from "../types";
+import type { VNode } from "../types";
 import { diffChildren } from "./children";
 import { renderElement } from "./render";
 import { updateElement } from "./update";
 
 /**
- * Compares and reconciles a real DOM node with a virtual node (HNode) representation.
+ * Compares and reconciles a real DOM node with a virtual node (VNode) representation.
  * This is the core diffing function that handles different node types and updates the DOM efficiently.
  *
  * @param domNode - The existing DOM node to be updated
- * @param hNode - The virtual node representation to reconcile with
+ * @param vNode - The virtual node representation to reconcile with
  * @param parentElement - The parent element in the DOM tree where replacements would occur if necessary
  * @param rootSelector - CSS selector string identifying the root element
  * @param context - Current context with scoped state and handlers
@@ -18,26 +18,26 @@ import { updateElement } from "./update";
  *
  * @remarks
  * The function handles three main cases:
- * 1. Text nodes (when hNode is a string or number)
- * 2. Fragment nodes (when hNode.type is undefined or null)
+ * 1. Text nodes (when vNode is a string or number)
+ * 2. Fragment nodes (when vNode.type is undefined or null)
  * 3. Regular HTML elements
  *
  * If the node types don't match, the old DOM node is replaced with a new one.
  */
 export function diffNode(
 	domNode: HTMLElement | DocumentFragment | Text,
-	hNode: HNode | string | number,
+	vNode: VNode | string | number,
 	parentElement: Element | DocumentFragment,
 	rootSelector: string,
 	context: Context,
 ): HTMLElement | Text | DocumentFragment {
 	// Handle text nodes - faster primitive type check
-	const hNodeType = typeof hNode;
-	if (hNodeType === "string" || hNodeType === "number") {
-		return handleText(domNode as Text, hNode as string | number, parentElement);
+	const vNodeType = typeof vNode;
+	if (vNodeType === "string" || vNodeType === "number") {
+		return handleText(domNode as Text, vNode as string | number, parentElement);
 	}
 
-	const { type, children = [] } = hNode as HNode;
+	const { type, children = [] } = vNode as VNode;
 
 	// Handle fragment (when type is undefined or null)
 	if (!type) {
@@ -58,7 +58,7 @@ export function diffNode(
 		if (isMatch) {
 			return updateElement(
 				domNode as HTMLElement,
-				hNode as HNode,
+				vNode as VNode,
 				rootSelector,
 				context,
 			);
@@ -66,7 +66,7 @@ export function diffNode(
 	}
 
 	// Types don't match, create a new element and replace
-	const newElement = renderElement(hNode, rootSelector, context);
+	const newElement = renderElement(vNode, rootSelector, context);
 	parentElement.replaceChild(newElement, domNode);
 	return newElement;
 }
@@ -89,7 +89,7 @@ export function diffNode(
  */
 function handleFragment(
 	domNode: DocumentFragment,
-	children: HNode["children"] = [],
+	children: VNode["children"] = [],
 	rootSelector: string,
 	parentElement: Element | DocumentFragment,
 	context: Context,
@@ -103,13 +103,7 @@ function handleFragment(
 			domChildren[i] = domNode.childNodes[i] as HTMLElement | Text;
 		}
 
-		diffChildren(
-			domChildren,
-			children,
-			domNode,
-			rootSelector,
-			context,
-		);
+		diffChildren(domChildren, children, domNode, rootSelector, context);
 		return domNode;
 	} else {
 		// Replace with a fragment - use document fragment for batch operation
@@ -129,7 +123,7 @@ function handleFragment(
  * Updates or replaces a DOM node with text content based on a hyperscript value.
  *
  * @param domNode - The existing DOM Text node to update or replace
- * @param hNode - The hyperscript value (string or number) to use as text content
+ * @param vNode - The hyperscript value (string or number) to use as text content
  * @param parentElement - The parent element containing the DOM node
  * @returns The updated or newly created Text node
  *
@@ -138,22 +132,22 @@ function handleFragment(
  */
 function handleText(
 	domNode: Text,
-	hNode: string | number,
+	vNode: string | number,
 	parentElement: Element | DocumentFragment,
 ): Text {
 	const nodeType = domNode.nodeType;
-	const hNodeStr = String(hNode);
+	const vNodeStr = String(vNode);
 
 	if (nodeType === 3) {
 		// Use direct constant instead of Node.TEXT_NODE
 		// Update text content if different
-		if (domNode.textContent !== hNodeStr) {
-			domNode.textContent = hNodeStr;
+		if (domNode.textContent !== vNodeStr) {
+			domNode.textContent = vNodeStr;
 		}
 		return domNode;
 	} else {
 		// Replace with a new text node
-		const newNode = document.createTextNode(hNodeStr);
+		const newNode = document.createTextNode(vNodeStr);
 		parentElement.replaceChild(newNode, domNode);
 		return newNode;
 	}

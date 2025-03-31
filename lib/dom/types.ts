@@ -1,18 +1,18 @@
 /**
- * Represents HTML tag names as keys from the HTMLElementTagNameMap.
+ * Represents valid HTML tag names.
  */
 export type HTMLTagName = keyof HTMLElementTagNameMap;
 
 /**
- * Represents an event handler function that receives an event and optional element.
+ * Event handler function that receives an event and optional target element.
  */
-export type EventFn = (e: Event, el?: HTMLElement) => void;
+export type EventFn = (e: Event, element?: HTMLElement) => void;
 
 /**
  * Maps DOM event types to their corresponding handler functions.
- * Uses template literals to convert event names to their 'on*' format.
+ * Allows us to use event name props with an "on" prefix.
  */
-type HNodeEventHandlers = {
+type VNodeEventHandlers = {
 	[K in keyof GlobalEventHandlersEventMap as `on${string & K}`]?: (
 		event: GlobalEventHandlersEventMap[K],
 		element?: HTMLElement,
@@ -21,19 +21,19 @@ type HNodeEventHandlers = {
 
 /**
  * Defines the properties available for a specific HTML element type.
- * Excludes event handlers (which are handled separately) and combines with HNodeEventHandlers.
+ * Excludes event handlers (which are handled separately).
  */
-type HNodeAttributes<T extends HTMLTagName> = {
+type VNodeAttributes<T extends HTMLTagName> = {
 	[K in keyof HTMLElementTagNameMap[T] as K extends `on${string}`
 		? never
 		: K]?: HTMLElementTagNameMap[T][K];
-} & HNodeEventHandlers;
+} & VNodeEventHandlers;
 
 /**
  * Represents properties that can be applied to a virtual DOM node.
  * Combines element-specific attributes with common properties.
  */
-export type HNodeProps = HNodeAttributes<HNodeBase["type"]> & {
+export type VNodeProps = VNodeAttributes<VNodeBase["type"]> & {
 	className?: string;
 	key?: string | number;
 	preventDefault?: boolean;
@@ -44,17 +44,17 @@ export type HNodeProps = HNodeAttributes<HNodeBase["type"]> & {
  * Defines the core structure of a virtual DOM node with required properties.
  * Represents an HTML element with its type, properties, and children.
  */
-export interface HNodeBase {
+export interface VNodeBase {
 	type: HTMLTagName;
-	props?: HNodeProps;
-	children?: (HNode | string)[];
+	props?: VNodeProps;
+	children?: (VNode | string)[];
 }
 
 /**
  * A flexible virtual DOM node where all properties are optional.
  * This allows for fragments (nodes without a type) and other special cases.
  */
-export type HNode = Partial<HNodeBase>;
+export type VNode = Partial<VNodeBase>;
 
 /**
  * Represents a component with an optional render method.

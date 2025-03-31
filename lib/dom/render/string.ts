@@ -1,20 +1,20 @@
-import type { HNode } from "../types";
+import type { VNode } from "../types";
 import { propProcessor } from "./props";
 import { escapeHTML } from "./utils";
 
 /**
  * Converts an element to its HTML string representation.
  *
- * @param hNode - The element to convert, either an HNode object or a string (text node)
+ * @param vNode - The element to convert, either an VNode object or a string (text node)
  * @returns The HTML string representation of the element
  */
-export function renderStringElement(hNode: HNode | string): string {
+export function renderStringElement(vNode: VNode | string): string {
 	// Handle text nodes
-	if (typeof hNode === "string" || typeof hNode === "number") {
-		return escapeHTML(String(hNode));
+	if (typeof vNode === "string" || typeof vNode === "number") {
+		return escapeHTML(String(vNode));
 	}
 
-	const { type, props, children } = hNode;
+	const { type, props, children } = vNode;
 
 	// Handle fragments (when type is undefined or null)
 	if (!type) {
@@ -35,7 +35,7 @@ export function renderStringElement(hNode: HNode | string): string {
  * @param props - An object containing the properties to apply to the element
  *
  */
-function handleProps(props: HNode["props"] = {}) {
+function handleProps(props: VNode["props"] = {}) {
 	const html: string[] = [];
 
 	propProcessor(props, {
@@ -60,7 +60,7 @@ function handleProps(props: HNode["props"] = {}) {
  * @returns A string containing the HTML representation of all child nodes concatenated together.
  *          Returns an empty string if children is falsy or empty.
  */
-function renderChildren(children: HNode["children"] = []) {
+function renderChildren(children: VNode["children"] = []) {
 	if (!children || children.length === 0) return "";
 
 	// Pre-allocate array for better performance

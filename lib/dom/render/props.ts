@@ -1,5 +1,5 @@
 import { delegateEvents } from "../events";
-import type { HNode, HNodeProps } from "../types";
+import type { VNode, VNodeProps } from "../types";
 import { generateKey } from "../utils";
 import type { RenderPropHandler } from "./types";
 
@@ -10,7 +10,7 @@ import type { RenderPropHandler } from "./types";
  * @param options - Handler callbacks for different property types
  */
 export function propProcessor(
-	props: HNodeProps,
+	props: VNodeProps,
 	{ classProp, boolProp, regularProp }: RenderPropHandler,
 ) {
 	Object.entries(props).forEach(([key, value]) => {
@@ -38,7 +38,7 @@ export function propProcessor(
  */
 export function processProps(
 	element: HTMLElement,
-	props: HNode["props"] = {},
+	props: VNode["props"] = {},
 ): void {
 	propProcessor(props, {
 		classProp(className) {
@@ -54,23 +54,23 @@ export function processProps(
 }
 
 /**
- * Processes event properties for a given HNode and sets up event delegation.
+ * Processes event properties for a given VNode and sets up event delegation.
  *
  * @param element - The DOM element to which event properties will be applied
- * @param hNode - The HNode containing event properties
+ * @param vNode - The VNode containing event properties
  * @param rootSelector - A CSS selector for the root element
  */
 export function processEventProps(
 	element: HTMLElement,
-	hNode: HNode,
+	vNode: VNode,
 	rootSelector: string,
 ): void {
-	const eventProps = Object.entries(hNode.props || {}).filter(([key]) =>
+	const eventProps = Object.entries(vNode.props || {}).filter(([key]) =>
 		key.startsWith("on"),
 	);
 
 	if (eventProps.length > 0) {
 		element.dataset["eKey"] = generateKey();
-		delegateEvents(hNode, rootSelector, element.dataset["eKey"] as string);
+		delegateEvents(vNode, rootSelector, element.dataset["eKey"] as string);
 	}
 }

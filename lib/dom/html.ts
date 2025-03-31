@@ -1,4 +1,4 @@
-import type { HNode, HNodeProps, HTMLTagName } from "./types";
+import type { HTMLTagName, VNode, VNodeProps } from "./types";
 
 /**
  * The html object provides a JSX-like API for creating virtual DOM elements.
@@ -8,7 +8,7 @@ export const html = new Proxy(
 	{},
 	{
 		get: (
-			target: Record<string, (...args: any[]) => HNode>,
+			target: Record<string, (...args: any[]) => VNode>,
 			prop: HTMLTagName,
 		) => {
 			// Return cached function if it exists
@@ -30,13 +30,13 @@ export const html = new Proxy(
  * The returned function accepts props and children, handling various input formats.
  *
  * @param type - The HTML tag name (e.g., 'div', 'span', 'button')
- * @returns A function that creates virtual DOM nodes (HNode objects)
+ * @returns A function that creates virtual DOM nodes (VNode objects)
  */
-function createElement(type: HTMLTagName): (...args: any[]) => HNode {
+function createElement(type: HTMLTagName): (...args: any[]) => VNode {
 	return (...args: any[]) => {
 		// Extract props object if the first argument is a valid props object
 		// Otherwise use an empty object as props
-		const props: HNodeProps =
+		const props: VNodeProps =
 			args[0] &&
 			typeof args[0] === "object" &&
 			!Array.isArray(args[0]) &&
@@ -46,7 +46,7 @@ function createElement(type: HTMLTagName): (...args: any[]) => HNode {
 
 		// Process children, handling different types:
 		// - Strings and numbers are converted to text nodes
-		// - Nested HNode objects are kept as-is
+		// - Nested VNode objects are kept as-is
 		// - Other values are stringified
 		const children = args.flat().map((child) => {
 			if (typeof child === "string" || typeof child === "number") {
@@ -59,7 +59,7 @@ function createElement(type: HTMLTagName): (...args: any[]) => HNode {
 				"props" in child &&
 				"children" in child
 			) {
-				// Child is already an HNode, pass through unchanged
+				// Child is already an VNode, pass through unchanged
 				return child;
 			} else {
 				// Convert other values to strings

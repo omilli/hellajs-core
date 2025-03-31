@@ -1,5 +1,5 @@
-import { getRootContext, RootContext } from "../context";
-import type { EventFn, HNode } from "./types";
+import { type RootContext, getRootContext } from "../context";
+import type { EventFn, VNode } from "./types";
 import { getRootElement } from "./utils";
 
 /**
@@ -7,27 +7,27 @@ import { getRootElement } from "./utils";
  * for event delegation. This allows the framework to efficiently handle events
  * by attaching a single listener to the root element instead of individual elements.
  *
- * @param hNode - The virtual node containing event handlers in its props
+ * @param vNode - The virtual node containing event handlers in its props
  * @param rootSelector - CSS selector identifying the root DOM element
  * @param elementKey - Unique identifier for the element (used for event delegation)
  */
 export function delegateEvents(
-	hNode: HNode,
+	vNode: VNode,
 	rootSelector: string,
 	elementKey: string,
 ) {
 	// Skip if there are no props to process
-	if (!hNode.props) {
+	if (!vNode.props) {
 		return;
 	}
 
 	// For each property that starts with "on" (e.g., onclick, onchange)
-	Object.entries(hNode.props).forEach(([key, value]) => {
+	Object.entries(vNode.props).forEach(([key, value]) => {
 		if (key.startsWith("on") && typeof value === "function") {
 			// Extract event name (e.g., "click" from "onclick")
 			const eventName = key.slice(2).toLowerCase();
 			// Store the event handler using the key system
-			addEvent(hNode, rootSelector, elementKey, eventName, value as EventFn);
+			addEvent(vNode, rootSelector, elementKey, eventName, value as EventFn);
 		}
 	});
 }
@@ -59,24 +59,27 @@ export function cleanupRootsEvents(rootSelector: string): void {
 
 /**
  * Recursively removes event handlers from an element and its children.
- * 
+ *
  * @param element - The DOM element to clean up event handlers from
  * @param rootContext - The root context containing the events registry
  * @returns void
- * 
+ *
  * This function checks if the element has registered event handlers (identified
  * by a data-eKey attribute) and removes them from the rootContext's event handler
  * registry. It then recursively processes all child nodes to clean up their
  * event handlers as well.
  */
-export function cleanupEventHandlers(element: HTMLElement | Text, rootContext: RootContext) {
+export function cleanupEventHandlers(
+	element: HTMLElement | Text,
+	rootContext: RootContext,
+) {
 	if (!(element instanceof HTMLElement)) return;
 
 	// Clean up this element's handlers if it has an event key
 	if (element.dataset && element.dataset.eKey) {
-			rootContext.events.handlers.delete(element.dataset.eKey);
+		rootContext.events.handlers.delete(element.dataset.eKey);
 	}
-	
+
 	// Recursively clean up child elements
 	for (let i = 0; i < element.childNodes.length; i++) {
 		cleanupEventHandlers(element.childNodes[i] as HTMLElement, rootContext);
@@ -88,14 +91,14 @@ export function cleanupEventHandlers(element: HTMLElement | Text, rootContext: R
  * Creates necessary data structures and ensures the event listener
  * is attached to the root element.
  *
- * @param hNode - The virtual node to which the event is attached
+ * @param vNode - The virtual node to which the event is attached
  * @param rootSelector - CSS selector for the root element
  * @param elementKey - Unique identifier for tracking the element
  * @param eventName - The DOM event name (e.g., "click", "change")
  * @param handler - The event handler function to register
  */
 function addEvent(
-	hNode: HNode,
+	vNode: VNode,
 	rootSelector: string,
 	elementKey: string,
 	eventName: string,
@@ -112,7 +115,7 @@ function addEvent(
 	if (!delegates.has(eventName)) {
 		delegates.add(eventName);
 		const delegatedHandler = addDelegatedListener(
-			hNode,
+			vNode,
 			handlers,
 			eventName,
 			rootSelector,
@@ -139,45 +142,45 @@ function addEvent(
  * captures events from its children and directs them to the appropriate
  * handler based on the element's data-e-key attribute.
  *
- * @param hNode - The virtual node with event-related props
+ * @param vNode - The virtual node with event-related props
  * @param events - Map of element keys to their event handlers
  * @param eventName - The DOM event name to listen for
  * @param rootSelector - CSS selector for the root element
  */
 function addDelegatedListener(
-	hNode: HNode,
+	vNode: VNode,
 	events: Map<string, Map<string, EventFn>>,
 	eventName: string,
 	rootSelector: string,
 ): EventListener {
 	// Create a delegated event handler
 	const delegatedHandler = (e: Event) => {
-			const { props = {} } = hNode;
+		const { props = {} } = vNode;
 
-			// Handle global event modifiers if specified
-			if (props.preventDefault) e.preventDefault();
-			if (props.stopPropagation) e.stopPropagation();
+		// Handle global event modifiers if specified
+		if (props.preventDefault) e.preventDefault();
+		if (props.stopPropagation) e.stopPropagation();
 
-			// Use event.composedPath() which is more efficient than DOM traversal
-			// as the browser already has this path computed
-			const path = e.composedPath();
-			let element: HTMLElement | null = null;
-			let key: string | undefined;
+		// Use event.composedPath() which is more efficient than DOM traversal
+		// as the browser already has this path computed
+		const path = e.composedPath();
+		let element: HTMLElement | null = null;
+		let key: string | undefined;
 
-			// Iterate through the path to find the first element with a data-e-key
-			for (let i = 0; i < path.length; i++) {
-					const el = path[i] as HTMLElement;
-					if (el.dataset && el.dataset["eKey"]) {
-							element = el;
-							key = el.dataset["eKey"];
-							break;
-					}
+		// Iterate through the path to find the first element with a data-e-key
+		for (let i = 0; i < path.length; i++) {
+			const el = path[i] as HTMLElement;
+			if (el.dataset && el.dataset["eKey"]) {
+				element = el;
+				key = el.dataset["eKey"];
+				break;
 			}
+		}
 
-			// If we found an element with a key and it has an event handler, invoke it
-			if (key && element && events.has(key)) {
-					events.get(key)?.get(eventName)?.(e, element);
-			}
+		// If we found an element with a key and it has an event handler, invoke it
+		if (key && element && events.has(key)) {
+			events.get(key)?.get(eventName)?.(e, element);
+		}
 	};
 
 	// Attach the event listener to the root element

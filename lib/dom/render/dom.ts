@@ -1,12 +1,12 @@
 import type { Context } from "../../context";
-import type { HNode } from "../types";
+import type { VNode } from "../types";
 import { processEventProps, processProps } from "./props";
 
 /**
- * Renders an HNode to the DOM by creating a DOM element and appending it to the specified root element.
+ * Renders an VNode to the DOM by creating a DOM element and appending it to the specified root element.
  * Clears the root element's content before appending the new element.
  *
- * @param hNode - The hierarchical node to render
+ * @param vNode - The hierarchical node to render
  * @param rootElement - The DOM element that will contain the rendered element
  * @param rootSelector - A CSS selector for the root element
  * @param context - The context object for rendering
@@ -15,12 +15,12 @@ import { processEventProps, processProps } from "./props";
  *          returns the root element since fragments get emptied when appended
  */
 export function renderDomElement(
-	hNode: HNode,
+	vNode: VNode,
 	rootElement: Element,
 	rootSelector: string,
 	context: Context,
 ): HTMLElement | Text | DocumentFragment {
-	const element = createDomElement(hNode, rootSelector, context);
+	const element = createDomElement(vNode, rootSelector, context);
 
 	// Clear container more efficiently than using innerHTML
 	rootElement.textContent = "";
@@ -37,32 +37,32 @@ export function renderDomElement(
 }
 
 /**
- * Creates a DOM element based on the provided HNode.
+ * Creates a DOM element based on the provided VNode.
  *
- * This function handles different types of HNodes:
- * - If the HNode is a string or number, it creates a text node.
- * - If the HNode has a type, it creates an HTML element of that type.
- * - If the HNode has no type, it treats it as a fragment and processes its children.
+ * This function handles different types of VNodes:
+ * - If the VNode is a string or number, it creates a text node.
+ * - If the VNode has a type, it creates an HTML element of that type.
+ * - If the VNode has no type, it treats it as a fragment and processes its children.
  *
- * @param hNode - The hierarchical node to render
+ * @param vNode - The hierarchical node to render
  * @param rootSelector - A CSS selector for the root element
  * @param context - The context object for rendering
  *
  * @returns The created DOM element, text node, or document fragment
  */
 function createDomElement(
-	hNode: HNode | string | number,
+	vNode: VNode | string | number,
 	rootSelector: string,
 	context: Context,
 ): HTMLElement | Text | DocumentFragment {
-	if (typeof hNode === "string" || typeof hNode === "number") {
-		return document.createTextNode(String(hNode));
+	if (typeof vNode === "string" || typeof vNode === "number") {
+		return document.createTextNode(String(vNode));
 	}
 
-	const { type, props = {} } = hNode;
+	const { type, props = {} } = vNode;
 
 	if (!type) {
-		return renderFragments(hNode, rootSelector, context);
+		return renderFragments(vNode, rootSelector, context);
 	}
 
 	const element = document.createElement(type);
@@ -71,10 +71,10 @@ function createDomElement(
 	processProps(element, props);
 
 	// Set up event handlers
-	processEventProps(element, hNode, rootSelector);
+	processEventProps(element, vNode, rootSelector);
 
 	// Process and render any children
-	renderChildren(element, hNode, rootSelector, context);
+	renderChildren(element, vNode, rootSelector, context);
 
 	return element;
 }
@@ -82,38 +82,38 @@ function createDomElement(
 /**
  * Renders a fragment by creating a document fragment and appending its children.
  *
- * @param hNode - The hierarchical node to render
+ * @param vNode - The hierarchical node to render
  * @param rootSelector - A CSS selector for the root element
  * @param context - The context object for rendering
  *
  * @returns A DocumentFragment containing the rendered children
  */
 function renderFragments(
-	hNode: HNode,
+	vNode: VNode,
 	rootSelector: string,
 	context: Context,
 ): DocumentFragment {
 	// Handle fragments (when type is undefined or null)
 	const fragment = document.createDocumentFragment();
-	renderChildren(fragment, hNode, rootSelector, context);
+	renderChildren(fragment, vNode, rootSelector, context);
 	return fragment;
 }
 
 /**
- * Renders the children of a given HNode into the specified DOM element.
+ * Renders the children of a given VNode into the specified DOM element.
  *
  * @param element - The DOM element to which the children will be appended
- * @param hNode - The hierarchical node containing the children to render
+ * @param vNode - The hierarchical node containing the children to render
  * @param rootSelector - A CSS selector for the root element
  * @param context - The context object for rendering
  */
 function renderChildren(
 	element: HTMLElement | DocumentFragment,
-	hNode: HNode,
+	vNode: VNode,
 	rootSelector: string,
 	context: Context,
 ) {
-	const { children = [] } = hNode;
+	const { children = [] } = vNode;
 
 	// Create a document fragment to batch DOM operations
 	const fragment = document.createDocumentFragment();

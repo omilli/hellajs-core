@@ -1,9 +1,9 @@
 import { propProcessor } from "../render";
-import type { HNode } from "../types";
+import type { VNode } from "../types";
 
 export function updateProps(
 	element: HTMLElement,
-	props: HNode["props"] = {},
+	props: VNode["props"] = {},
 ): void {
 	const attrsToRemove = new Set<string>();
 	checkProps(element, attrsToRemove);
@@ -62,7 +62,7 @@ function checkProps(element: HTMLElement, attrsToRemove: Set<string>): void {
  * All processed attributes are removed from the attrsToRemove set, indicating they should be kept.
  */
 function applyProps(
-	props: HNode["props"] = {},
+	props: VNode["props"] = {},
 	element: HTMLElement,
 	attrsToRemove: Set<string>,
 ): void {

@@ -1,12 +1,12 @@
 import type { Context } from "../../context";
 import { delegateEvents } from "../events";
-import type { HNode } from "../types";
+import type { VNode } from "../types";
 import { generateKey } from "../utils";
 import { diffChildren } from "./children";
 import { updateProps } from "./props";
 
 /**
- * Updates a DOM element based on a virtual node representation (HNode).
+ * Updates a DOM element based on a virtual node representation (VNode).
  *
  * This function modifies the provided DOM element by:
  * 1. Updating its properties
@@ -14,22 +14,22 @@ import { updateProps } from "./props";
  * 3. Processing and updating child elements
  *
  * @param element - The DOM element to update
- * @param hNode - Virtual node representation containing props and children
+ * @param vNode - Virtual node representation containing props and children
  * @param rootSelector - CSS selector string identifying the root element
  * @param context - Current context for rendering
  * @returns The updated DOM element
  */
 export function updateElement(
 	element: HTMLElement,
-	hNode: HNode,
+	vNode: VNode,
 	rootSelector: string,
 	context: Context,
 ): HTMLElement {
-	const { props = {}, children = [] } = hNode;
+	const { props = {}, children = [] } = vNode;
 
 	updateProps(element, props);
 
-	handleEvents(hNode, element, rootSelector);
+	handleEvents(vNode, element, rootSelector);
 
 	handleChildren(children, element, rootSelector, context);
 
@@ -42,7 +42,7 @@ export function updateElement(
  * This function checks if the node has any properties starting with "on" (event handlers),
  * and if so, assigns a unique event key to the element and sets up event delegation.
  *
- * @param hNode - The virtual DOM node containing properties
+ * @param vNode - The virtual DOM node containing properties
  * @param element - The actual DOM element to attach events to
  * @param rootSelector - CSS selector for the root element used for event delegation
  *
@@ -52,11 +52,11 @@ export function updateElement(
  * and delegates the events through the delegateEvents function.
  */
 function handleEvents(
-	hNode: HNode,
+	vNode: VNode,
 	element: HTMLElement,
 	rootSelector: string,
 ) {
-	const { props = {} } = hNode;
+	const { props = {} } = vNode;
 
 	const keys = Object.keys(props);
 	let hasEventProps = false;
@@ -72,7 +72,7 @@ function handleEvents(
 
 	if (hasEventProps) {
 		element.dataset["eKey"] ??= generateKey();
-		delegateEvents(hNode, rootSelector, element.dataset["eKey"]);
+		delegateEvents(vNode, rootSelector, element.dataset["eKey"]);
 	}
 }
 
@@ -90,7 +90,7 @@ function handleEvents(
  * DOM state and the desired virtual node state.
  */
 function handleChildren(
-	children: HNode["children"] = [],
+	children: VNode["children"] = [],
 	element: HTMLElement,
 	rootSelector: string,
 	context: Context,
@@ -101,11 +101,5 @@ function handleChildren(
 		domChildren[i] = element.childNodes[i] as HTMLElement | Text;
 	}
 
-	diffChildren(
-		domChildren,
-		children || [],
-		element,
-		rootSelector,
-		context,
-	);
+	diffChildren(domChildren, children || [], element, rootSelector, context);
 }

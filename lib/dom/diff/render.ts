@@ -1,35 +1,35 @@
 import type { Context } from "../../context";
 import { delegateEvents } from "../events";
-import type { HNode } from "../types";
+import type { VNode } from "../types";
 import { generateKey } from "../utils";
 import { updateProps } from "./props";
 
 /**
- * Renders a hierarchical node (HNode) or primitive value into a DOM element.
+ * Renders a hierarchical node (VNode) or primitive value into a DOM element.
  *
  * This function converts virtual DOM nodes into actual DOM elements. It handles
  * different types of nodes:
  * - Strings and numbers are converted to text nodes
- * - HNodes without a type are treated as fragments
- * - HNodes with a type are converted to HTML elements with their respective properties,
+ * - VNodes without a type are treated as fragments
+ * - VNodes with a type are converted to HTML elements with their respective properties,
  *   event handlers, and children
  *
- * @param hNode - The node to render, can be an HNode object or a primitive (string/number)
+ * @param vNode - The node to render, can be an VNode object or a primitive (string/number)
  * @param rootSelector - CSS selector string identifying the root container
  * @param context - Application context for rendering
  * @returns The created DOM element, text node, or document fragment
  */
 export function renderElement(
-	hNode: HNode | string | number,
+	vNode: VNode | string | number,
 	rootSelector: string,
 	context: Context,
 ): HTMLElement | Text | DocumentFragment {
-	const hNodeType = typeof hNode;
-	if (hNodeType === "string" || hNodeType === "number") {
-		return document.createTextNode(String(hNode));
+	const vNodeType = typeof vNode;
+	if (vNodeType === "string" || vNodeType === "number") {
+		return document.createTextNode(String(vNode));
 	}
 
-	const { type, props = {}, children = [] } = hNode as HNode;
+	const { type, props = {}, children = [] } = vNode as VNode;
 
 	if (!type) {
 		return handleFragment(children, rootSelector, context);
@@ -39,7 +39,7 @@ export function renderElement(
 
 	updateProps(element, props);
 
-	handleEvents(hNode as HNode, element, rootSelector);
+	handleEvents(vNode as VNode, element, rootSelector);
 
 	handleChildren(children, element, rootSelector, context);
 
@@ -55,7 +55,7 @@ export function renderElement(
  * @returns A DocumentFragment containing all rendered child elements.
  */
 function handleFragment(
-	children: HNode["children"] = [],
+	children: VNode["children"] = [],
 	rootSelector: string,
 	context: Context,
 ): DocumentFragment {
@@ -76,16 +76,16 @@ function handleFragment(
  * start with "on" (e.g., onClick, onMouseOver), and if so, sets a unique
  * event key on the element and delegates event handling.
  *
- * @param hNode - The virtual node containing properties to check for event handlers
+ * @param vNode - The virtual node containing properties to check for event handlers
  * @param element - The DOM element to attach the event key to
  * @param rootSelector - CSS selector for the root element used in event delegation
  */
 function handleEvents(
-	hNode: HNode,
+	vNode: VNode,
 	element: HTMLElement,
 	rootSelector: string,
 ) {
-	const { props = {} } = hNode;
+	const { props = {} } = vNode;
 	const keys = Object.keys(props);
 	let hasEventProps = false;
 
@@ -100,7 +100,7 @@ function handleEvents(
 
 	if (hasEventProps) {
 		element.dataset["eKey"] = generateKey();
-		delegateEvents(hNode as HNode, rootSelector, element.dataset["eKey"]);
+		delegateEvents(vNode as VNode, rootSelector, element.dataset["eKey"]);
 	}
 }
 
@@ -118,7 +118,7 @@ function handleEvents(
  * DOM node to the parent element.
  */
 function handleChildren(
-	children: HNode["children"] = [],
+	children: VNode["children"] = [],
 	element: HTMLElement,
 	rootSelector: string,
 	context: Context,

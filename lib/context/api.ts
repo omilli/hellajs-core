@@ -20,12 +20,11 @@ const contextStore: Map<string, Context> = new Map();
  * It provides methods for creating and managing signals, effects, computed values,
  * and rendering to the DOM.
  *
- * @param id - Optional identifier for the context. If not provided, a unique ID will be generated
- * with the prefix "context-".
+ * @param id - Optional ID for new context. If not provided, a unique ID will be generated.
  * @returns A new Context object with initialized reactive state management and DOM utilities.
  *
  */
-export function context(id = `context-${generateKey()}`): Context {
+export function context(id = `hellaContext${generateKey()}`): Context {
 	// Create a new context object
 	const contextState: Context = {
 		id,
@@ -81,7 +80,7 @@ export function getDefaultContext(): Context {
  * Retrieves or initializes a root context for the specified selector.
  *
  * @param rootSelector - The selector string identifying the root element
- * @param context - Object containing the DOM context
+ * @param context - Object containing the context
  * @returns The root context associated with the given selector
  */
 export function getRootContext(

@@ -9,11 +9,11 @@ let keyCounter = 0;
  * @returns A unique string key representing the counter value
  */
 export function generateKey(): string {
-  // Reset counter if it approaches MAX_SAFE_INTEGER to prevent overflow
-  if (keyCounter >= Number.MAX_SAFE_INTEGER) {
-    keyCounter = 0;
-  }
-  return (++keyCounter).toString();
+	// Reset counter if it approaches MAX_SAFE_INTEGER to prevent overflow
+	if (keyCounter >= Number.MAX_SAFE_INTEGER) {
+		keyCounter = 0;
+	}
+	return (++keyCounter).toString();
 }
 
 /**
