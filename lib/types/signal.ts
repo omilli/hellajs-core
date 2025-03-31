@@ -1,4 +1,4 @@
-import type { EffectFn } from "./effect.types";
+import type { EffectFn } from "./effect";
 
 /**
  * Represents the base interface for a reactive signal.

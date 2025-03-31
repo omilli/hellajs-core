@@ -1,4 +1,4 @@
-import { signal } from "../../lib/reactive/core/signal";
+import { signal } from "../../lib";
 import { buildData } from "./data";
 
 export const benchState = {

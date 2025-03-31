@@ -1,10 +1,18 @@
 import { getDefaultContext } from "../../context";
-import { RenderedElement } from "../render";
-import type { VNode } from "../types";
+import type { VNode, RenderedElement, Context } from "../../types";
 import { getRootElement } from "../utils";
 import { diffChildren } from "./children";
 import { renderElement } from "./render";
-import type { DiffConfig } from "./types";
+
+/**
+ * Configuration object for the diffing process.
+ */
+type DiffConfig = {
+	vNode: VNode;
+	rootSelector: string;
+	rootElement: Element;
+	context: Context;
+};
 
 /**
  * Updates an existing DOM tree with changes from a virtual DOM node.

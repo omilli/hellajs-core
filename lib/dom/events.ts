@@ -1,6 +1,5 @@
 import { type RootContext, getRootContext } from "../context";
-import { RenderedElement } from "./render";
-import type { EventFn, VNode } from "./types";
+import type { EventFn, VNode, RenderedElement } from "../types";
 import { getRootElement } from "./utils";
 
 /**

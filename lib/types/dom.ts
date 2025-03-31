@@ -61,8 +61,3 @@ export interface VNodeBase {
  */
 export type VNode = Partial<VNodeBase>;
 
-/**
- * Represents a component with an optional render method.
- * Used for stateful components that need to trigger re-renders.
- */
-export type StateRender = { _render?: () => void };

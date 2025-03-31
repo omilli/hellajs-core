@@ -1,7 +1,6 @@
-import { type ReactiveContext, getDefaultContext } from "../../context";
+import { type ReactiveContext, getDefaultContext } from "../context";
 import type { EffectFn, EffectOptions } from "../types";
-import { setActiveTracker } from "../utils";
-import { unsubscribeDependencies } from "../utils/dependency";
+import { setActiveTracker, unsubscribeDependencies } from "./utils";
 
 /**
  * Creates an effect that runs when its dependencies change.

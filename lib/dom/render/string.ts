@@ -1,4 +1,4 @@
-import type { VNode } from "../types";
+import type { VNode } from "../../types";
 import { propProcessor } from "./props";
 import { escapeHTML } from "./utils";
 

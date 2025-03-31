@@ -1,7 +1,6 @@
 import type { Context } from "../../context";
 import { delegateEvents } from "../events";
-import { RenderedElement } from "../render";
-import type { VNode, VNodeValue } from "../types";
+import type { VNode, VNodeValue, RenderedElement } from "../../types";
 import { generateKey } from "../utils";
 import { updateProps } from "./props";
 

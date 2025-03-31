@@ -1,4 +1,4 @@
-import type { GlobalContext } from "./types";
+import type { GlobalContext } from "../types";
 /**
  * Attempts to return the global `this` object in a way that works across different JavaScript environments,
  * including browsers, Node.js, and web workers.

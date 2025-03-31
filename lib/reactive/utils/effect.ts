@@ -1,5 +1,5 @@
 import type { Context, ReactiveContext } from "../../context";
-import type { EffectFn } from "../types";
+import type { EffectFn } from "../../types";
 import { NOT_TRACKING } from "./tracker";
 
 /**

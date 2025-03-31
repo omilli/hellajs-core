@@ -1,5 +1,5 @@
 import type { ReactiveContext } from "../../context";
-import type { EffectFn, Signal, SignalBase } from "../types";
+import type { EffectFn, Signal, SignalBase } from "../../types";
 import { scheduleEffects } from "./effect";
 import { getActiveTracker, hasActiveTracker } from "./tracker";
 

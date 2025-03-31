@@ -1,5 +1,5 @@
 import type { ReactiveContext } from "../../context";
-import type { EffectFn } from "../types";
+import type { EffectFn } from "../../types";
 
 /**
  * Symbol representing when no tracking is active

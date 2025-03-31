@@ -1,6 +1,6 @@
-import { getDefaultContext } from "../../context";
+import { getDefaultContext } from "../context";
 import type { EffectFn, Signal, SignalOptions } from "../types";
-import { getActiveTracker, queueEffects } from "../utils";
+import { getActiveTracker, queueEffects } from "./utils";
 
 /**
  * Creates a new signal with the given initial value and options.

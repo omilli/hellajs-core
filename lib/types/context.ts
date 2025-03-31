@@ -1,11 +1,13 @@
 import type { EventFn, VNode } from "../dom";
 import type {
-	EffectFn,
-	EffectOptions,
 	Signal,
 	SignalOptions,
 	SignalValue,
-} from "../reactive/types";
+} from "./signal";
+import {
+	EffectFn,
+	EffectOptions,
+} from "./effect"
 
 /**
  * Represents the global context that extends the Window and globalThis objects.

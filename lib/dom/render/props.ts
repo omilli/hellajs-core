@@ -1,7 +1,6 @@
 import { delegateEvents } from "../events";
-import type { VNode, VNodeProps } from "../types";
+import type { VNode, VNodeProps, RenderPropHandler } from "../../types";
 import { generateKey } from "../utils";
-import type { RenderPropHandler } from "./types";
 
 /**
  * Processes a properties object by categorizing and handling different property types.

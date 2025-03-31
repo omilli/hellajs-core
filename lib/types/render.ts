@@ -1,4 +1,4 @@
-import type { VNode } from "../types";
+import type { VNode } from "./dom";
 
 export type RenderPropHandler = {
 	/**

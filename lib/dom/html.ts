@@ -1,4 +1,4 @@
-import type { HTMLTagName, VNode, VNodeProps } from "./types";
+import type { HTMLTagName, VNode, VNodeProps } from "../types";
 
 /**
  * The html object provides a JSX-like API for creating virtual DOM elements.

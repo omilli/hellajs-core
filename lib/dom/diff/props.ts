@@ -1,5 +1,5 @@
 import { propProcessor } from "../render";
-import type { VNode } from "../types";
+import type { VNode } from "../../types";
 
 export function updateProps(
 	element: HTMLElement,

@@ -1,7 +1,6 @@
 import type { Context } from "../../context";
-import type { VNode, VNodeValue } from "../types";
+import type { VNode, VNodeValue, RenderedElement } from "../../types";
 import { processEventProps, processProps } from "./props";
-import { RenderedElement } from "./types";
 
 /**
  * Renders an VNode to the DOM by creating a DOM element and appending it to the specified root element.

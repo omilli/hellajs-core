@@ -8,7 +8,7 @@ import {
 	signal,
 	untracked,
 } from "../reactive";
-import type { Context, RootContext } from "./types";
+import type { Context, RootContext } from "../types";
 import { getGlobalThis } from "./utils";
 
 const contextStore: Map<string, Context> = new Map();

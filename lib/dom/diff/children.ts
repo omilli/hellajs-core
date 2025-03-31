@@ -1,7 +1,6 @@
 import { type Context, getRootContext } from "../../context";
 import { cleanupEventHandlers } from "../events";
-import { RenderedElement } from "../render";
-import type { VNodeValue } from "../types";
+import type { VNodeValue, RenderedElement } from "../../types";
 import { diffNode } from "./nodes";
 import { renderElement } from "./render";
 

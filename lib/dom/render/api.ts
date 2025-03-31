@@ -1,9 +1,8 @@
 import { getDefaultContext } from "../../context";
-import type { VNode } from "../types";
+import type { VNode, RenderedNode } from "../../types";
 import { getRootElement } from "../utils";
 import { renderDomElement } from "./dom";
 import { renderStringElement } from "./string";
-import type { RenderedNode } from "./types";
 
 /**
  * Renders a hypertext node (VNode) as either a DOM element or a string.

@@ -1,6 +1,5 @@
 import type { Context } from "../../context";
-import { RenderedElement } from "../render";
-import type { VNode, VNodeValue } from "../types";
+import type { VNode, VNodeValue, RenderedElement } from "../../types";
 import { diffChildren } from "./children";
 import { renderElement } from "./render";
 import { updateElement } from "./update";
