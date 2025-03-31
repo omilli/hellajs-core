@@ -160,26 +160,32 @@ function addDelegatedListener(
 ): EventListener {
 	// Create a delegated event handler
 	const delegatedHandler = (e: Event) => {
-		const { props = {} } = hNode;
+			const { props = {} } = hNode;
 
-		// Handle global event modifiers if specified
-		if (props.preventDefault) e.preventDefault();
-		if (props.stopPropagation) e.stopPropagation();
+			// Handle global event modifiers if specified
+			if (props.preventDefault) e.preventDefault();
+			if (props.stopPropagation) e.stopPropagation();
 
-		// Find the target element with a data-e-key attribute
-		let element = e.target as HTMLElement;
-		let key = element.dataset["eKey"];
+			// Use event.composedPath() which is more efficient than DOM traversal
+			// as the browser already has this path computed
+			const path = e.composedPath();
+			let element: HTMLElement | null = null;
+			let key: string | undefined;
 
-		// If the target doesn't have a key, try to find a parent with a key
-		if (!key) {
-			element = element.closest("[data-e-key]") || element;
-			key = element.dataset["eKey"];
-		}
+			// Iterate through the path to find the first element with a data-e-key
+			for (let i = 0; i < path.length; i++) {
+					const el = path[i] as HTMLElement;
+					if (el.dataset && el.dataset["eKey"]) {
+							element = el;
+							key = el.dataset["eKey"];
+							break;
+					}
+			}
 
-		// If we found an element with a key and it has an event handler, invoke it
-		if (key && events.has(key)) {
-			events.get(key)?.get(eventName)?.(e, element);
-		}
+			// If we found an element with a key and it has an event handler, invoke it
+			if (key && element && events.has(key)) {
+					events.get(key)?.get(eventName)?.(e, element);
+			}
 	};
 
 	// Attach the event listener to the root element

@@ -1,20 +1,19 @@
-const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-const charlength = chars.length;
+// Static counter for key generation (module-level counter)
+let keyCounter = 0;
 
 /**
- * Generates a random string key of 6 characters.
+ * Generates a unique key using an incremental numeric counter.
+ * This is more efficient than random string generation for large-scale applications
+ * as it avoids string concatenation and Math.random() calls.
  *
- * The key is composed of characters randomly selected from the
- * predefined character set (`chars`).
- *
- * @returns A random 6-character string
+ * @returns A unique string key representing the counter value
  */
 export function generateKey(): string {
-	let result = "";
-	for (let i = 0; i < 6; i++) {
-		result += chars.charAt(Math.floor(Math.random() * charlength));
-	}
-	return result;
+  // Reset counter if it approaches MAX_SAFE_INTEGER to prevent overflow
+  if (keyCounter >= Number.MAX_SAFE_INTEGER) {
+    keyCounter = 0;
+  }
+  return (++keyCounter).toString();
 }
 
 /**
