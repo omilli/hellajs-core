@@ -2,7 +2,7 @@ import type { Context } from "../context";
 import { processAttributes } from "../diff/attributes";
 import { delegateEvents } from "../events";
 import type { RenderedElement, VNode, VNodeValue } from "../types";
-import { castToString, generateKey, isValidTextNode } from "../utils";
+import { castToString, generateKey, isVNodeString } from "../utils";
 import { renderFragment } from "./fragment";
 
 /**
@@ -26,7 +26,7 @@ export function renderElement(
 	context: Context,
 ): RenderedElement {
 	// Return text node for valid text vNodes
-	if (isValidTextNode(vNode)) {
+	if (isVNodeString(vNode)) {
 		return document.createTextNode(castToString(vNode));
 	}
 	// vNode should be a VNode object at this point

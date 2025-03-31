@@ -46,7 +46,7 @@ export function getRootElement(rootSelector?: string): Element {
  *
  * @returns True if the vNode is a text node (string or number), false otherwise
  */
-export function isValidTextNode(value: VNodeValue): boolean {
+export function isVNodeString(value: VNodeValue): boolean {
 	return typeof value === "string" || typeof value === "number";
 }
 

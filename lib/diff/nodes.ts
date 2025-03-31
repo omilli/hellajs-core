@@ -2,7 +2,7 @@ import type { Context } from "../context";
 import { renderElement } from "../render/element";
 import { renderFragment } from "../render/fragment";
 import type { RenderedElement, VNode, VNodeValue } from "../types";
-import { castToString, isValidTextNode } from "../utils";
+import { castToString, isVNodeString } from "../utils";
 import { diffChildren } from "./children";
 import { updateElement } from "./update";
 
@@ -35,7 +35,7 @@ export function diffNode(
 ): RenderedElement {
 	const { nodeType, textContent } = domNode;
 	// Handle text nodes
-	if (isValidTextNode(vNode)) {
+	if (isVNodeString(vNode)) {
 		// Cast to string if not string
 		const text = castToString(vNode);
 		// Check if the node is a text node

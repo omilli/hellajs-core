@@ -1,5 +1,5 @@
 import type { VNode } from "../types";
-import { isValidTextNode } from "../utils";
+import { isVNodeString } from "../utils";
 import { propProcessor } from "./props";
 import { escapeHTML } from "./utils";
 
@@ -11,7 +11,7 @@ import { escapeHTML } from "./utils";
  */
 export function renderStringElement(vNode: VNode | string): string {
 	// Handle text nodes
-	if (isValidTextNode(vNode)) {
+	if (isVNodeString(vNode)) {
 		return escapeHTML(String(vNode));
 	}
 

@@ -1,6 +1,6 @@
 import type { Context } from "../context";
 import type { RenderedElement, VNode, VNodeValue } from "../types";
-import { isValidTextNode } from "../utils";
+import { castToString, isVNodeString } from "../utils";
 import { processEventProps, processProps } from "./props";
 
 /**
@@ -55,30 +55,29 @@ function createDomElement(
 	rootSelector: string,
 	context: Context,
 ): RenderedElement {
-	if (isValidTextNode(vNode)) {
-		return document.createTextNode(String(vNode));
+	// If we can convert this vNode to a string
+	if (isVNodeString(vNode)) {
+		// Create a text node by casting the vNode to a string
+		return document.createTextNode(castToString(vNode));
 	}
-
+	// We have a VNode object at this point
 	const { type, props = {} } = vNode as VNode;
-
+	// Handle fragments( when type is undefined or null)
 	if (!type) {
-		// Handle fragments (when type is undefined or null)
+		// Create the document fragment
 		const fragment = document.createDocumentFragment();
+		// Render the fragment Children
 		renderChildren(fragment, vNode as VNode, rootSelector, context);
 		return fragment;
 	}
-
+	// Create the DOM element with the vNode type
 	const element = document.createElement(type);
-
 	// Apply props to the element
 	processProps(element, props);
-
 	// Set up event handlers
 	processEventProps(element, vNode as VNode, rootSelector);
-
 	// Process and render any children
 	renderChildren(element, vNode as VNode, rootSelector, context);
-
 	return element;
 }
 
@@ -96,16 +95,17 @@ function renderChildren(
 	rootSelector: string,
 	context: Context,
 ) {
+	// Get the children from the vNode and set a default value
 	const { children = [] } = vNode;
-
 	// Create a document fragment to batch DOM operations
 	const fragment = document.createDocumentFragment();
-
+	// Iterate over the children
 	for (const child of children) {
+		// create DOM elements for each child
 		const childElement = createDomElement(child, rootSelector, context);
+		// Append it to the fragment
 		fragment.appendChild(childElement);
 	}
-
 	// Append all children in one operation
 	element.appendChild(fragment);
 }
