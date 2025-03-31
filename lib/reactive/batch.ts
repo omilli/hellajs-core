@@ -14,13 +14,11 @@ import { flushEffects } from "../utils";
 export function batch<T>(fn: () => T, { reactive } = getDefaultContext()): T {
 	// Increment batch depth
 	reactive.batchDepth = (reactive.batchDepth || 0) + 1;
-
 	try {
 		return fn();
 	} finally {
 		// Decrement batch depth
 		reactive.batchDepth = reactive.batchDepth - 1;
-
 		// If we're back at the top level, flush any pending effects
 		if (reactive.batchDepth === 0) {
 			if (

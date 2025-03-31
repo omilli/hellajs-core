@@ -27,12 +27,12 @@ export function computed<T>(
 		memo = false,
 	} = options || {}; // Create a backing signal to store the computed value
 	const backingSignal = signal<T>(undefined as unknown as T, { name });
-
-	// Internal state management
-	let value: T; // Cached value
-	let isStale = true; // Indicates if the cached value needs to be recomputed
-	let isDisposed = false; // Indicates if this computed signal has been cleaned up
-
+	// Cached value
+	let value: T;
+	// Indicates if the cached value needs to be recomputed
+	let isStale = true;
+	// Indicates if this computed signal has been cleaned up
+	let isDisposed = false;
 	/**
 	 * Standardized error handling for compute operations
 	 * Returns the error if there's no error handler (to be thrown)
@@ -41,35 +41,33 @@ export function computed<T>(
 		if (onError && error instanceof Error) {
 			onError(error);
 		} else {
-			console.error("Error in computed:", name || "unnamed", error);
+			throw new Error(`Error in computed:", ${name || "unnamed"}, ${error}`);
 		}
 		return !onError ? error : undefined;
 	};
-
 	/**
 	 * Computes the value and updates the internal state
 	 * Triggers the onComputed callback if provided
 	 */
 	const computeAndUpdate = () => {
+		// Get the new value from the computed function
 		const newValue = computedFn();
+		// Check if the new value is different from the current value
 		const valueChanged = !Object.is(value, newValue);
-
 		// Only update the backing signal if the value changed or memo is false
 		if (!memo || valueChanged) {
 			backingSignal.set(newValue);
-
 			if (onComputed) {
 				// Run callback outside of tracking context to avoid circular dependencies
 				untracked(() => onComputed(newValue)); // Use newValue instead of value
 			}
 		}
-
+		// Update the cached value
 		value = newValue;
+		// Mark as not stale
 		isStale = false;
-
 		return newValue;
 	};
-
 	/**
 	 * Safely attempts to compute the value
 	 * @param withUpdate - Whether to update the internal state with the computed value
@@ -83,7 +81,6 @@ export function computed<T>(
 			if (maybeThrow) throw maybeThrow;
 		}
 	};
-
 	/**
 	 * Set up a reactive effect that tracks dependencies of the computed function
 	 * This makes the computed value automatically update when dependencies change
@@ -93,7 +90,6 @@ export function computed<T>(
 			if (isDisposed) return;
 			// Mark as stale whenever dependencies change
 			isStale = true;
-
 			if (keepAlive) {
 				// For keepAlive mode, immediately compute and update the value
 				tryCompute(true);
@@ -104,19 +100,17 @@ export function computed<T>(
 		},
 		{ name: `${name || "computed"}_tracker` },
 	);
-
 	/**
 	 * The accessor function that returns the computed value
 	 * Lazily computes the value when accessed if it's stale
 	 */
 	const accessor = () => {
+		// Compute only if the value is stale and not disposed
 		if (isStale && !isDisposed) {
 			tryCompute(true);
 		}
-
 		return backingSignal();
 	};
-
 	// Add metadata and cleanup method to the accessor function
 	Object.defineProperties(accessor, {
 		_isComputed: { value: true },
@@ -128,6 +122,5 @@ export function computed<T>(
 			},
 		},
 	});
-
 	return accessor as SignalValue<T>;
 }

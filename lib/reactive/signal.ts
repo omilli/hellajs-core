@@ -19,13 +19,10 @@ export function signal<T>(
 ): Signal<T> {
 	// Extract options with defaults
 	const { name, validators = [] } = options || {};
-
 	// Store the current value in a local variable instead of reusing the parameter
 	let value = initialValue;
-
 	// Track effects that depend on this signal using WeakRefs to avoid memory leaks
 	const subscribers = new Set<WeakRef<EffectFn>>();
-
 	/**
 	 * The core signal function that both reads the value and tracks dependencies
 	 * This function is called when consumers access the signal value: signal()
@@ -33,7 +30,6 @@ export function signal<T>(
 	const signalFn = (() => {
 		// Check if this read is happening during an effect execution
 		const activeEffect = getActiveTracker(reactive);
-
 		// If so, establish bidirectional links between effect and signal
 		if (activeEffect) {
 			// Get/create the set of signals this effect depends on
@@ -49,7 +45,6 @@ export function signal<T>(
 		// Simply return the current value
 		return value;
 	}) as Signal<T>;
-
 	/**
 	 * Validates a new value against all registered validators
 	 * @param newValue - The value to validate
@@ -62,7 +57,6 @@ export function signal<T>(
 		}
 		return true;
 	};
-
 	/**
 	 * Invokes the onSet callback if provided in options
 	 * Safely handles any errors in the callback
@@ -72,27 +66,25 @@ export function signal<T>(
 		if (options?.onSet) {
 			try {
 				options.onSet(newValue, value);
-			} catch (e) {
-				console.error(`onSet error: "${name || "unnamed"}"`, e);
+			} catch (error) {
+				throw new Error(`onSet error: ${name || "unnamed"} ${error}`);
 			}
 		}
 	};
-
 	/**
 	 * Updates the signal value and notifies all subscribers
 	 * This is the core update mechanism that ensures reactivity
 	 * @param newValue - The new value to set
 	 */
 	const update = (newValue: T) => {
+		// Try to set the new value
 		tryOnSet(newValue);
+		// Set the current value to the new value
 		value = newValue;
-
 		// Schedule all dependent effects for execution
 		if (subscribers.size === 0) return;
-
 		// Efficient deduplication using the pending registry
 		let hasQueuedEffects = false;
-
 		// Process subscribers, cleaning up dead references
 		for (const ref of subscribers) {
 			const effect = ref.deref();
@@ -101,6 +93,7 @@ export function signal<T>(
 				if (!reactive.pendingRegistry.has(effect)) {
 					reactive.pendingNotifications.push(effect);
 					reactive.pendingRegistry.add(effect);
+					// Mark that we have queued effects
 					hasQueuedEffects = true;
 				}
 			} else {
@@ -108,29 +101,26 @@ export function signal<T>(
 				subscribers.delete(ref);
 			}
 		}
-
 		// Run effects immediately if not batching and we have queued effects
 		if (reactive.batchDepth === 0 && hasQueuedEffects) {
 			flushEffects(reactive);
 		}
 	};
-
 	/**
 	 * Direct value setter that validates and updates the signal value
 	 * This is exposed as the .set() method on the signal
 	 * @param newValue - The new value to set
 	 */
 	const setter = (newValue: T) => {
+		// Abort if the new value is the same as the current value
 		if (!didValidate(newValue)) {
 			return;
 		}
-
 		// Only update if the value has actually changed
 		if (newValue !== value) {
 			update(newValue);
 		}
 	};
-
 	/**
 	 * Functional updater that accepts a function to compute the new value
 	 * This is exposed as the .update() method on the signal
@@ -140,7 +130,6 @@ export function signal<T>(
 		const newValue = updateFn(value);
 		signalFn.set(newValue);
 	};
-
 	// Attach methods and properties to the signal function
 	Object.defineProperties(signalFn, {
 		_name: { value: name }, // Name for debugging
@@ -148,6 +137,5 @@ export function signal<T>(
 		set: { value: setter }, // Method to update the signal value
 		update: { value: updater }, // Method to update via a function
 	});
-
 	return signalFn;
 }
