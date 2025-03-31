@@ -30,7 +30,7 @@ export function updateProps(
 				name.charCodeAt(4) === 45
 			) && name !== "class";
 		// Set the attribute to be removed
-		// if it doesn't start with 'data-' or is not 'class' 
+		// if it doesn't start with 'data-' or is not 'class'
 		if (shouldRemoveProp) {
 			attrsToRemove.add(name);
 		}

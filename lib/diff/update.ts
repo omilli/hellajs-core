@@ -25,7 +25,7 @@ export function updateElement(
 	rootSelector: string,
 	context: Context,
 ): HTMLElement {
-	// Make sure we have default values for props and children 
+	// Make sure we have default values for props and children
 	const { props = {}, children = [] } = vNode;
 	// Update the element props
 	updateProps(element, props);
@@ -47,9 +47,9 @@ export function updateElement(
 	// If we have event props, we need to delegate the events
 	if (hasEventProps) {
 		// Set the event key on the element if it doesn't exist
-		element.dataset["eKey"] ??= generateKey();
+		element.dataset.eKey ??= generateKey();
 		// Delegate the events to the root element
-		delegateEvents(vNode, rootSelector, element.dataset["eKey"]);
+		delegateEvents(vNode, rootSelector, element.dataset.eKey);
 	}
 	// diff the elements children
 	diffChildren(children, element, rootSelector, context);

@@ -53,8 +53,8 @@ export function renderElement(
 	}
 
 	if (hasEventProps) {
-		element.dataset["eKey"] = generateKey();
-		delegateEvents(vNode as VNode, rootSelector, element.dataset["eKey"]);
+		element.dataset.eKey = generateKey();
+		delegateEvents(vNode as VNode, rootSelector, element.dataset.eKey);
 	}
 
 	const childLen = children.length;

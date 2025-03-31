@@ -31,10 +31,9 @@ export function renderDomElement(
 		rootElement.appendChild(element);
 		// Return the container as we can't return the fragment after it's been appended
 		return rootElement as HTMLElement;
-	} else {
-		rootElement.appendChild(element);
-		return element;
 	}
+	rootElement.appendChild(element);
+	return element;
 }
 
 /**

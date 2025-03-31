@@ -45,13 +45,12 @@ export function diffNode(
 				domNode.textContent = text;
 			}
 			return domNode;
-		} else {
-			// Create a new text node
-			const newNode = document.createTextNode(text);
-			// Replace with a new text node
-			parentElement.replaceChild(newNode, domNode);
-			return newNode;
 		}
+		// Create a new text node
+		const newNode = document.createTextNode(text);
+		// Replace with a new text node
+		parentElement.replaceChild(newNode, domNode);
+		return newNode;
 	}
 	// vNode should be a VNode object at this point
 	const { type, children = [] } = vNode as VNode;
@@ -66,13 +65,12 @@ export function diffNode(
 				context,
 			);
 			return domNode;
-		} else {
-			// Replace with a fragment - use document fragment for batch operation
-			const fragment = renderFragment(children, rootSelector, context);
-			// Replace the existing node with the new fragment
-			parentElement.replaceChild(fragment, domNode);
-			return fragment;
 		}
+		// Replace with a fragment - use document fragment for batch operation
+		const fragment = renderFragment(children, rootSelector, context);
+		// Replace the existing node with the new fragment
+		parentElement.replaceChild(fragment, domNode);
+		return fragment;
 	}
 	// Handle regular elements
 	if (nodeType === 1) {

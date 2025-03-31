@@ -45,7 +45,7 @@ export function cleanupEventHandlers(
 	if (!(element instanceof HTMLElement)) return;
 
 	// Clean up this element's handlers if it has an event key
-	if (element.dataset && element.dataset.eKey) {
+	if (element.dataset?.eKey) {
 		rootContext.events.handlers.delete(element.dataset.eKey);
 	}
 

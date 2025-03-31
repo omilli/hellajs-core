@@ -29,14 +29,13 @@ export function diff(
 		// Perform the diffing process on the child nodes
 		diffChildren([vNode], rootElement, rootSelector, context);
 		return rootElement as HTMLElement;
-	} else {
-		// Render the virtual node to the DOM
-		const element = renderElement(vNode, rootSelector, context);
-		// Append the rendered element to the root element
-		rootElement.appendChild(element);
-		// Return the element unless it's a DocumentFragment, in which case return the root element
-		return element instanceof DocumentFragment
-			? (rootElement as HTMLElement)
-			: element;
 	}
+	// Render the virtual node to the DOM
+	const element = renderElement(vNode, rootSelector, context);
+	// Append the rendered element to the root element
+	rootElement.appendChild(element);
+	// Return the element unless it's a DocumentFragment, in which case return the root element
+	return element instanceof DocumentFragment
+		? (rootElement as HTMLElement)
+		: element;
 }

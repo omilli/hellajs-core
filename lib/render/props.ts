@@ -69,7 +69,7 @@ export function processEventProps(
 	);
 
 	if (eventProps.length > 0) {
-		element.dataset["eKey"] = generateKey();
-		delegateEvents(vNode, rootSelector, element.dataset["eKey"] as string);
+		element.dataset.eKey = generateKey();
+		delegateEvents(vNode, rootSelector, element.dataset.eKey as string);
 	}
 }

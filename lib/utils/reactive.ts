@@ -187,4 +187,3 @@ export function endBatch(reactive: ReactiveContext): boolean {
 	}
 	return false;
 }
-

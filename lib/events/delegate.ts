@@ -45,9 +45,9 @@ export function delegateEvents(
 					// Iterate through the path to find the first element with a data-e-key
 					for (let i = 0; i < path.length; i++) {
 						const el = path[i] as HTMLElement;
-						if (el.dataset && el.dataset["eKey"]) {
+						if (el.dataset?.eKey) {
 							element = el;
-							key = el.dataset["eKey"];
+							key = el.dataset.eKey;
 							break;
 						}
 					}

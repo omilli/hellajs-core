@@ -52,7 +52,8 @@ function createElement(type: HTMLTagName): (...args: any[]) => VNode {
 			if (typeof child === "string" || typeof child === "number") {
 				// Text nodes are represented as strings
 				return String(child);
-			} else if (
+			}
+			if (
 				child &&
 				typeof child === "object" &&
 				"type" in child &&
@@ -61,10 +62,9 @@ function createElement(type: HTMLTagName): (...args: any[]) => VNode {
 			) {
 				// Child is already an VNode, pass through unchanged
 				return child;
-			} else {
-				// Convert other values to strings
-				return String(child);
 			}
+			// Convert other values to strings
+			return String(child);
 		});
 
 		// Create and return the virtual DOM node
