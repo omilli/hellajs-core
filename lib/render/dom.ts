@@ -101,10 +101,10 @@ function renderChildren(
 	// Create a document fragment to batch DOM operations
 	const fragment = document.createDocumentFragment();
 
-	children.forEach((child) => {
+	for (const child of children) {
 		const childElement = createDomElement(child, rootSelector, context);
 		fragment.appendChild(childElement);
-	});
+	}
 
 	// Append all children in one operation
 	element.appendChild(fragment);

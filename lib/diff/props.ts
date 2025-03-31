@@ -56,17 +56,17 @@ export function updateProps(
 			// Delete the attribute from the set
 			attrsToRemove.delete(key);
 			// Cast to string if needed
-			const strValue = castToString(value);
+			const strValue = castToString(value as string | number);
 			if (element.getAttribute(key) !== strValue) {
 				element.setAttribute(key, strValue);
 			}
 		},
 	});
 	// Remove the attributes that are not in the vNode props
-	attrsToRemove.forEach((attr) => {
+	for (const attr of attrsToRemove) {
 		// Check if starts with 'on'
 		if (!(attr.charCodeAt(0) === 111 && attr.charCodeAt(1) === 110)) {
 			element.removeAttribute(attr);
 		}
-	});
+	}
 }

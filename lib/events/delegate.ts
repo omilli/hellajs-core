@@ -19,7 +19,7 @@ export function delegateEvents(
 	// Skip if there are no props to process
 	if (!vNode.props) return;
 	// For each property that starts with "on" (e.g., onclick, onchange)
-	Object.entries(vNode.props).forEach(([key, handler]) => {
+	for (const [key, handler] of Object.entries(vNode.props)) {
 		if (key.startsWith("on") && typeof handler === "function") {
 			// Extract event name (e.g., "click" from "onclick")
 			const eventName = key.slice(2).toLowerCase();
@@ -69,5 +69,5 @@ export function delegateEvents(
 			// Register the handler for this element and event type
 			handlers.get(elementKey)?.set(eventName, handler as EventFn);
 		}
-	});
+	}
 }

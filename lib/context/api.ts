@@ -53,7 +53,7 @@ export function context(id = `hellaContext${generateKey()}`): Context {
 	CONTEXT_STORE.set(id, contextState);
 
 	// Return the context object
-	return CONTEXT_STORE.get(id)!;
+	return CONTEXT_STORE.get(id) as Context;
 }
 
 /**
@@ -76,7 +76,7 @@ export function getDefaultContext(): Context {
 	}
 
 	// Return the context instance
-	return CONTEXT_STORE.get(key)!;
+	return CONTEXT_STORE.get(key) as Context;
 }
 
 /**
@@ -102,5 +102,5 @@ export function getRootContext(
 			},
 		});
 	}
-	return rootStore.get(rootSelector)!;
+	return rootStore.get(rootSelector) as RootContext;
 }

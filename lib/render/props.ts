@@ -12,7 +12,7 @@ export function propProcessor(
 	props: VNodeProps,
 	{ classProp, boolProp, regularProp }: RenderPropHandler,
 ) {
-	Object.entries(props).forEach(([key, value]) => {
+	for (const [key, value] of Object.entries(props)) {
 		switch (true) {
 			case key.startsWith("on"):
 				break;
@@ -26,7 +26,7 @@ export function propProcessor(
 				regularProp(key, value);
 				break;
 		}
-	});
+	}
 }
 
 /**

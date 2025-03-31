@@ -8,7 +8,7 @@ export const html = new Proxy(
 	{},
 	{
 		get: (
-			target: Record<string, (...args: any[]) => VNode>,
+			target: Record<string, (...args: unknown[]) => VNode>,
 			prop: HTMLTagName,
 		) => {
 			// Return cached function if it exists
@@ -32,16 +32,20 @@ export const html = new Proxy(
  * @param type - The HTML tag name (e.g., 'div', 'span', 'button')
  * @returns A function that creates virtual DOM nodes (VNode objects)
  */
-function createElement(type: HTMLTagName): (...args: any[]) => VNode {
-	return (...args: any[]) => {
+function createElement(type: HTMLTagName): (...args: unknown[]) => VNode {
+	return (...args: unknown[]) => {
 		// Extract props object if the first argument is a valid props object
 		// Otherwise use an empty object as props
 		const props: VNodeProps =
 			args[0] &&
 			typeof args[0] === "object" &&
 			!Array.isArray(args[0]) &&
-			!(args[0].type && args[0].props && args[0].children)
-				? args.shift()
+			!(
+				(args[0] as VNode).type &&
+				(args[0] as VNode).props &&
+				(args[0] as VNode).children
+			)
+				? (args.shift() as VNodeProps)
 				: {};
 
 		// Process children, handling different types:
@@ -61,7 +65,7 @@ function createElement(type: HTMLTagName): (...args: any[]) => VNode {
 				"children" in child
 			) {
 				// Child is already an VNode, pass through unchanged
-				return child;
+				return child as VNode;
 			}
 			// Convert other values to strings
 			return String(child);

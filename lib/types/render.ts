@@ -16,7 +16,7 @@ export type RenderPropHandler = {
 	 * @param key
 	 * @param value
 	 */
-	regularProp(key: string, value: any): void;
+	regularProp(key: string, value: unknown): void;
 };
 
 export type RenderedElement = HTMLElement | Text | DocumentFragment;
