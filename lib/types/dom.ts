@@ -35,7 +35,6 @@ type VNodeAttributes<T extends HTMLTagName> = {
  */
 export type VNodeProps = VNodeAttributes<VNodeBase["type"]> & {
 	className?: string;
-	key?: string | number;
 	preventDefault?: boolean;
 	stopPropagation?: boolean;
 };
