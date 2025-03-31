@@ -46,7 +46,7 @@ export function clear(): void {
 }
 
 export function swapRows(): void {
-  if (benchState.data.length > 998) {
+  if (benchState.data().length > 998) {
     const newData = [...benchState.data()];
     const temp = newData[1];
     newData[1] = newData[998];
