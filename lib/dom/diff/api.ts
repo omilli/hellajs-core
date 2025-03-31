@@ -1,4 +1,5 @@
 import { getDefaultContext } from "../../context";
+import { RenderedElement } from "../render";
 import type { VNode } from "../types";
 import { getRootElement } from "../utils";
 import { diffChildren } from "./children";
@@ -21,7 +22,7 @@ export function diff(
 	vNode: VNode,
 	rootSelector: string,
 	context = getDefaultContext(),
-): HTMLElement | Text | DocumentFragment {
+): RenderedElement | DocumentFragment {
 	// Get a dom reference to the root element
 	const rootElement = getRootElement(rootSelector);
 	// Check if the root element has children
@@ -57,7 +58,7 @@ function handleChildren({
 	// Populate the array with the child nodes to avoid issues with live NodeList
 	for (let i = 0; i < childLength; i++) {
 		// Store each child node in the array
-		children[i] = rootElement.childNodes[i] as HTMLElement | Text;
+		children[i] = rootElement.childNodes[i] as RenderedElement;
 	}
 	// Perform the diffing process on the child nodes
 	diffChildren(children, [vNode], rootElement, rootSelector, context);

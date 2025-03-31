@@ -1,4 +1,5 @@
 import { type RootContext, getRootContext } from "../context";
+import { RenderedElement } from "./render";
 import type { EventFn, VNode } from "./types";
 import { getRootElement } from "./utils";
 
@@ -70,7 +71,7 @@ export function cleanupRootsEvents(rootSelector: string): void {
  * event handlers as well.
  */
 export function cleanupEventHandlers(
-	element: HTMLElement | Text,
+	element: RenderedElement,
 	rootContext: RootContext,
 ) {
 	if (!(element instanceof HTMLElement)) return;

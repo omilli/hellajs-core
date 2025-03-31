@@ -1,6 +1,7 @@
 import type { Context } from "../../context";
 import type { VNode, VNodeValue } from "../types";
 import { processEventProps, processProps } from "./props";
+import { RenderedElement } from "./types";
 
 /**
  * Renders an VNode to the DOM by creating a DOM element and appending it to the specified root element.
@@ -19,7 +20,7 @@ export function renderDomElement(
 	rootElement: Element,
 	rootSelector: string,
 	context: Context,
-): HTMLElement | Text | DocumentFragment {
+): RenderedElement | DocumentFragment {
 	const element = createDomElement(vNode, rootSelector, context);
 
 	// Clear container more efficiently than using innerHTML
@@ -54,7 +55,7 @@ function createDomElement(
 	vNode: VNodeValue,
 	rootSelector: string,
 	context: Context,
-): HTMLElement | Text | DocumentFragment {
+): RenderedElement {
 	if (typeof vNode === "string" || typeof vNode === "number") {
 		return document.createTextNode(String(vNode));
 	}

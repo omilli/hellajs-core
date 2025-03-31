@@ -1,4 +1,5 @@
 import type { Context } from "../../context";
+import { RenderedElement } from "../render";
 import type { VNode, VNodeValue } from "../types";
 import { diffChildren } from "./children";
 import { renderElement } from "./render";
@@ -25,12 +26,12 @@ import { updateElement } from "./update";
  * If the node types don't match, the old DOM node is replaced with a new one.
  */
 export function diffNode(
-	domNode: HTMLElement | DocumentFragment | Text,
+	domNode: RenderedElement,
 	vNode: VNodeValue,
 	parentElement: Element | DocumentFragment,
 	rootSelector: string,
 	context: Context,
-): HTMLElement | Text | DocumentFragment {
+): RenderedElement {
 	// Handle text nodes - faster primitive type check
 	const vNodeType = typeof vNode;
 	if (vNodeType === "string" || vNodeType === "number") {
@@ -100,7 +101,7 @@ function handleFragment(
 		const childCount = domNode.childNodes.length;
 		const domChildren = new Array(childCount);
 		for (let i = 0; i < childCount; i++) {
-			domChildren[i] = domNode.childNodes[i] as HTMLElement | Text;
+			domChildren[i] = domNode.childNodes[i] as RenderedElement;
 		}
 
 		diffChildren(domChildren, children, domNode, rootSelector, context);

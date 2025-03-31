@@ -1,5 +1,6 @@
 import type { Context } from "../../context";
 import { delegateEvents } from "../events";
+import { RenderedElement } from "../render";
 import type { VNode } from "../types";
 import { generateKey } from "../utils";
 import { diffChildren } from "./children";
@@ -98,7 +99,7 @@ function handleChildren(
 	const childCount = element.childNodes.length;
 	const domChildren = new Array(childCount);
 	for (let i = 0; i < childCount; i++) {
-		domChildren[i] = element.childNodes[i] as HTMLElement | Text;
+		domChildren[i] = element.childNodes[i] as RenderedElement;
 	}
 
 	diffChildren(domChildren, children || [], element, rootSelector, context);

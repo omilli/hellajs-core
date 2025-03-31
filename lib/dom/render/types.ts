@@ -25,7 +25,7 @@ export interface RenderedNode {
 	/**
 	 * The rendered DOM element, which can be an HTMLElement, Text, or DocumentFragment.
 	 */
-	element: DocumentFragment | HTMLElement | Text;
+	element: RenderedElement;
 	/**
 	 * The original hierarchical node (VNode) that was rendered.
 	 */

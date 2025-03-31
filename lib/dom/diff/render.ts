@@ -1,5 +1,6 @@
 import type { Context } from "../../context";
 import { delegateEvents } from "../events";
+import { RenderedElement } from "../render";
 import type { VNode, VNodeValue } from "../types";
 import { generateKey } from "../utils";
 import { updateProps } from "./props";
@@ -23,7 +24,7 @@ export function renderElement(
 	vNode: VNodeValue,
 	rootSelector: string,
 	context: Context,
-): HTMLElement | Text | DocumentFragment {
+): RenderedElement {
 	const vNodeType = typeof vNode;
 	if (vNodeType === "string" || vNodeType === "number") {
 		return document.createTextNode(String(vNode));

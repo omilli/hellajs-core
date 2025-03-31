@@ -1,5 +1,6 @@
 import { type Context, getRootContext } from "../../context";
 import { cleanupEventHandlers } from "../events";
+import { RenderedElement } from "../render";
 import type { VNodeValue } from "../types";
 import { diffNode } from "./nodes";
 import { renderElement } from "./render";
@@ -21,7 +22,7 @@ import { renderElement } from "./render";
  * The function optimizes DOM operations by batching removals from the end to avoid layout thrashing.
  */
 export function diffChildren(
-	domChildren: (HTMLElement | Text)[],
+	domChildren: RenderedElement[],
 	vNodeChildren: VNodeValue[],
 	parentElement: Element | DocumentFragment,
 	rootSelector: string,
