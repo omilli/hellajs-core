@@ -32,60 +32,21 @@ export function renderElement(
 	const { type, props = {}, children = [] } = vNode as VNode;
 
 	if (!type) {
-		return handleFragment(children, rootSelector, context);
+		const fragment = document.createDocumentFragment();
+		const len = children.length;
+
+		// Use for loop instead of forEach for better performance
+		for (let i = 0; i < len; i++) {
+			fragment.appendChild(renderElement(children[i], rootSelector, context));
+		}
+
+		return fragment;
 	}
 
 	const element = document.createElement(type);
 
 	updateProps(element, props);
 
-	handleEvents(vNode as VNode, element, rootSelector);
-
-	handleChildren(children, element, rootSelector, context);
-
-	return element;
-}
-
-/**
- * Creates a DocumentFragment containing rendered elements from an array of children.
- *
- * @param children - An array of hierarchical nodes to be rendered. Defaults to an empty array.
- * @param rootSelector - The CSS selector string representing the root element.
- * @param context - The rendering context containing state and configuration.
- * @returns A DocumentFragment containing all rendered child elements.
- */
-function handleFragment(
-	children: VNode["children"] = [],
-	rootSelector: string,
-	context: Context,
-): DocumentFragment {
-	const fragment = document.createDocumentFragment();
-	const len = children.length;
-
-	// Use for loop instead of forEach for better performance
-	for (let i = 0; i < len; i++) {
-		fragment.appendChild(renderElement(children[i], rootSelector, context));
-	}
-
-	return fragment;
-}
-
-/**
- * Handles event properties for a virtual node and sets up event delegation.
- * This function checks if the provided virtual node has any properties that
- * start with "on" (e.g., onClick, onMouseOver), and if so, sets a unique
- * event key on the element and delegates event handling.
- *
- * @param vNode - The virtual node containing properties to check for event handlers
- * @param element - The DOM element to attach the event key to
- * @param rootSelector - CSS selector for the root element used in event delegation
- */
-function handleEvents(
-	vNode: VNode,
-	element: HTMLElement,
-	rootSelector: string,
-) {
-	const { props = {} } = vNode;
 	const keys = Object.keys(props);
 	let hasEventProps = false;
 
@@ -102,30 +63,12 @@ function handleEvents(
 		element.dataset["eKey"] = generateKey();
 		delegateEvents(vNode as VNode, rootSelector, element.dataset["eKey"]);
 	}
-}
 
-/**
- * Handles the appending of child nodes to a parent element.
- *
- * @param children - The array of child nodes to be rendered and appended. Defaults to an empty array.
- * @param element - The parent HTML element to which the rendered children will be appended.
- * @param rootSelector - A CSS selector string identifying the root element.
- * @param context - The context object containing rendering state and configuration.
- *
- * @remarks
- * This function iterates through each child in the provided children array,
- * renders it using the renderElement function, and appends the resulting
- * DOM node to the parent element.
- */
-function handleChildren(
-	children: VNode["children"] = [],
-	element: HTMLElement,
-	rootSelector: string,
-	context: Context,
-) {
 	const childLen = children.length;
 
 	for (let i = 0; i < childLen; i++) {
 		element.appendChild(renderElement(children[i], rootSelector, context));
 	}
+
+	return element;
 }

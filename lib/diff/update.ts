@@ -29,35 +29,6 @@ export function updateElement(
 
 	updateProps(element, props);
 
-	handleEvents(vNode, element, rootSelector);
-
-	handleChildren(children, element, rootSelector, context);
-
-	return element;
-}
-
-/**
- * Handles event properties for a virtual DOM node by setting up event delegation.
- *
- * This function checks if the node has any properties starting with "on" (event handlers),
- * and if so, assigns a unique event key to the element and sets up event delegation.
- *
- * @param vNode - The virtual DOM node containing properties
- * @param element - The actual DOM element to attach events to
- * @param rootSelector - CSS selector for the root element used for event delegation
- *
- * @remarks
- * The function uses character codes (111 for 'o', 110 for 'n') to efficiently detect event handlers.
- * If event properties are found, it ensures the element has a unique "eKey" data attribute
- * and delegates the events through the delegateEvents function.
- */
-function handleEvents(
-	vNode: VNode,
-	element: HTMLElement,
-	rootSelector: string,
-) {
-	const { props = {} } = vNode;
-
 	const keys = Object.keys(props);
 	let hasEventProps = false;
 
@@ -74,27 +45,7 @@ function handleEvents(
 		element.dataset["eKey"] ??= generateKey();
 		delegateEvents(vNode, rootSelector, element.dataset["eKey"]);
 	}
-}
 
-/**
- * Handles diffing and updating of children nodes in a DOM element.
- *
- * @param children - Virtual nodes representing the desired children state
- * @param element - The parent DOM element whose children need to be updated
- * @param rootSelector - CSS selector identifying the root element of the component
- * @param context - Current context for the component rendering
- *
- * @remarks
- * This function extracts the current DOM children from the element,
- * then calls diffChildren to reconcile the differences between the current
- * DOM state and the desired virtual node state.
- */
-function handleChildren(
-	children: VNode["children"] = [],
-	element: HTMLElement,
-	rootSelector: string,
-	context: Context,
-) {
 	const childCount = element.childNodes.length;
 	const domChildren = new Array(childCount);
 	for (let i = 0; i < childCount; i++) {
@@ -102,4 +53,6 @@ function handleChildren(
 	}
 
 	diffChildren(domChildren, children || [], element, rootSelector, context);
+
+	return element;
 }

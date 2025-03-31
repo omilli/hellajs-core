@@ -1,4 +1,4 @@
-import { type ReactiveContext, getDefaultContext } from "../context";
+import { getDefaultContext } from "../context";
 import type { EffectFn, EffectOptions } from "../types";
 import { setActiveTracker, unsubscribeDependencies } from "../utils";
 
@@ -242,34 +242,6 @@ export function effect(
 	});
 
 	// Register parent-child relationship for automatic cleanup
-	registerParentChildRelationship(reactive, disposeEffect);
-
-	// Handle custom scheduling or immediate execution
-	if (scheduler) {
-		scheduler(observer);
-	} else {
-		observer(); // Initial execution
-	}
-
-	// Return cleanup function
-	return disposeEffect;
-}
-
-/**
- * Registers a parent-child relationship between effects.
- * When a dispose effect is executed within another effect (the parent),
- * this function establishes a connection between them by storing the relationship
- * in a map structure.
- *
- * @param disposeEffect - The effect function to be registered as a child of the currently executing effect
- * @remarks
- * This function only operates when there is a currently executing effect (parent).
- * If no effect is currently executing, the function does nothing.
- */
-function registerParentChildRelationship(
-	reactive: ReactiveContext,
-	disposeEffect: EffectFn,
-) {
 	if (reactive.currentExecutingEffect) {
 		let parentChildEffects = reactive.parentChildEffectsMap.get(
 			reactive.currentExecutingEffect,
@@ -283,4 +255,14 @@ function registerParentChildRelationship(
 		}
 		parentChildEffects.add(disposeEffect);
 	}
+
+	// Handle custom scheduling or immediate execution
+	if (scheduler) {
+		scheduler(observer);
+	} else {
+		observer(); // Initial execution
+	}
+
+	// Return cleanup function
+	return disposeEffect;
 }

@@ -14,7 +14,7 @@ export function renderStringElement(vNode: VNode | string): string {
 		return escapeHTML(String(vNode));
 	}
 
-	const { type, props, children } = vNode;
+	const { type, props = {}, children } = vNode;
 
 	// Handle fragments (when type is undefined or null)
 	if (!type) {
@@ -22,33 +22,31 @@ export function renderStringElement(vNode: VNode | string): string {
 	}
 
 	const html: string[] = [];
-	html.push(`<${type}${handleProps(props)}>`);
-	html.push(renderChildren(children));
-	html.push(`</${type}>`);
-
-	return html.join("");
-}
-
-/**
- * Sets HTML attributes and properties on a DOM element based on a provided props object.
- *
- * @param props - An object containing the properties to apply to the element
- *
- */
-function handleProps(props: VNode["props"] = {}) {
-	const html: string[] = [];
+	// Generate opening tag with props
+	// Check for event handlers that will need hydration
+	const hasEvents = Object.keys(props).some((key) => key.startsWith("on"));
 
 	propProcessor(props, {
 		classProp(className) {
-			html.push(` class="${escapeHTML(className)}"`);
+			html.push(`${type} class="${escapeHTML(className)}"`);
 		},
 		boolProp(key) {
-			html.push(` ${key}`);
+			html.push(`${type} ${key}`);
 		},
 		regularProp(key, value) {
-			html.push(` ${key}="${escapeHTML(String(value))}"`);
+			html.push(`${type} ${key}="${escapeHTML(String(value))}"`);
 		},
 	});
+
+	// Add data-e-key attribute to elements with event handlers
+	if (hasEvents) {
+		const eKey = `e${Date.now().toString(36)}${Math.random().toString(36).substr(2, 5)}`;
+		html.push(` data-e-key="${eKey}"`);
+	}
+	// Generate children content
+	html.push(renderChildren(children));
+	// Generate closing tag
+	html.push(`</${type}>`);
 
 	return html.join("");
 }
@@ -63,7 +61,6 @@ function handleProps(props: VNode["props"] = {}) {
 function renderChildren(children: VNode["children"] = []) {
 	if (!children || children.length === 0) return "";
 
-	// Pre-allocate array for better performance
 	const html = new Array(children.length);
 
 	for (let i = 0; i < children.length; i++) {

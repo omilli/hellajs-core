@@ -1,6 +1,5 @@
 import type { ReactiveContext } from "../context";
 import type { EffectFn, Signal, SignalBase } from "../types";
-import { scheduleEffects } from "./effect";
 import { getActiveTracker, hasActiveTracker } from "./tracker";
 
 /**
@@ -78,8 +77,25 @@ export function notifyDependents(
 		return;
 	}
 
-	// Not batching, schedule effects to run
-	scheduleEffects(reactive, liveEffects);
+	// Sort by priority (if available)
+	const sorted = [...liveEffects].sort((a, b) => {
+		const priorityA = a._priority || 0;
+		const priorityB = b._priority || 0;
+		return priorityB - priorityA; // Higher priority runs first
+	});
+
+	// Schedule effects to run
+	for (const effect of sorted) {
+		if (!reactive.pendingRegistry.has(effect)) {
+			reactive.pendingNotifications.push(effect);
+			reactive.pendingRegistry.add(effect);
+		}
+	}
+
+	// If we're not batching, flush immediately
+	if (reactive.batchDepth === 0) {
+		flushEffects(reactive);
+	}
 }
 
 /**
@@ -130,3 +146,45 @@ export function unsubscribeDependencies(
 		reactive.effectDependencies.delete(effect);
 	}
 }
+
+/**
+ * Process all queued effects
+ */
+export function flushEffects(reactive: ReactiveContext): void {
+	if (reactive.pendingNotifications.length === 0) return;
+
+	// Sort by priority (higher runs first)
+	const effectsToRun = [...reactive.pendingNotifications].sort((a, b) => {
+		return (b._priority || 0) - (a._priority || 0);
+	});
+
+	// Clear pending notifications before running effects to avoid cycles
+	reactive.pendingNotifications.length = 0;
+	reactive.pendingRegistry.clear();
+
+	// Run each effect, skipping disposed ones
+	for (const effect of effectsToRun) {
+		if (!effect._disposed) {
+			effect();
+		}
+	}
+}
+
+/**
+ * Starts a batch operation
+ */
+export function startBatch(reactive: ReactiveContext): void {
+	reactive.batchDepth++;
+}
+
+/**
+ * Ends a batch operation
+ */
+export function endBatch(reactive: ReactiveContext): boolean {
+	if (reactive.batchDepth > 0) {
+		reactive.batchDepth--;
+		return reactive.batchDepth === 0;
+	}
+	return false;
+}
+

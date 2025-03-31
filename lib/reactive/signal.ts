@@ -1,6 +1,6 @@
 import { getDefaultContext } from "../context";
 import type { EffectFn, Signal, SignalOptions } from "../types";
-import { getActiveTracker, queueEffects } from "../utils";
+import { flushEffects, getActiveTracker } from "../utils";
 
 /**
  * Creates a new signal with the given initial value and options.
@@ -88,7 +88,31 @@ export function signal<T>(
 		value = newValue;
 
 		// Schedule all dependent effects for execution
-		queueEffects(reactive, subscribers);
+		if (subscribers.size === 0) return;
+
+		// Efficient deduplication using the pending registry
+		let hasQueuedEffects = false;
+
+		// Process subscribers, cleaning up dead references
+		for (const ref of subscribers) {
+			const effect = ref.deref();
+			if (effect) {
+				// Only queue if not already pending
+				if (!reactive.pendingRegistry.has(effect)) {
+					reactive.pendingNotifications.push(effect);
+					reactive.pendingRegistry.add(effect);
+					hasQueuedEffects = true;
+				}
+			} else {
+				// Clean up dead reference
+				subscribers.delete(ref);
+			}
+		}
+
+		// Run effects immediately if not batching and we have queued effects
+		if (reactive.batchDepth === 0 && hasQueuedEffects) {
+			flushEffects(reactive);
+		}
 	};
 
 	/**

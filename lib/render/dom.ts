@@ -62,7 +62,10 @@ function createDomElement(
 	const { type, props = {} } = vNode;
 
 	if (!type) {
-		return renderFragments(vNode, rootSelector, context);
+		// Handle fragments (when type is undefined or null)
+		const fragment = document.createDocumentFragment();
+		renderChildren(fragment, vNode, rootSelector, context);
+		return fragment;
 	}
 
 	const element = document.createElement(type);
@@ -77,26 +80,6 @@ function createDomElement(
 	renderChildren(element, vNode, rootSelector, context);
 
 	return element;
-}
-
-/**
- * Renders a fragment by creating a document fragment and appending its children.
- *
- * @param vNode - The hierarchical node to render
- * @param rootSelector - A CSS selector for the root element
- * @param context - The context object for rendering
- *
- * @returns A DocumentFragment containing the rendered children
- */
-function renderFragments(
-	vNode: VNode,
-	rootSelector: string,
-	context: Context,
-): DocumentFragment {
-	// Handle fragments (when type is undefined or null)
-	const fragment = document.createDocumentFragment();
-	renderChildren(fragment, vNode, rootSelector, context);
-	return fragment;
 }
 
 /**

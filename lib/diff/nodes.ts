@@ -34,20 +34,54 @@ export function diffNode(
 	// Handle text nodes - faster primitive type check
 	const vNodeType = typeof vNode;
 	if (vNodeType === "string" || vNodeType === "number") {
-		return handleText(domNode as Text, vNode as string | number, parentElement);
+		const nodeType = domNode.nodeType;
+		const vNodeStr = String(vNode);
+		if (nodeType === 3) {
+			// Update text content if different
+			if (domNode.textContent !== vNodeStr) {
+				domNode.textContent = vNodeStr;
+			}
+			return domNode;
+		} else {
+			// Replace with a new text node
+			const newNode = document.createTextNode(vNodeStr);
+			parentElement.replaceChild(newNode, domNode);
+			return newNode;
+		}
 	}
 
 	const { type, children = [] } = vNode as VNode;
 
 	// Handle fragment (when type is undefined or null)
 	if (!type) {
-		return handleFragment(
-			domNode as DocumentFragment,
-			children,
-			rootSelector,
-			parentElement,
-			context,
-		);
+		if (domNode.nodeType === 11) {
+			// Use direct constant (DocumentFragment)
+			const childCount = domNode.childNodes.length;
+			const domChildren = new Array(childCount);
+			for (let i = 0; i < childCount; i++) {
+				domChildren[i] = domNode.childNodes[i] as RenderedElement;
+			}
+
+			diffChildren(
+				domChildren,
+				children,
+				domNode as DocumentFragment,
+				rootSelector,
+				context,
+			);
+			return domNode;
+		} else {
+			// Replace with a fragment - use document fragment for batch operation
+			const fragment = document.createDocumentFragment();
+			const len = children.length;
+
+			for (let i = 0; i < len; i++) {
+				fragment.appendChild(renderElement(children[i], rootSelector, context));
+			}
+
+			parentElement.replaceChild(fragment, domNode);
+			return fragment;
+		}
 	}
 
 	// Handle regular elements
@@ -69,86 +103,4 @@ export function diffNode(
 	const newElement = renderElement(vNode, rootSelector, context);
 	parentElement.replaceChild(newElement, domNode);
 	return newElement;
-}
-
-/**
- * Handles the rendering and diffing of DocumentFragment nodes in the virtual DOM.
- *
- * This function has two modes of operation:
- * 1. If the provided node is already a DocumentFragment (nodeType === 11), it efficiently updates its contents
- *    by diffing the current children with the new virtual node children.
- * 2. If the provided node is not a DocumentFragment, it creates a new DocumentFragment, renders the children
- *    into it, and replaces the original node in the parent element.
- *
- * @param domNode - The DOM node to update or replace
- * @param children - Virtual node children to render into the fragment
- * @param rootSelector - Selector string identifying the root element
- * @param parentElement - Parent element containing the domNode
- * @param context - Current rendering context
- * @returns The resulting DocumentFragment (either updated or newly created)
- */
-function handleFragment(
-	domNode: DocumentFragment,
-	children: VNode["children"] = [],
-	rootSelector: string,
-	parentElement: Element | DocumentFragment,
-	context: Context,
-) {
-	if (domNode.nodeType === 11) {
-		// Use direct constant (DocumentFragment)
-		// Update fragment contents - optimize array creation
-		const childCount = domNode.childNodes.length;
-		const domChildren = new Array(childCount);
-		for (let i = 0; i < childCount; i++) {
-			domChildren[i] = domNode.childNodes[i] as RenderedElement;
-		}
-
-		diffChildren(domChildren, children, domNode, rootSelector, context);
-		return domNode;
-	} else {
-		// Replace with a fragment - use document fragment for batch operation
-		const fragment = document.createDocumentFragment();
-		const len = children.length;
-
-		for (let i = 0; i < len; i++) {
-			fragment.appendChild(renderElement(children[i], rootSelector, context));
-		}
-
-		parentElement.replaceChild(fragment, domNode);
-		return fragment;
-	}
-}
-
-/**
- * Updates or replaces a DOM node with text content based on a hyperscript value.
- *
- * @param domNode - The existing DOM Text node to update or replace
- * @param vNode - The hyperscript value (string or number) to use as text content
- * @param parentElement - The parent element containing the DOM node
- * @returns The updated or newly created Text node
- *
- * If the existing node is already a Text node (nodeType === 3), its content will be updated.
- * Otherwise, the node will be replaced with a new Text node in the parent element.
- */
-function handleText(
-	domNode: Text,
-	vNode: string | number,
-	parentElement: Element | DocumentFragment,
-): Text {
-	const nodeType = domNode.nodeType;
-	const vNodeStr = String(vNode);
-
-	if (nodeType === 3) {
-		// Use direct constant instead of Node.TEXT_NODE
-		// Update text content if different
-		if (domNode.textContent !== vNodeStr) {
-			domNode.textContent = vNodeStr;
-		}
-		return domNode;
-	} else {
-		// Replace with a new text node
-		const newNode = document.createTextNode(vNodeStr);
-		parentElement.replaceChild(newNode, domNode);
-		return newNode;
-	}
 }

@@ -27,27 +27,33 @@ export function diffChildren(
 	rootSelector: string,
 	context: Context,
 ): void {
+	// Count the amount of children in the DOM
 	const domLen = domChildren.length;
+	// Count the amount of children in the virtual node
 	const vdomLen = vNodeChildren.length;
-	const rootContext = getRootContext(rootSelector, context);
 
 	// Handle case where we have more DOM children than virtual children
-	// Batch removals by removing from end to avoid layout thrashing
 	if (domLen > vdomLen) {
-		// Bulk removal is faster than one-by-one
+		// Get the root context for event cleanup
+		const rootContext = getRootContext(rootSelector, context);
+		// Count the number of nodes to remove
 		const removeCount = domLen - vdomLen;
-		for (let i = 0; i < removeCount; i++) {
-			const nodeToRemove = domChildren[domLen - 1 - i];
+		// Count down from the end of the DOM children
+		for (let i = domLen - 1; i >= domLen - removeCount; i--) {
+			// Get the node to remove
+			const nodeToRemove = domChildren[i];
+			// Clean up event handlers for the node
 			cleanupEventHandlers(nodeToRemove, rootContext);
+			// Remove the node from the parent element
 			parentElement.removeChild(nodeToRemove);
 		}
-		domChildren.length = vdomLen; // Truncate array directly
 	}
 
 	// Process each child
 	for (let i = 0; i < vdomLen; i++) {
+		// Get the virtual node child
 		const vNodeChild = vNodeChildren[i];
-
+		// If there are still nodes to process
 		if (i < domLen) {
 			// Update existing node
 			diffNode(
