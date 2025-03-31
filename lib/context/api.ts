@@ -53,7 +53,7 @@ export function context(id = `hellaContext${generateKey()}`): Context {
 	CONTEXT_STORE.set(id, contextState);
 
 	// Return the context object
-	return contextState;
+	return CONTEXT_STORE.get(id)!;
 }
 
 /**
