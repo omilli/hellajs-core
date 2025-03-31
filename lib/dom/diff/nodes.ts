@@ -1,5 +1,5 @@
 import type { Context } from "../../context";
-import type { VNode } from "../types";
+import type { VNode, VNodeValue } from "../types";
 import { diffChildren } from "./children";
 import { renderElement } from "./render";
 import { updateElement } from "./update";
@@ -26,7 +26,7 @@ import { updateElement } from "./update";
  */
 export function diffNode(
 	domNode: HTMLElement | DocumentFragment | Text,
-	vNode: VNode | string | number,
+	vNode: VNodeValue,
 	parentElement: Element | DocumentFragment,
 	rootSelector: string,
 	context: Context,

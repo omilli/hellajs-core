@@ -1,22 +1,20 @@
 import { type Context, getRootContext } from "../../context";
 import { cleanupEventHandlers } from "../events";
-import type { VNode } from "../types";
+import type { VNodeValue } from "../types";
 import { diffNode } from "./nodes";
 import { renderElement } from "./render";
 
 /**
  * Reconciles differences between actual DOM children and virtual DOM node children.
- * This function is responsible for efficiently updating the DOM to match the virtual representation.
- *
  * The function handles three main cases:
  * 1. If there are more DOM children than virtual children, it removes excess DOM nodes
- * 2. For existing DOM nodes that have a corresponding virtual node, it updates them via diffNode
+ * 2. For existing DOM nodes that have a corresponding virtual node, it updates them
  * 3. For virtual nodes that don't have a corresponding DOM node, it creates and appends new DOM nodes
  *
  * @param domChildren - Array of actual DOM elements (HTMLElement or Text nodes)
  * @param vNodeChildren - Array of virtual DOM nodes (VNode objects or primitive values like strings/numbers)
  * @param parentElement - The parent DOM element containing the children being diffed
- * @param rootSelector - CSS selector string that identifies the root
+ * @param rootSelector - CSS selector string that identifies the root element
  * @param context - Additional context information for rendering
  *
  * @remarks
@@ -24,7 +22,7 @@ import { renderElement } from "./render";
  */
 export function diffChildren(
 	domChildren: (HTMLElement | Text)[],
-	vNodeChildren: (VNode | string | number)[],
+	vNodeChildren: VNodeValue[],
 	parentElement: Element | DocumentFragment,
 	rootSelector: string,
 	context: Context,

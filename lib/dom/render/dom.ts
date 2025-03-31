@@ -1,5 +1,5 @@
 import type { Context } from "../../context";
-import type { VNode } from "../types";
+import type { VNode, VNodeValue } from "../types";
 import { processEventProps, processProps } from "./props";
 
 /**
@@ -51,7 +51,7 @@ export function renderDomElement(
  * @returns The created DOM element, text node, or document fragment
  */
 function createDomElement(
-	vNode: VNode | string | number,
+	vNode: VNodeValue,
 	rootSelector: string,
 	context: Context,
 ): HTMLElement | Text | DocumentFragment {

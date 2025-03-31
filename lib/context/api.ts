@@ -53,6 +53,8 @@ export function context(id = `hellaContext${generateKey()}`): Context {
 	// Store the context in the global context store
 	contextStore.set(id, contextState);
 
+
+	// Return the context object
 	return contextState;
 }
 
@@ -66,13 +68,18 @@ export function context(id = `hellaContext${generateKey()}`): Context {
  * @returns The default context instance.
  */
 export function getDefaultContext(): Context {
+	// Get the global context
 	const globalContext = getGlobalThis();
+	// Default key to attach the context to the global object
 	const key = "hellaContext";
 
+	// Check if the context already exists in the global object
+	// If it doesn't, create a new context and store it
 	if (!globalContext[key]) {
 		globalContext[key] = context();
 	}
 
+	// Return the context instance
 	return globalContext[key];
 }
 
@@ -85,10 +92,13 @@ export function getDefaultContext(): Context {
  */
 export function getRootContext(
 	rootSelector: string,
-	{ dom } = getDefaultContext(),
+	context = getDefaultContext(),
 ): RootContext {
-	if (!dom.rootStore.has(rootSelector)) {
-		dom.rootStore.set(rootSelector, {
+	const { rootStore } = context.dom;
+	// Check if the root store already has a context for the given selector
+	// If not, create a new root context and store it
+	if (!rootStore.has(rootSelector)) {
+		rootStore.set(rootSelector, {
 			events: {
 				delegates: new Set(),
 				handlers: new Map(),
@@ -97,5 +107,6 @@ export function getRootContext(
 		});
 	}
 
-	return dom.rootStore.get(rootSelector)!;
+	// Return the root context associated with the selector
+	return rootStore.get(rootSelector)!;
 }

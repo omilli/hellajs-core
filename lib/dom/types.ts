@@ -41,6 +41,11 @@ export type VNodeProps = VNodeAttributes<VNodeBase["type"]> & {
 };
 
 /**
+ * Represents the value of a virtual DOM node to be added to the dom.
+ */
+export type VNodeValue = VNode | string | number;
+
+/**
  * Defines the core structure of a virtual DOM node with required properties.
  * Represents an HTML element with its type, properties, and children.
  */

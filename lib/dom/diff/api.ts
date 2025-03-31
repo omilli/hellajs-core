@@ -22,21 +22,19 @@ export function diff(
 	rootSelector: string,
 	context = getDefaultContext(),
 ): HTMLElement | Text | DocumentFragment {
+	// Get a dom reference to the root element
 	const rootElement = getRootElement(rootSelector);
-
+	// Check if the root element has children
 	const hasChildren = rootElement.childNodes.length > 0;
+	// Set the configuration for diffing this virtual node
 	const diffConfig: DiffConfig = {
 		vNode,
 		rootSelector,
 		rootElement,
 		context,
-	};
-
-	if (hasChildren) {
-		return handleChildren(diffConfig);
-	} else {
-		return handleChildess(diffConfig);
-	}
+		};
+	// Handle diffing based on whether the root element has children or not
+	return hasChildren ? handleChildren(diffConfig) : handleChildess(diffConfig);
 }
 
 /**
@@ -52,14 +50,18 @@ function handleChildren({
 	rootElement,
 	context,
 }: DiffConfig) {
+	// Count the number of child nodes in the root element
 	const childLength = rootElement.childNodes.length;
+	// Create an array to hold the child nodes
 	const children = new Array(childLength);
+	// Populate the array with the child nodes to avoid issues with live NodeList
 	for (let i = 0; i < childLength; i++) {
+		// Store each child node in the array
 		children[i] = rootElement.childNodes[i] as HTMLElement | Text;
 	}
-
+	// Perform the diffing process on the child nodes
 	diffChildren(children, [vNode], rootElement, rootSelector, context);
-
+	// Return the root element
 	return rootElement as HTMLElement;
 }
 
@@ -76,8 +78,11 @@ function handleChildess({
 	rootElement,
 	context,
 }: DiffConfig) {
+	// Render the virtual node to the DOM
 	const element = renderElement(vNode, rootSelector, context);
+	// Append the rendered element to the root element
 	rootElement.appendChild(element);
+	// Return the element unless it's a DocumentFragment, in which case return the root element
 	return element instanceof DocumentFragment
 		? (rootElement as HTMLElement)
 		: element;

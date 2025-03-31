@@ -1,6 +1,6 @@
 import type { Context } from "../../context";
 import { delegateEvents } from "../events";
-import type { VNode } from "../types";
+import type { VNode, VNodeValue } from "../types";
 import { generateKey } from "../utils";
 import { updateProps } from "./props";
 
@@ -20,7 +20,7 @@ import { updateProps } from "./props";
  * @returns The created DOM element, text node, or document fragment
  */
 export function renderElement(
-	vNode: VNode | string | number,
+	vNode: VNodeValue,
 	rootSelector: string,
 	context: Context,
 ): HTMLElement | Text | DocumentFragment {
