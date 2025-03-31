@@ -3,7 +3,7 @@ import { delegateEvents } from "../events";
 import { renderFragment } from "../render/fragment";
 import type { RenderedElement, VNode, VNodeValue } from "../types";
 import { castToString, generateKey, isValidTextNode } from "../utils";
-import { updateProps } from "./props";
+import { updateAttributes } from "./attributes";
 
 /**
  * Renders a hierarchical node (VNode) or primitive value into a DOM element.
@@ -35,10 +35,10 @@ export function renderElement(
 	if (!type) {
 		return renderFragment(children, rootSelector, context);
 	}
-
+	// Create the element dfrom the vNode type
 	const element = document.createElement(type);
-
-	updateProps(element, props);
+	// Updafe the element props
+	updateAttributes(element, props);
 
 	const keys = Object.keys(props);
 	let hasEventProps = false;

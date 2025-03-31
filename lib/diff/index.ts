@@ -1,4 +1,4 @@
 export * from "./api";
 export * from "./nodes";
-export * from "./props";
+export * from "./attributes";
 export * from "./render";
