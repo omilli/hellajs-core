@@ -1,4 +1,4 @@
-import type { Context, RootContext } from "../../context";
+import type { Context } from "../../context";
 import type { HNode } from "../types";
 import { diffChildren } from "./children";
 import { renderElement } from "./render";
@@ -11,7 +11,6 @@ import { updateElement } from "./update";
  * @param domNode - The existing DOM node to be updated
  * @param hNode - The virtual node representation to reconcile with
  * @param parentElement - The parent element in the DOM tree where replacements would occur if necessary
- * @param rootContext - Root context containing state and global handlers
  * @param rootSelector - CSS selector string identifying the root element
  * @param context - Current context with scoped state and handlers
  *
@@ -29,7 +28,6 @@ export function diffNode(
 	domNode: HTMLElement | DocumentFragment | Text,
 	hNode: HNode | string | number,
 	parentElement: Element | DocumentFragment,
-	rootContext: RootContext,
 	rootSelector: string,
 	context: Context,
 ): HTMLElement | Text | DocumentFragment {
@@ -48,7 +46,6 @@ export function diffNode(
 			children,
 			rootSelector,
 			parentElement,
-			rootContext,
 			context,
 		);
 	}
@@ -62,7 +59,6 @@ export function diffNode(
 			return updateElement(
 				domNode as HTMLElement,
 				hNode as HNode,
-				rootContext,
 				rootSelector,
 				context,
 			);
@@ -88,7 +84,6 @@ export function diffNode(
  * @param children - Virtual node children to render into the fragment
  * @param rootSelector - Selector string identifying the root element
  * @param parentElement - Parent element containing the domNode
- * @param rootContext - Context object for the root component
  * @param context - Current rendering context
  * @returns The resulting DocumentFragment (either updated or newly created)
  */
@@ -97,7 +92,6 @@ function handleFragment(
 	children: HNode["children"] = [],
 	rootSelector: string,
 	parentElement: Element | DocumentFragment,
-	rootContext: RootContext,
 	context: Context,
 ) {
 	if (domNode.nodeType === 11) {
@@ -113,7 +107,6 @@ function handleFragment(
 			domChildren,
 			children,
 			domNode,
-			rootContext,
 			rootSelector,
 			context,
 		);

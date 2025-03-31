@@ -1,4 +1,4 @@
-import type { Context, RootContext } from "../../context";
+import type { Context } from "../../context";
 import { delegateEvents } from "../events";
 import type { HNode } from "../types";
 import { generateKey } from "../utils";
@@ -15,7 +15,6 @@ import { updateProps } from "./props";
  *
  * @param element - The DOM element to update
  * @param hNode - Virtual node representation containing props and children
- * @param rootContext - The root context of the component tree
  * @param rootSelector - CSS selector string identifying the root element
  * @param context - Current context for rendering
  * @returns The updated DOM element
@@ -23,7 +22,6 @@ import { updateProps } from "./props";
 export function updateElement(
 	element: HTMLElement,
 	hNode: HNode,
-	rootContext: RootContext,
 	rootSelector: string,
 	context: Context,
 ): HTMLElement {
@@ -33,7 +31,7 @@ export function updateElement(
 
 	handleEvents(hNode, element, rootSelector);
 
-	handleChildren(children, element, rootSelector, context, rootContext);
+	handleChildren(children, element, rootSelector, context);
 
 	return element;
 }
@@ -85,7 +83,6 @@ function handleEvents(
  * @param element - The parent DOM element whose children need to be updated
  * @param rootSelector - CSS selector identifying the root element of the component
  * @param context - Current context for the component rendering
- * @param rootContext - Root context for the entire component tree
  *
  * @remarks
  * This function extracts the current DOM children from the element,
@@ -97,7 +94,6 @@ function handleChildren(
 	element: HTMLElement,
 	rootSelector: string,
 	context: Context,
-	rootContext: RootContext,
 ) {
 	const childCount = element.childNodes.length;
 	const domChildren = new Array(childCount);
@@ -109,7 +105,6 @@ function handleChildren(
 		domChildren,
 		children || [],
 		element,
-		rootContext,
 		rootSelector,
 		context,
 	);

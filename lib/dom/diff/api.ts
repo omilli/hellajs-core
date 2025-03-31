@@ -1,4 +1,4 @@
-import { getDefaultContext, getRootContext } from "../../context";
+import { getDefaultContext } from "../../context";
 import type { HNode } from "../types";
 import { getRootElement } from "../utils";
 import { diffChildren } from "./children";
@@ -52,7 +52,6 @@ function handleChildren({
 	rootElement,
 	context,
 }: DiffConfig) {
-	const rootContext = getRootContext(rootSelector, context);
 	const childLength = rootElement.childNodes.length;
 	const children = new Array(childLength);
 	for (let i = 0; i < childLength; i++) {
@@ -63,7 +62,6 @@ function handleChildren({
 		children,
 		[hNode],
 		rootElement,
-		rootContext,
 		rootSelector,
 		context,
 	);

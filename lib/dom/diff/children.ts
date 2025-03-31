@@ -1,4 +1,4 @@
-import type { Context, RootContext } from "../../context";
+import { getRootContext, type Context } from "../../context";
 import { cleanupEventHandlers } from "../events";
 import type { HNode } from "../types";
 import { diffNode } from "./nodes";
@@ -16,7 +16,6 @@ import { renderElement } from "./render";
  * @param domChildren - Array of actual DOM elements (HTMLElement or Text nodes)
  * @param hNodeChildren - Array of virtual DOM nodes (HNode objects or primitive values like strings/numbers)
  * @param parentElement - The parent DOM element containing the children being diffed
- * @param rootContext - Context object for the component root
  * @param rootSelector - CSS selector string that identifies the root
  * @param context - Additional context information for rendering
  *
@@ -27,12 +26,12 @@ export function diffChildren(
 	domChildren: (HTMLElement | Text)[],
 	hNodeChildren: (HNode | string | number)[],
 	parentElement: Element | DocumentFragment,
-	rootContext: RootContext,
 	rootSelector: string,
 	context: Context,
 ): void {
 	const domLen = domChildren.length;
 	const vdomLen = hNodeChildren.length;
+	const rootContext = getRootContext(rootSelector, context);
 
 	// Handle case where we have more DOM children than virtual children
 	// Batch removals by removing from end to avoid layout thrashing
@@ -57,7 +56,6 @@ export function diffChildren(
 				domChildren[i],
 				hNodeChild,
 				parentElement,
-				rootContext,
 				rootSelector,
 				context,
 			);
