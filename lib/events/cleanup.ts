@@ -1,5 +1,6 @@
 import { type RootContext, getRootContext } from "../context";
 import type { RenderedElement } from "../types";
+import { getRootElement } from "../utils";
 
 /**
  * Removes all event listeners associated with a root element.
@@ -8,18 +9,16 @@ import type { RenderedElement } from "../types";
  * @param rootSelector - CSS selector identifying the root DOM element
  */
 export function cleanupRootEvents(rootSelector: string): void {
+	// Get the context for the root element
 	const rootContext = getRootContext(rootSelector);
 	const { events } = rootContext;
 	const { delegates, listeners } = events;
-	const rootElement = document.querySelector(rootSelector);
-
-	if (!rootElement) return;
-
+	// Get the root element to clean up
+	const rootElement = getRootElement(rootSelector);
 	// Remove all event listeners
 	for (const [eventName, handler] of listeners.entries()) {
 		rootElement.removeEventListener(eventName, handler);
 	}
-
 	// Clear data structures
 	listeners.clear();
 	delegates.clear();
@@ -42,13 +41,12 @@ export function cleanupEventHandlers(
 	element: RenderedElement,
 	rootContext: RootContext,
 ) {
+	// Abort if the element is not an HTMLElement
 	if (!(element instanceof HTMLElement)) return;
-
 	// Clean up this element's handlers if it has an event key
 	if (element.dataset?.eKey) {
 		rootContext.events.handlers.delete(element.dataset.eKey);
 	}
-
 	// Recursively clean up child elements
 	for (let i = 0; i < element.childNodes.length; i++) {
 		cleanupEventHandlers(element.childNodes[i] as HTMLElement, rootContext);
