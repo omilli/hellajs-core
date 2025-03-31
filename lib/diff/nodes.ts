@@ -33,7 +33,7 @@ export function diffNode(
 	rootSelector: string,
 	context: Context,
 ): RenderedElement {
-	const { nodeType, textContent, childNodes } = domNode;
+	const { nodeType, textContent } = domNode;
 	// Handle text nodes
 	if (isValidTextNode(vNode)) {
 		// Cast to string if not string
@@ -58,17 +58,8 @@ export function diffNode(
 	// Handle fragment (when type is undefined or null)
 	if (!type) {
 		if (nodeType === 11) {
-			// Count the number of child nodes in the existing fragment
-			const childCount = childNodes.length;
-			// Create a placeholder array with a predefined size
-			const domChildren = new Array(childCount);
-			// Set the child nodes in the placeholder array
-			for (let i = 0; i < childCount; i++) {
-				domChildren[i] = childNodes[i] as RenderedElement;
-			}
 			// Perform diffing on the children
 			diffChildren(
-				domChildren,
 				children,
 				domNode as DocumentFragment,
 				rootSelector,

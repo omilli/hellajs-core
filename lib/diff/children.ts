@@ -21,12 +21,18 @@ import { renderElement } from "./render";
  * The function optimizes DOM operations by batching removals from the end to avoid layout thrashing.
  */
 export function diffChildren(
-	domChildren: RenderedElement[],
 	vNodeChildren: VNodeValue[],
 	parentElement: Element | DocumentFragment,
 	rootSelector: string,
 	context: Context,
 ): void {
+	// Count the number of child nodes
+	const childCount = parentElement.childNodes.length;
+	// Prepopulate the array with the child nodes length
+	const domChildren = new Array(childCount);
+	for (let i = 0; i < childCount; i++) {
+		domChildren[i] = parentElement.childNodes[i] as RenderedElement;
+	}
 	// Count the amount of children in the DOM
 	const domLen = domChildren.length;
 	// Count the amount of children in the virtual node

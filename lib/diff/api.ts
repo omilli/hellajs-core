@@ -26,17 +26,8 @@ export function diff(
 	// Check if the root element has children
 	const hasChildren = rootElement.childNodes.length > 0;
 	if (hasChildren) {
-		// Count the number of child nodes in the root element
-		const childLength = rootElement.childNodes.length;
-		// Create an array to hold the child nodes
-		const children = new Array(childLength);
-		// Populate the array with the child nodes to avoid issues with live NodeList
-		for (let i = 0; i < childLength; i++) {
-			// Store each child node in the array
-			children[i] = rootElement.childNodes[i] as RenderedElement;
-		}
 		// Perform the diffing process on the child nodes
-		diffChildren(children, [vNode], rootElement, rootSelector, context);
+		diffChildren([vNode], rootElement, rootSelector, context);
 		return rootElement as HTMLElement;
 	} else {
 		// Render the virtual node to the DOM
