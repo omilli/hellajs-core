@@ -95,6 +95,7 @@ export function getRootContext(
 			events: {
 				delegates: new Set(),
 				handlers: new Map(),
+				listeners: new Map(),
 			},
 		});
 	}
