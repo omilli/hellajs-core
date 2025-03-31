@@ -20,7 +20,7 @@ export function mount(
 	rootSelector = "#root",
 	context = getDefaultContext(),
 ) {
-	const component = computed(vNodeEffect);
+	const component = computed(vNodeEffect, { memo: true });
 	effect(() => {
 		diff(component(), rootSelector, context);
 	});

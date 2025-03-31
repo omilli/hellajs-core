@@ -26,4 +26,9 @@ export interface ComputedOptions<T> {
 	 * @param value The new value of the computed value.
 	 */
 	onComputed?: (value: T) => void;
+	/**
+   * If true, only triggers updates when the computed value actually changes,
+   * not just when dependencies change.
+   */
+  memo?: boolean;
 }
