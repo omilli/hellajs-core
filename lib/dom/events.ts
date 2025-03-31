@@ -1,4 +1,4 @@
-import { getRootContext } from "../context";
+import { getRootContext, RootContext } from "../context";
 import type { EventFn, HNode } from "./types";
 import { getRootElement } from "./utils";
 
@@ -38,7 +38,7 @@ export function delegateEvents(
  *
  * @param rootSelector - CSS selector identifying the root DOM element
  */
-export function cleanupAllDelegatedEvents(rootSelector: string): void {
+export function cleanupRootsEvents(rootSelector: string): void {
 	const rootContext = getRootContext(rootSelector);
 	const { events } = rootContext;
 	const { delegates, listeners } = events;
@@ -58,37 +58,29 @@ export function cleanupAllDelegatedEvents(rootSelector: string): void {
 }
 
 /**
- * Removes delegated event handlers for a specific element.
- *
- * @param rootSelector - CSS selector identifying the root DOM element
- * @param elementKey - Unique identifier for the element
- * @param eventName - Optional. If provided, only that specific event handler will be removed
+ * Recursively removes event handlers from an element and its children.
+ * 
+ * @param element - The DOM element to clean up event handlers from
+ * @param rootContext - The root context containing the events registry
+ * @returns void
+ * 
+ * This function checks if the element has registered event handlers (identified
+ * by a data-eKey attribute) and removes them from the rootContext's event handler
+ * registry. It then recursively processes all child nodes to clean up their
+ * event handlers as well.
  */
-export function removeDelegatedEvents(
-	rootSelector: string,
-	elementKey: string,
-	eventName?: string,
-): void {
-	const rootContext = getRootContext(rootSelector);
-	const handlers = rootContext.events.handlers;
+export function cleanupEventHandlers(element: HTMLElement | Text, rootContext: RootContext) {
+	if (!(element instanceof HTMLElement)) return;
 
-	if (!handlers.has(elementKey)) return;
-
-	if (eventName) {
-		// Remove specific event handler
-		handlers.get(elementKey)?.delete(eventName);
-
-		// If this element has no more handlers, remove the entire entry
-		if (handlers.get(elementKey)?.size === 0) {
-			handlers.delete(elementKey);
-		}
-	} else {
-		// Remove all event handlers for this element
-		handlers.delete(elementKey);
+	// Clean up this element's handlers if it has an event key
+	if (element.dataset && element.dataset.eKey) {
+			rootContext.events.handlers.delete(element.dataset.eKey);
 	}
-
-	// Optionally: Remove event listener from root if no more elements use this event type
-	cleanupUnusedDelegates(rootSelector);
+	
+	// Recursively clean up child elements
+	for (let i = 0; i < element.childNodes.length; i++) {
+		cleanupEventHandlers(element.childNodes[i] as HTMLElement, rootContext);
+	}
 }
 
 /**
@@ -194,43 +186,4 @@ function addDelegatedListener(
 
 	// Return the handler so it can be stored for later removal
 	return delegatedHandler;
-}
-
-/**
- * Removes event handlers for event types that no longer have any handlers.
- *
- * @param rootSelector - CSS selector identifying the root DOM element
- */
-function cleanupUnusedDelegates(rootSelector: string): void {
-	const rootContext = getRootContext(rootSelector);
-	const { events } = rootContext;
-	const { delegates, handlers, listeners } = events;
-	const rootElement = getRootElement(rootSelector);
-
-	// Check each delegated event type
-	for (const eventName of delegates) {
-		// Check if any element still has a handler for this event
-		let hasListeners = false;
-
-		for (const listenerMap of handlers.values()) {
-			if (listenerMap.has(eventName)) {
-				hasListeners = true;
-				break;
-			}
-		}
-
-		// If no handlers remain, remove the event listener and delegate
-		if (!hasListeners) {
-			const listener = listeners.get(eventName);
-
-			if (listener) {
-				// Remove the actual event listener
-				rootElement.removeEventListener(eventName, listener);
-
-				// Clean up references
-				listeners.delete(eventName);
-				delegates.delete(eventName);
-			}
-		}
-	}
 }
