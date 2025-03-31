@@ -1,5 +1,5 @@
 import { getDefaultContext } from "../context";
-import { flushEffects } from "./utils";
+import { flushEffects } from "../utils";
 
 /**
  * Batches a series of operations together, preventing intermediate effects from being flushed until the batch is complete.

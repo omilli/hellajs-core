@@ -1,4 +1,4 @@
-import type { ReactiveContext } from "../../context";
+import type { ReactiveContext } from "../context";
 
 /**
  * Starts a batch operation

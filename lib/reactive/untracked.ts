@@ -1,5 +1,5 @@
 import { getDefaultContext } from "../context";
-import { NOT_TRACKING, setActiveTracker } from "./utils";
+import { NOT_TRACKING, setActiveTracker } from "../utils";
 /**
  * Executes a function without tracking dependencies.
  *
