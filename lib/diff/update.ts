@@ -2,8 +2,8 @@ import type { Context } from "../context";
 import { delegateEvents } from "../events";
 import type { VNode } from "../types";
 import { generateKey } from "../utils";
+import { processAttributes } from "./attributes";
 import { diffChildren } from "./children";
-import { updateAttributes } from "./attributes";
 
 /**
  * Updates a DOM element based on a virtual node representation (VNode).
@@ -28,7 +28,7 @@ export function updateElement(
 	// Make sure we have default values for props and children
 	const { props = {}, children = [] } = vNode;
 	// Update the element props
-	updateAttributes(element, props);
+	processAttributes(element, props);
 	// Get all the prop keys
 	const keys = Object.keys(props);
 	// Default has events to false

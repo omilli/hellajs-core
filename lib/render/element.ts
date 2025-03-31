@@ -1,9 +1,9 @@
 import type { Context } from "../context";
+import { processAttributes } from "../diff/attributes";
 import { delegateEvents } from "../events";
-import { renderFragment } from "../render/fragment";
 import type { RenderedElement, VNode, VNodeValue } from "../types";
 import { castToString, generateKey, isValidTextNode } from "../utils";
-import { updateAttributes } from "./attributes";
+import { renderFragment } from "./fragment";
 
 /**
  * Renders a hierarchical node (VNode) or primitive value into a DOM element.
@@ -38,7 +38,7 @@ export function renderElement(
 	// Create the element dfrom the vNode type
 	const element = document.createElement(type);
 	// Updafe the element props
-	updateAttributes(element, props);
+	processAttributes(element, props);
 
 	const keys = Object.keys(props);
 	let hasEventProps = false;

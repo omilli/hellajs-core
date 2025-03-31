@@ -1,8 +1,8 @@
 import { type Context, getRootContext } from "../context";
 import { cleanupEventHandlers } from "../events";
+import { renderElement } from "../render/element";
 import type { RenderedElement, VNodeValue } from "../types";
 import { diffNode } from "./nodes";
-import { renderElement } from "./render";
 
 /**
  * Reconciles differences between actual DOM children and virtual DOM node children.

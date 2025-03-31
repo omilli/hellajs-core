@@ -1,9 +1,9 @@
 import type { Context } from "../context";
+import { renderElement } from "../render/element";
 import { renderFragment } from "../render/fragment";
 import type { RenderedElement, VNode, VNodeValue } from "../types";
 import { castToString, isValidTextNode } from "../utils";
 import { diffChildren } from "./children";
-import { renderElement } from "./render";
 import { updateElement } from "./update";
 
 /**

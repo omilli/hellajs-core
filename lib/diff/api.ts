@@ -1,8 +1,8 @@
 import { getDefaultContext } from "../context";
+import { renderElement } from "../render/element";
 import type { RenderedElement, VNode } from "../types";
 import { getRootElement } from "../utils";
 import { diffChildren } from "./children";
-import { renderElement } from "./render";
 
 /**
  * Updates an existing DOM tree with changes from a virtual DOM node.

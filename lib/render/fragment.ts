@@ -1,5 +1,5 @@
-import { renderElement } from "../diff";
 import type { Context, VNodeBase } from "../types";
+import { renderElement } from "./element";
 
 export function renderFragment(
 	children: (string | Partial<VNodeBase>)[],

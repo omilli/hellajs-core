@@ -2,7 +2,7 @@ import { propProcessor } from "../render";
 import type { VNode } from "../types";
 import { castToString } from "../utils";
 
-export function updateAttributes(
+export function processAttributes(
 	element: HTMLElement,
 	props: VNode["props"] = {},
 ): void {
