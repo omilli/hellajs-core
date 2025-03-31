@@ -16,10 +16,8 @@ export function untracked<T>(
 	{ reactive } = getDefaultContext(),
 ): T {
 	const prevEffect = reactive.activeTracker;
-
 	// Mark as not tracking during execution
 	setActiveTracker(reactive, NOT_TRACKING);
-
 	try {
 		return fn();
 	} finally {
