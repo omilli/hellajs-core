@@ -122,14 +122,6 @@ export interface ReactiveContext {
 	 */
 	effectDependencies: Map<EffectFn, Set<unknown>>;
 	/**
-	 * A set of all effects in this context.
-	 */
-	effects: Set<EffectFn>;
-	/**
-	 * A weak set of all signals in this context.
-	 */
-	signals: WeakSet<WeakKey>;
-	/**
 	 * The current batch depth.
 	 */
 	batchDepth: number;

@@ -45,8 +45,6 @@ export function context(id = `context-${generateKey()}`): Context {
 			pendingRegistry: new Set(),
 			executionContext: [],
 			effectDependencies: new Map(),
-			effects: new Set(),
-			signals: new WeakSet(),
 			batchDepth: 0,
 			currentExecutingEffect: null,
 			parentChildEffectsMap: new WeakMap(),
