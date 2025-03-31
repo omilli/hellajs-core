@@ -59,4 +59,3 @@ export interface VNodeBase {
  * This allows for fragments (nodes without a type) and other special cases.
  */
 export type VNode = Partial<VNodeBase>;
-

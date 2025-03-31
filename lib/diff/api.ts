@@ -1,5 +1,5 @@
 import { getDefaultContext } from "../context";
-import type { VNode, RenderedElement, Context } from "../types";
+import type { Context, RenderedElement, VNode } from "../types";
 import { getRootElement } from "../utils";
 import { diffChildren } from "./children";
 import { renderElement } from "./render";
@@ -41,7 +41,7 @@ export function diff(
 		rootSelector,
 		rootElement,
 		context,
-		};
+	};
 	// Handle diffing based on whether the root element has children or not
 	return hasChildren ? handleChildren(diffConfig) : handleChildess(diffConfig);
 }

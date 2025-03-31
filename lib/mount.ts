@@ -1,7 +1,7 @@
 import { getDefaultContext } from "./context";
-import { type VNode } from "./types";
-import { computed, effect } from "./reactive";
 import { diff } from "./diff";
+import { computed, effect } from "./reactive";
+import type { VNode } from "./types";
 
 /**
  * Mounts a component to the DOM and sets up a reactive system to update it.

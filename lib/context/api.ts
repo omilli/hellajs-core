@@ -1,6 +1,4 @@
 import { diff } from "../diff";
-import { render } from "../render";
-import { generateKey } from "../utils";
 import {
 	NOT_TRACKING,
 	batch,
@@ -9,7 +7,9 @@ import {
 	signal,
 	untracked,
 } from "../reactive";
+import { render } from "../render";
 import type { Context, RootContext } from "../types";
+import { generateKey } from "../utils";
 import { getGlobalThis } from "./utils";
 
 const contextStore: Map<string, Context> = new Map();
@@ -53,7 +53,6 @@ export function context(id = `hellaContext${generateKey()}`): Context {
 
 	// Store the context in the global context store
 	contextStore.set(id, contextState);
-
 
 	// Return the context object
 	return contextState;
