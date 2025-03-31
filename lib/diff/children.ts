@@ -31,7 +31,6 @@ export function diffChildren(
 	const domLen = domChildren.length;
 	// Count the amount of children in the virtual node
 	const vdomLen = vNodeChildren.length;
-
 	// Handle case where we have more DOM children than virtual children
 	if (domLen > vdomLen) {
 		// Get the root context for event cleanup
@@ -48,7 +47,6 @@ export function diffChildren(
 			parentElement.removeChild(nodeToRemove);
 		}
 	}
-
 	// Process each child
 	for (let i = 0; i < vdomLen; i++) {
 		// Get the virtual node child

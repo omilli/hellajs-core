@@ -1,4 +1,5 @@
 import type { VNode } from "../types";
+import { isValidTextNode } from "../utils";
 import { propProcessor } from "./props";
 import { escapeHTML } from "./utils";
 
@@ -10,11 +11,11 @@ import { escapeHTML } from "./utils";
  */
 export function renderStringElement(vNode: VNode | string): string {
 	// Handle text nodes
-	if (typeof vNode === "string" || typeof vNode === "number") {
+	if (isValidTextNode(vNode)) {
 		return escapeHTML(String(vNode));
 	}
 
-	const { type, props = {}, children } = vNode;
+	const { type, props = {}, children } = vNode as VNode;
 
 	// Handle fragments (when type is undefined or null)
 	if (!type) {

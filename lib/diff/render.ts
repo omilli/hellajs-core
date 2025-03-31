@@ -1,7 +1,8 @@
 import type { Context } from "../context";
 import { delegateEvents } from "../events";
+import { renderFragment } from "../render/fragment";
 import type { RenderedElement, VNode, VNodeValue } from "../types";
-import { generateKey } from "../utils";
+import { castToString, generateKey, isValidTextNode } from "../utils";
 import { updateProps } from "./props";
 
 /**
@@ -24,23 +25,15 @@ export function renderElement(
 	rootSelector: string,
 	context: Context,
 ): RenderedElement {
-	const vNodeType = typeof vNode;
-	if (vNodeType === "string" || vNodeType === "number") {
-		return document.createTextNode(String(vNode));
+	// Return text node for valid text vNodes
+	if (isValidTextNode(vNode)) {
+		return document.createTextNode(castToString(vNode));
 	}
-
+	// vNode should be a VNode object at this point
 	const { type, props = {}, children = [] } = vNode as VNode;
-
+	// Handle fragments  (when type is undefined or null)
 	if (!type) {
-		const fragment = document.createDocumentFragment();
-		const len = children.length;
-
-		// Use for loop instead of forEach for better performance
-		for (let i = 0; i < len; i++) {
-			fragment.appendChild(renderElement(children[i], rootSelector, context));
-		}
-
-		return fragment;
+		return renderFragment(children, rootSelector, context);
 	}
 
 	const element = document.createElement(type);

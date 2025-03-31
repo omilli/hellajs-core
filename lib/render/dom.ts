@@ -1,5 +1,6 @@
 import type { Context } from "../context";
 import type { RenderedElement, VNode, VNodeValue } from "../types";
+import { isValidTextNode } from "../utils";
 import { processEventProps, processProps } from "./props";
 
 /**
@@ -55,16 +56,16 @@ function createDomElement(
 	rootSelector: string,
 	context: Context,
 ): RenderedElement {
-	if (typeof vNode === "string" || typeof vNode === "number") {
+	if (isValidTextNode(vNode)) {
 		return document.createTextNode(String(vNode));
 	}
 
-	const { type, props = {} } = vNode;
+	const { type, props = {} } = vNode as VNode;
 
 	if (!type) {
 		// Handle fragments (when type is undefined or null)
 		const fragment = document.createDocumentFragment();
-		renderChildren(fragment, vNode, rootSelector, context);
+		renderChildren(fragment, vNode as VNode, rootSelector, context);
 		return fragment;
 	}
 
@@ -74,10 +75,10 @@ function createDomElement(
 	processProps(element, props);
 
 	// Set up event handlers
-	processEventProps(element, vNode, rootSelector);
+	processEventProps(element, vNode as VNode, rootSelector);
 
 	// Process and render any children
-	renderChildren(element, vNode, rootSelector, context);
+	renderChildren(element, vNode as VNode, rootSelector, context);
 
 	return element;
 }

@@ -1,3 +1,5 @@
+import type { VNodeValue } from "../types";
+
 // Static counter for key generation (module-level counter)
 let keyCounter = 0;
 
@@ -35,4 +37,26 @@ export function getRootElement(rootSelector?: string): Element {
 	}
 
 	return domContainer;
+}
+
+/**
+*	Checks if the provided virtual node (vNode) is a text node.
+* 
+* @param value - The virtual node to check
+* 
+* @returns True if the vNode is a text node (string or number), false otherwise
+*/
+export function isValidTextNode(value: VNodeValue): boolean {
+	return typeof value === "string" || typeof value === "number"
+}
+
+/**
+ * Casts a virtual node value to a string.
+ * 
+ * @param value - The virtual node value to cast
+ * 
+ * @returns The string representation of the value
+ */
+export function castToString(value: VNodeValue): string {
+	return typeof value === 'string' ?  value : String(value)
 }

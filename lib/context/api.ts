@@ -102,7 +102,5 @@ export function getRootContext(
 			},
 		});
 	}
-
-	// Return the root context associated with the selector
 	return rootStore.get(rootSelector)!;
 }

@@ -1,5 +1,7 @@
 import type { Context } from "../context";
+import { renderFragment } from "../render/fragment";
 import type { RenderedElement, VNode, VNodeValue } from "../types";
+import { castToString, isValidTextNode } from "../utils";
 import { diffChildren } from "./children";
 import { renderElement } from "./render";
 import { updateElement } from "./update";
@@ -31,37 +33,40 @@ export function diffNode(
 	rootSelector: string,
 	context: Context,
 ): RenderedElement {
-	// Handle text nodes - faster primitive type check
-	const vNodeType = typeof vNode;
-	if (vNodeType === "string" || vNodeType === "number") {
-		const nodeType = domNode.nodeType;
-		const vNodeStr = String(vNode);
+	const { nodeType, textContent, childNodes } = domNode;
+	// Handle text nodes
+	if (isValidTextNode(vNode)) {
+		// Cast to string if not string
+		const text = castToString(vNode);
+		// Check if the node is a text node
 		if (nodeType === 3) {
 			// Update text content if different
-			if (domNode.textContent !== vNodeStr) {
-				domNode.textContent = vNodeStr;
+			if (textContent !== text) {
+				domNode.textContent = text;
 			}
 			return domNode;
 		} else {
+			// Create a new text node
+			const newNode = document.createTextNode(text);
 			// Replace with a new text node
-			const newNode = document.createTextNode(vNodeStr);
 			parentElement.replaceChild(newNode, domNode);
 			return newNode;
 		}
 	}
-
+	// vNode should be a VNode object at this point
 	const { type, children = [] } = vNode as VNode;
-
 	// Handle fragment (when type is undefined or null)
 	if (!type) {
-		if (domNode.nodeType === 11) {
-			// Use direct constant (DocumentFragment)
-			const childCount = domNode.childNodes.length;
+		if (nodeType === 11) {
+			// Count the number of child nodes in the existing fragment
+			const childCount = childNodes.length;
+			// Create a placeholder array with a predefined size
 			const domChildren = new Array(childCount);
+			// Set the child nodes in the placeholder array
 			for (let i = 0; i < childCount; i++) {
-				domChildren[i] = domNode.childNodes[i] as RenderedElement;
+				domChildren[i] = childNodes[i] as RenderedElement;
 			}
-
+			// Perform diffing on the children
 			diffChildren(
 				domChildren,
 				children,
@@ -72,24 +77,19 @@ export function diffNode(
 			return domNode;
 		} else {
 			// Replace with a fragment - use document fragment for batch operation
-			const fragment = document.createDocumentFragment();
-			const len = children.length;
-
-			for (let i = 0; i < len; i++) {
-				fragment.appendChild(renderElement(children[i], rootSelector, context));
-			}
-
+			const fragment = renderFragment(children, rootSelector, context);
+			// Replace the existing node with the new fragment
 			parentElement.replaceChild(fragment, domNode);
 			return fragment;
 		}
 	}
-
 	// Handle regular elements
-	if (domNode.nodeType === 1) {
-		// If node types match, update the element - use direct lowercase comparison when possible
+	if (nodeType === 1) {
+		// If node types match (use direct lowercase comparison)
 		const isMatch =
 			(domNode as HTMLElement).tagName.toLowerCase() === type.toLowerCase();
 		if (isMatch) {
+			// Update the existing element
 			return updateElement(
 				domNode as HTMLElement,
 				vNode as VNode,
@@ -98,9 +98,9 @@ export function diffNode(
 			);
 		}
 	}
-
-	// Types don't match, create a new element and replace
+	// Types don't match, create a new element
 	const newElement = renderElement(vNode, rootSelector, context);
+	// And replace the old node with the new one
 	parentElement.replaceChild(newElement, domNode);
 	return newElement;
 }
