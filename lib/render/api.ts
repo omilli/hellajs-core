@@ -1,5 +1,5 @@
-import { getDefaultContext } from "../../context";
-import type { VNode, RenderedNode } from "../../types";
+import { getDefaultContext } from "../context";
+import type { VNode, RenderedNode } from "../types";
 import { getRootElement } from "../utils";
 import { renderDomElement } from "./dom";
 import { renderStringElement } from "./string";

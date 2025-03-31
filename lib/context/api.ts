@@ -1,5 +1,6 @@
-import { diff, render } from "../dom";
-import { generateKey } from "../dom/utils";
+import { diff } from "../diff";
+import { render } from "../render";
+import { generateKey } from "../utils";
 import {
 	NOT_TRACKING,
 	batch,

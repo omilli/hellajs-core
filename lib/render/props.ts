@@ -1,5 +1,5 @@
 import { delegateEvents } from "../events";
-import type { VNode, VNodeProps, RenderPropHandler } from "../../types";
+import type { VNode, VNodeProps, RenderPropHandler } from "../types";
 import { generateKey } from "../utils";
 
 /**

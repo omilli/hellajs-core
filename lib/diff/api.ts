@@ -1,5 +1,5 @@
-import { getDefaultContext } from "../../context";
-import type { VNode, RenderedElement, Context } from "../../types";
+import { getDefaultContext } from "../context";
+import type { VNode, RenderedElement, Context } from "../types";
 import { getRootElement } from "../utils";
 import { diffChildren } from "./children";
 import { renderElement } from "./render";

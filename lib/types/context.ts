@@ -1,4 +1,4 @@
-import type { EventFn, VNode } from "../dom";
+import type { EventFn, VNode } from "./dom";
 import type {
 	Signal,
 	SignalOptions,

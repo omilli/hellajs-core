@@ -1,5 +1,5 @@
-import type { Context } from "../../context";
-import type { VNode, VNodeValue, RenderedElement } from "../../types";
+import type { Context } from "../context";
+import type { VNode, VNodeValue, RenderedElement } from "../types";
 import { processEventProps, processProps } from "./props";
 
 /**
