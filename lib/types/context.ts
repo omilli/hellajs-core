@@ -7,8 +7,13 @@ import type { Signal, SignalOptions, SignalValue } from "./signal";
  * Allows for accessing context objects with string keys.
  */
 export type GlobalContext = (Window & typeof globalThis) & {
-	[key: string]: Context;
+	[key: string]: ContextStore;
 };
+
+/**
+ * A mapping of context IDs to their corresponding Context objects.
+ */
+export type ContextStore = Map<string, Context>;
 
 /**
  * Context provides a set of utilities for managing reactivity, state, and DOM rendering.

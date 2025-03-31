@@ -10,9 +10,7 @@ import {
 import { render } from "../render";
 import type { Context, RootContext } from "../types";
 import { generateKey } from "../utils";
-import { getGlobalThis } from "./utils";
-
-const contextStore: Map<string, Context> = new Map();
+import { CONTEXT_STORE } from "./store";
 
 /**
  * Creates and initializes a new reactive context.
@@ -52,7 +50,7 @@ export function context(id = `hellaContext${generateKey()}`): Context {
 	};
 
 	// Store the context in the global context store
-	contextStore.set(id, contextState);
+	CONTEXT_STORE.set(id, contextState);
 
 	// Return the context object
 	return contextState;
@@ -68,19 +66,17 @@ export function context(id = `hellaContext${generateKey()}`): Context {
  * @returns The default context instance.
  */
 export function getDefaultContext(): Context {
-	// Get the global context
-	const globalContext = getGlobalThis();
 	// Default key to attach the context to the global object
-	const key = "hellaContext";
+	const key = "hellaDefaultContext";
 
 	// Check if the context already exists in the global object
 	// If it doesn't, create a new context and store it
-	if (!globalContext[key]) {
-		globalContext[key] = context();
+	if (!CONTEXT_STORE.get(key)) {
+		CONTEXT_STORE.set(key, context(key));
 	}
 
 	// Return the context instance
-	return globalContext[key];
+	return CONTEXT_STORE.get(key)!;
 }
 
 /**
