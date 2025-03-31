@@ -19,7 +19,13 @@ export function computed<T>(
 	options?: ComputedOptions<T>,
 ): SignalValue<T> {
 	// Extract options with defaults
-	const { name, onError, onComputed, keepAlive = false, memo = false } = options || {};	// Create a backing signal to store the computed value
+	const {
+		name,
+		onError,
+		onComputed,
+		keepAlive = false,
+		memo = false,
+	} = options || {}; // Create a backing signal to store the computed value
 	const backingSignal = signal<T>(undefined as unknown as T, { name });
 
 	// Internal state management
@@ -47,7 +53,7 @@ export function computed<T>(
 	const computeAndUpdate = () => {
 		const newValue = computedFn();
 		const valueChanged = !Object.is(value, newValue);
-		
+
 		// Only update the backing signal if the value changed or memo is false
 		if (!memo || valueChanged) {
 			backingSignal.set(newValue);
