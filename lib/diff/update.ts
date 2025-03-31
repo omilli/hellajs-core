@@ -1,7 +1,5 @@
 import type { Context } from "../context";
-import { delegateEvents } from "../events";
 import type { VNode } from "../types";
-import { generateKey } from "../utils";
 import { processAttributes } from "./attributes";
 import { diffChildren } from "./children";
 
@@ -26,32 +24,9 @@ export function updateElement(
 	context: Context,
 ): HTMLElement {
 	// Make sure we have default values for props and children
-	const { props = {}, children = [] } = vNode;
 	// Update the element props
-	processAttributes(element, props);
-	// Get all the prop keys
-	const keys = Object.keys(props);
-	// Default has events to false
-	let hasEventProps = false;
-	// Check each key to see if it starts with "on"
-	for (let i = 0, len = keys.length; i < len; i++) {
-		// Get the current key
-		const key = keys[i];
-		// Check if the key starts with "on"
-		if (key.charCodeAt(0) === 111 && key.charCodeAt(1) === 110) {
-			// Break here beacuse we only need one event prop to be true
-			hasEventProps = true;
-			break;
-		}
-	}
-	// If we have event props, we need to delegate the events
-	if (hasEventProps) {
-		// Set the event key on the element if it doesn't exist
-		element.dataset.eKey ??= generateKey();
-		// Delegate the events to the root element
-		delegateEvents(vNode, rootSelector, element.dataset.eKey);
-	}
+	processAttributes(element, vNode, rootSelector);
 	// diff the elements children
-	diffChildren(children, element, rootSelector, context);
+	diffChildren(vNode.children || [], element, rootSelector, context);
 	return element;
 }

@@ -1,8 +1,7 @@
 import type { Context } from "../context";
 import { processAttributes } from "../diff/attributes";
-import { delegateEvents } from "../events";
 import type { RenderedElement, VNode, VNodeValue } from "../types";
-import { castToString, generateKey, isVNodeString } from "../utils";
+import { castToString, isVNodeString } from "../utils";
 import { renderFragment } from "./fragment";
 
 /**
@@ -30,38 +29,21 @@ export function renderElement(
 		return document.createTextNode(castToString(vNode));
 	}
 	// vNode should be a VNode object at this point
-	const { type, props = {}, children = [] } = vNode as VNode;
+	const { type, children = [] } = vNode as VNode;
 	// Handle fragments  (when type is undefined or null)
 	if (!type) {
 		return renderFragment(children, rootSelector, context);
 	}
 	// Create the element dfrom the vNode type
 	const element = document.createElement(type);
-	// Updafe the element props
-	processAttributes(element, props);
-
-	const keys = Object.keys(props);
-	let hasEventProps = false;
-
-	for (let i = 0, len = keys.length; i < len; i++) {
-		const key = keys[i];
-		if (key.charCodeAt(0) === 111 && key.charCodeAt(1) === 110) {
-			// 'o'=111, 'n'=110
-			hasEventProps = true;
-			break;
-		}
-	}
-
-	if (hasEventProps) {
-		element.dataset.eKey = generateKey();
-		delegateEvents(vNode as VNode, rootSelector, element.dataset.eKey);
-	}
-
+	// Updafe the element attributes
+	processAttributes(element, vNode as VNode, rootSelector);
+	// Count the number of child nodes
 	const childLen = children.length;
-
+	// Loop through the children
 	for (let i = 0; i < childLen; i++) {
+		// Append the renderedElement to the element
 		element.appendChild(renderElement(children[i], rootSelector, context));
 	}
-
 	return element;
 }

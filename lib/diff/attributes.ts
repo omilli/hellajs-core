@@ -1,11 +1,15 @@
+import { delegateEvents } from "../events";
 import { propProcessor } from "../render";
 import type { VNode } from "../types";
-import { castToString } from "../utils";
+import { castToString, generateKey } from "../utils";
 
 export function processAttributes(
 	element: HTMLElement,
-	props: VNode["props"] = {},
+	vNode: VNode,
+	rootSelector: string,
 ): void {
+	// Get the vNode props
+	const { props = {} } = vNode;
 	// Set to store attributes to be removed
 	const attrsToRemove = new Set<string>();
 	// Get the attributes of the element
@@ -68,5 +72,28 @@ export function processAttributes(
 		if (!(attr.charCodeAt(0) === 111 && attr.charCodeAt(1) === 110)) {
 			element.removeAttribute(attr);
 		}
+	}
+
+	// Get all the prop keys
+	const keys = Object.keys(props);
+	// Default has events to false
+	let hasEventProps = false;
+	// Check each key to see if it starts with "on"
+	for (let i = 0, len = keys.length; i < len; i++) {
+		// Get the current key
+		const key = keys[i];
+		// Check if the key starts with "on"
+		if (key.charCodeAt(0) === 111 && key.charCodeAt(1) === 110) {
+			// Break here beacuse we only need one event prop to be true
+			hasEventProps = true;
+			break;
+		}
+	}
+	// If we have event props, we need to delegate the events
+	if (hasEventProps) {
+		// Set the event key on the element if it doesn't exist
+		element.dataset.eKey ??= generateKey();
+		// Delegate the events to the root element
+		delegateEvents(vNode, rootSelector, element.dataset.eKey);
 	}
 }
