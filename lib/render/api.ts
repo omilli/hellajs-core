@@ -32,5 +32,5 @@ export function render(
 	// Get the root element
 	const rootElement = getRootElement(rootSelector);
 	// Render the element to the DOM
-	renderDomElement(vNode, rootElement, rootSelector as string, context);
+	return renderDomElement(vNode, rootElement, rootSelector as string, context);
 }
