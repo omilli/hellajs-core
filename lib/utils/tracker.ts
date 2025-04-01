@@ -7,23 +7,32 @@ import type { EffectFn } from "../types";
 export const NOT_TRACKING = Symbol.for("not-tracking");
 
 /**
- * Checks if there's an active tracker (effect or computation)
+ * Checks if there is an active effect tracker
+ *
+ * @param reactive - The reactive context
+ * @returns True if there is an active tracker, false otherwise
  */
-export function hasActiveTracker(reactive: ReactiveContext): boolean {
-	return reactive.activeTracker !== NOT_TRACKING;
+export function hasActiveTracker({ activeTracker }: ReactiveContext): boolean {
+	return activeTracker !== NOT_TRACKING;
 }
 
 /**
- * Gets the active effect tracker
+ * Retrieves the active effect tracker
+ *
+ * @param reactive - The reactive context
+ * @returns The active effect tracker or null if not tracking
  */
-export function getActiveTracker(reactive: ReactiveContext): EffectFn | null {
-	return reactive.activeTracker === NOT_TRACKING
-		? null
-		: (reactive.activeTracker as EffectFn);
+export function getActiveTracker({
+	activeTracker,
+}: ReactiveContext): EffectFn | null {
+	return activeTracker === NOT_TRACKING ? null : (activeTracker as EffectFn);
 }
 
 /**
- * Sets the active tracker
+ * Sets the active effect tracker
+ *
+ * @param reactive - The reactive context
+ * @param tracker - The effect tracker to set or null to stop tracking
  */
 export function setActiveTracker(
 	reactive: ReactiveContext,

@@ -26,17 +26,17 @@ export function generateKey(): string {
  * @throws Error When the selector is not a string or when no matching element is found
  */
 export function getRootElement(rootSelector?: string): Element {
+	// Throw if rootSelector not a string
 	if (typeof rootSelector !== "string") {
 		throw new Error("Root selector must be a string");
 	}
-
-	const domContainer = document.querySelector(rootSelector);
-
-	if (!domContainer) {
+	// Get the root element
+	const rootElement = document.querySelector(rootSelector);
+	// Throw if root element not found
+	if (!rootElement) {
 		throw new Error("Root element not found");
 	}
-
-	return domContainer;
+	return rootElement;
 }
 
 /**
@@ -46,7 +46,7 @@ export function getRootElement(rootSelector?: string): Element {
  *
  * @returns True if the vNode is a text node (string or number), false otherwise
  */
-export function isVNodeString(value: VNodeValue): boolean {
+export function isVNodeString(value: unknown): boolean {
 	return typeof value === "string" || typeof value === "number";
 }
 

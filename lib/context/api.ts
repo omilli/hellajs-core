@@ -48,11 +48,8 @@ export function context(id = `hellaContext${generateKey()}`): Context {
 			parentChildEffectsMap: new WeakMap(),
 		},
 	};
-
 	// Store the context in the global context store
 	CONTEXT_STORE.set(id, contextState);
-
-	// Return the context object
 	return CONTEXT_STORE.get(id) as Context;
 }
 
@@ -68,13 +65,11 @@ export function context(id = `hellaContext${generateKey()}`): Context {
 export function getDefaultContext(): Context {
 	// Default key to attach the context to the global object
 	const key = "hellaDefaultContext";
-
 	// Check if the context already exists in the global object
 	// If it doesn't, create a new context and store it
 	if (!CONTEXT_STORE.get(key)) {
 		CONTEXT_STORE.set(key, context(key));
 	}
-
 	// Return the context instance
 	return CONTEXT_STORE.get(key) as Context;
 }

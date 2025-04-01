@@ -1,5 +1,5 @@
 import type { VNode } from "../types";
-import { isVNodeString } from "../utils";
+import { castToString, isVNodeString } from "../utils";
 import { propProcessor } from "./props";
 import { escapeHTML } from "./utils";
 
@@ -14,41 +14,33 @@ export function renderStringElement(vNode: VNode | string): string {
 	if (isVNodeString(vNode)) {
 		return escapeHTML(String(vNode));
 	}
-
+	// Grab what we need from vNode and set defaults
 	const { type, props = {}, children } = vNode as VNode;
-
 	// Handle fragments (when type is undefined or null)
 	if (!type) {
 		return renderChildren(children);
 	}
-
+	// Create an array fro pushing strings
 	const html: string[] = [];
-	// Generate opening tag with props
-	// Check for event handlers that will need hydration
-	const hasEvents = Object.keys(props).some((key) => key.startsWith("on"));
-
+	// Use the prop processor to handle differnt prop types
 	propProcessor(props, {
 		classProp(className) {
+			// Add className to the HTML string
 			html.push(`${type} class="${escapeHTML(className)}"`);
 		},
 		boolProp(key) {
+			// Add boolean attributes to the HTML string
 			html.push(`${type} ${key}`);
 		},
 		regularProp(key, value) {
-			html.push(`${type} ${key}="${escapeHTML(String(value))}"`);
+			// Add regular attributes to the HTML string
+			html.push(`${type} ${key}="${escapeHTML(castToString(value))}"`);
 		},
 	});
-
-	// Add data-e-key attribute to elements with event handlers
-	if (hasEvents) {
-		const eKey = `e${Date.now().toString(36)}${Math.random().toString(36).substr(2, 5)}`;
-		html.push(` data-e-key="${eKey}"`);
-	}
 	// Generate children content
 	html.push(renderChildren(children));
 	// Generate closing tag
 	html.push(`</${type}>`);
-
 	return html.join("");
 }
 
@@ -60,13 +52,12 @@ export function renderStringElement(vNode: VNode | string): string {
  *          Returns an empty string if children is falsy or empty.
  */
 function renderChildren(children: VNode["children"] = []) {
-	if (!children || children.length === 0) return "";
-
+	// Create an array with predefined length for holding the html strings
 	const html = new Array(children.length);
-
+	// Iterate over the children
 	for (let i = 0; i < children.length; i++) {
+		// Render the string element to the html array in the correct position
 		html[i] = renderStringElement(children[i]);
 	}
-
 	return html.join("");
 }

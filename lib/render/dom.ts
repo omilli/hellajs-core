@@ -21,17 +21,17 @@ export function renderDomElement(
 	rootSelector: string,
 	context: Context,
 ): RenderedElement | DocumentFragment {
+	// Create the dom element from the vNode
 	const element = createDomElement(vNode, rootSelector, context);
-
-	// Clear container more efficiently than using innerHTML
+	// Clear container efficiently
 	rootElement.textContent = "";
-
 	// Append the new element
 	if (element instanceof DocumentFragment) {
 		rootElement.appendChild(element);
 		// Return the container as we can't return the fragment after it's been appended
 		return rootElement as HTMLElement;
 	}
+	// Append the new element to the root element
 	rootElement.appendChild(element);
 	return element;
 }

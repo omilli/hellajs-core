@@ -1,5 +1,8 @@
-import type { VNode } from "./dom";
+import type { VNodeValue } from "./dom";
 
+/**
+ * Functions that handles properties for rendering.
+ */
 export type RenderPropHandler = {
 	/**
 	 * Handles className properties.
@@ -16,18 +19,10 @@ export type RenderPropHandler = {
 	 * @param key
 	 * @param value
 	 */
-	regularProp(key: string, value: unknown): void;
+	regularProp(key: string, value: VNodeValue): void;
 };
 
+/**
+ * Type of rendered DOM element
+ */
 export type RenderedElement = HTMLElement | Text | DocumentFragment;
-
-export interface RenderedNode {
-	/**
-	 * The rendered DOM element, which can be an HTMLElement, Text, or DocumentFragment.
-	 */
-	element: RenderedElement;
-	/**
-	 * The original hierarchical node (VNode) that was rendered.
-	 */
-	vNode: VNode;
-}

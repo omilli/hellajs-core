@@ -9,7 +9,7 @@ export function renderFragment(
 	const fragment = document.createDocumentFragment();
 	// Count the number of children in the existing fragment
 	const childLen = children.length;
-	// Append each child to the fragment
+	// Render each child to the fragment
 	for (let i = 0; i < childLen; i++) {
 		fragment.appendChild(renderElement(children[i], rootSelector, context));
 	}

@@ -1,6 +1,11 @@
 import { delegateEvents } from "../events";
-import type { RenderPropHandler, VNode, VNodeProps } from "../types";
-import { generateKey } from "../utils";
+import type {
+	RenderPropHandler,
+	VNode,
+	VNodeProps,
+	VNodeValue,
+} from "../types";
+import { castToString, generateKey, isVNodeString } from "../utils";
 
 /**
  * Processes a properties object by categorizing and handling different property types.
@@ -12,18 +17,23 @@ export function propProcessor(
 	props: VNodeProps,
 	{ classProp, boolProp, regularProp }: RenderPropHandler,
 ) {
+	// Iterate over the vNode props
 	for (const [key, value] of Object.entries(props)) {
 		switch (true) {
+			// break immediately if the key starts with "on"
 			case key.startsWith("on"):
 				break;
 			case key === "className":
+				// Handle className separately
 				classProp(value as string);
 				break;
 			case value === true:
+				// Handle boolean attributes
 				boolProp(key);
 				break;
-			case value !== null && value !== undefined && value !== false:
-				regularProp(key, value);
+			// Handle other attributes
+			case !isVNodeString(value):
+				regularProp(key, value as VNodeValue);
 				break;
 		}
 	}
@@ -41,13 +51,15 @@ export function processProps(
 ): void {
 	propProcessor(props, {
 		classProp(className) {
+			// Set the className of the element
 			element.className = className;
 		},
 		boolProp(key) {
+			// Set boolean attributes to empty strings
 			element.setAttribute(key, "");
 		},
 		regularProp(key, value) {
-			element.setAttribute(key, String(value));
+			element.setAttribute(key, castToString(value));
 		},
 	});
 }
@@ -64,12 +76,15 @@ export function processEventProps(
 	vNode: VNode,
 	rootSelector: string,
 ): void {
+	// Get all the event props by filtering vNode props for keys that start with on
 	const eventProps = Object.entries(vNode.props || {}).filter(([key]) =>
 		key.startsWith("on"),
 	);
-
+	// If we have event props
 	if (eventProps.length > 0) {
-		element.dataset.eKey = generateKey();
+		// Set the eKey if one doesn't exist
+		element.dataset.eKey ??= generateKey();
+		// Delegate events for this vNode to the root element
 		delegateEvents(vNode, rootSelector, element.dataset.eKey as string);
 	}
 }
