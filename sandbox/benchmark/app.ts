@@ -57,7 +57,9 @@ const dataTable = () =>
 			...benchState.data().map((item) =>
 				tr(
 					{
-						"data-id": item.id.toString(),
+						dataset: {
+							id: item.id.toString()
+						},
 						className: benchState.selected() === item.id ? "danger" : "",
 					},
 					td({ className: "col-md-1" }, item.id.toString()),
@@ -80,7 +82,7 @@ const dataTable = () =>
 							},
 							span({
 								className: "glyphicon glyphicon-remove",
-								"aria-hidden": "true",
+								ariaHidden: "true",
 							}),
 						),
 					),
@@ -99,7 +101,7 @@ const render = () =>
 			dataTable(),
 			span({
 				className: "preloadicon glyphicon glyphicon-remove",
-				"aria-hidden": "true",
+				ariaHidden: "true",
 			}),
 		),
 	);

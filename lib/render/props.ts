@@ -1,5 +1,6 @@
 import { delegateEvents } from "../events";
 import type {
+	HTMLTagName,
 	RenderPropHandler,
 	VNode,
 	VNodeProps,
@@ -13,8 +14,8 @@ import { castToString, generateKey, isVNodeString } from "../utils";
  * @param props - An object containing properties to be processed
  * @param options - Handler callbacks for different property types
  */
-export function propProcessor(
-	props: VNodeProps,
+export function propProcessor<T extends HTMLTagName = HTMLTagName>(
+	props: VNodeProps<T>,
 	{ classProp, boolProp, regularProp }: RenderPropHandler,
 ) {
 	// Iterate over the vNode props

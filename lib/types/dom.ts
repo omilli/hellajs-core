@@ -33,7 +33,7 @@ type VNodeAttributes<T extends HTMLTagName> = {
  * Represents properties that can be applied to a virtual DOM node.
  * Combines element-specific attributes with common properties.
  */
-export type VNodeProps = VNodeAttributes<VNodeBase["type"]> & {
+export type VNodeProps<T extends HTMLTagName> = VNodeAttributes<T> & {
 	className?: string;
 	preventDefault?: boolean;
 	stopPropagation?: boolean;
@@ -48,9 +48,9 @@ export type VNodeValue = VNode | string | number;
  * Defines the core structure of a virtual DOM node with required properties.
  * Represents an HTML element with its type, properties, and children.
  */
-export interface VNodeBase {
-	type: HTMLTagName;
-	props?: VNodeProps;
+export interface VNodeBase<T extends HTMLTagName = HTMLTagName> {
+	type: T;
+	props?: VNodeProps<T>;
 	children?: (VNode | string)[];
 }
 
@@ -58,4 +58,4 @@ export interface VNodeBase {
  * A flexible virtual DOM node where all properties are optional.
  * This allows for fragments (nodes without a type) and other special cases.
  */
-export type VNode = Partial<VNodeBase>;
+export type VNode<T extends HTMLTagName = HTMLTagName> = Partial<VNodeBase<T>>;

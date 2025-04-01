@@ -9,9 +9,9 @@ const decrement = () => counter.set(counter() - 1);
 
 const view = () =>
 	div(
-		button({ onClick: decrement }, "-"),
+		button({ onclick: decrement }, "-"),
 		counter(),
-		button({ onClick: increment }, "+"),
+		button({ onclick: increment }, "+"),
 	);
 
 mount(view);
