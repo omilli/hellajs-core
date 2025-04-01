@@ -20,7 +20,9 @@ export function mount(
 	rootSelector = "#root",
 	context = getDefaultContext(),
 ) {
+	// Create a reactive component that will be updated when dependencies change
 	const component = computed(vNodeEffect, { memo: true });
+	// Create the effect that diffs the component when any singal dependancy changes
 	effect(() => {
 		diff(component(), rootSelector, context);
 	});
