@@ -71,11 +71,11 @@ export function effect(
 		// Check if the effect is already in the execution context
 		if (executionContext.includes(observer)) {
 			// Log a warning for circular dependency
-			console.warn("Circular dependency detected in effect", {
+			console.log("Circular dependency: ", {
 				runningEffectsSize: executionContext.length,
 				effectId: name || observer.toString().substring(0, 50),
 			});
-			return true;
+			throw new Error("Circular dependency detected in effect");
 		}
 		return false;
 	};
