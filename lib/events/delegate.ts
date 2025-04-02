@@ -37,23 +37,21 @@ export function delegateEvents(
 					// Handle global event modifiers if specified
 					if (props.preventDefault) e.preventDefault();
 					if (props.stopPropagation) e.stopPropagation();
-					const handleTarget = (condition: unknown, target: HTMLElement) => {
-						if (!condition) return
-						const key = target.dataset.eKey;
+					const handleTarget = (el?: HTMLElement) => {
+						const key = el?.dataset.eKey;
+						if (!el) return;
 						if (key && handlers.has(key)) {
-							handlers.get(key)?.get(eventName)?.(e, target);
+							handlers.get(key)?.get(eventName)?.(e, el);
 							return;
 						}
-					}
+					};
 					// First check if the target element itself has the data-e-key attribute
 					const target = e.target as HTMLElement;
-					handleTarget(target?.dataset?.eKey, target);
-					// If target doesn't have the key, try to find the closest ancestor with data-e-key
-					// This is more efficient than traversing the entire path for deeply nested elements
-					if (target) {
-						const element = target.closest("[data-e-key]") as HTMLElement;
-						handleTarget(element, element);
-					}
+					handleTarget(
+						target?.dataset?.eKey
+							? target
+							: (target.closest("[data-e-key]") as HTMLElement),
+					);
 				};
 				// Attach the event listener to the root element
 				const rootElement = getRootElement(rootSelector);
