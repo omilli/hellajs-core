@@ -1,6 +1,7 @@
 import { getDefaultContext } from "../context";
 import type { EffectFn, EffectOptions } from "../types";
 import { setActiveTracker, unsubscribeDependencies } from "../utils";
+import { handleError } from "../utils/error";
 
 /**
  * Creates an effect that runs when its dependencies change.
@@ -116,7 +117,7 @@ export function effect(
 			const result = fn() as void | Promise<void> | (() => void);
 			handleEffectResult(result);
 		} catch (error) {
-			handleEffectError(error);
+			handleError(error, onError);
 		} finally {
 			// Restore previous context
 			executionContext.pop();
@@ -137,22 +138,12 @@ export function effect(
 		// Handle async functions that return promises
 		else if (result instanceof Promise) {
 			result.catch((error) => {
-				handleEffectError(error);
+				handleError(error, onError);
 			});
 		}
 		// Mark as having run at least once (for "once" option)
 		if (once) {
 			(observer as EffectFn)._hasRun = true;
-		}
-	};
-	/**
-	 * Handles errors that occur during effect execution
-	 */
-	const handleEffectError = (error: unknown) => {
-		if (onError && error instanceof Error) {
-			onError(error);
-		} else {
-			throw `Error in effect: , ${error}`;
 		}
 	};
 	// Create an observer function

@@ -1,4 +1,5 @@
 import type { ComputedFn, ComputedOptions, SignalValue } from "../types";
+import { handleError } from "../utils/error";
 import { effect } from "./effect";
 import { signal } from "./signal";
 import { untracked } from "./untracked";
@@ -34,18 +35,6 @@ export function computed<T>(
 	// Indicates if this computed signal has been cleaned up
 	let isDisposed = false;
 	/**
-	 * Standardized error handling for compute operations
-	 * Returns the error if there's no error handler (to be thrown)
-	 */
-	const handleError = (error: unknown) => {
-		if (onError && error instanceof Error) {
-			onError(error);
-		} else {
-			throw new Error(`Error in computed:", ${name || "unnamed"}, ${error}`);
-		}
-		return !onError ? error : undefined;
-	};
-	/**
 	 * Computes the value and updates the internal state
 	 * Triggers the onComputed callback if provided
 	 */
@@ -77,8 +66,7 @@ export function computed<T>(
 		try {
 			return withUpdate ? computeAndUpdate() : computedFn();
 		} catch (error) {
-			const maybeThrow = handleError(error);
-			if (maybeThrow) throw maybeThrow;
+			handleError(error, onError);
 		}
 	};
 	/**
