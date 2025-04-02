@@ -37,23 +37,22 @@ export function delegateEvents(
 					// Handle global event modifiers if specified
 					if (props.preventDefault) e.preventDefault();
 					if (props.stopPropagation) e.stopPropagation();
-					// Use event.composedPath() which is more efficient than DOM traversal
-					// as the browser already has this path computed
-					const path = e.composedPath();
-					let element: HTMLElement | null = null;
-					let key: string | undefined;
-					// Iterate through the path to find the first element with a data-e-key
-					for (let i = 0; i < path.length; i++) {
-						const el = path[i] as HTMLElement;
-						if (el.dataset?.eKey) {
-							element = el;
-							key = el.dataset.eKey;
-							break;
+					const handleTarget = (condition: unknown, target: HTMLElement) => {
+						if (!condition) return
+						const key = target.dataset.eKey;
+						if (key && handlers.has(key)) {
+							handlers.get(key)?.get(eventName)?.(e, target);
+							return;
 						}
 					}
-					// If we found an element with a key and it has an event handler, invoke it
-					if (key && element && handlers.has(key)) {
-						handlers.get(key)?.get(eventName)?.(e, element);
+					// First check if the target element itself has the data-e-key attribute
+					const target = e.target as HTMLElement;
+					handleTarget(target?.dataset?.eKey, target);
+					// If target doesn't have the key, try to find the closest ancestor with data-e-key
+					// This is more efficient than traversing the entire path for deeply nested elements
+					if (target) {
+						const element = target.closest("[data-e-key]") as HTMLElement;
+						handleTarget(element, element);
 					}
 				};
 				// Attach the event listener to the root element
