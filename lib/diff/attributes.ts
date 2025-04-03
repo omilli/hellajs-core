@@ -75,7 +75,7 @@ export function processAttributes(
 					element.dataset[key] = strValue;
 				}
 			}
-		}
+		},
 	});
 	// Remove the attributes that are not in the vNode props
 	for (const attr of attrsToRemove) {

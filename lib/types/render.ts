@@ -21,10 +21,10 @@ export type RenderPropHandler = {
 	 */
 	regularProp(key: string, value: VNodeValue): void;
 	/**
-   * Handles dataset properties for data-* attributes.
-   * @param datasetObj The dataset object containing key-value pairs
-   */
-  datasetProp?(datasetObj: Record<string, string>): void;
+	 * Handles dataset properties for data-* attributes.
+	 * @param datasetObj The dataset object containing key-value pairs
+	 */
+	datasetProp?(datasetObj: Record<string, string>): void;
 };
 
 /**

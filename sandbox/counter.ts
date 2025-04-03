@@ -1,6 +1,6 @@
 import { html, mount, signal } from "../lib";
 
-const { div,span, button } = html;
+const { div, span, button } = html;
 
 const count = signal(0);
 

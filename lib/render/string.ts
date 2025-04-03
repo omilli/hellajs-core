@@ -40,10 +40,10 @@ export function renderStringElement(vNode: VNode | string): string {
 			// Process each dataset property and add it to the HTML string
 			for (const [key, value] of Object.entries(datasetObj)) {
 				// Convert camelCase to kebab-case with data- prefix
-				const dataAttr = `data-${key.replace(/([A-Z])/g, '-$1').toLowerCase()}`;
+				const dataAttr = `data-${key.replace(/([A-Z])/g, "-$1").toLowerCase()}`;
 				html.push(`${type} ${dataAttr}="${escapeHTML(castToString(value))}"`);
 			}
-		}
+		},
 	});
 	// Generate children content
 	html.push(renderChildren(children));
