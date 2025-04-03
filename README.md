@@ -144,23 +144,23 @@ const completedTodos = computed(() =>
 const newTodo = signal('');
 
 const addTodo = () => {
-	if (newTodo().trim()) {
-		todos.set([
-			...todos(), 
-			{ id: Date.now(), text: newTodo(), completed: false }
-		]);
-		newTodo.set('');
-	}
+  if (newTodo().trim()) {
+    todos.set([
+      ...todos(), 
+      { id: Date.now(), text: newTodo(), completed: false }
+    ]);
+    newTodo.set('');
+  }
 };
 
 const toggleTodo = (id: number) => {
-	todos.set(
-		todos().map(todo => 
-			todo.id === id 
-				? { ...todo, completed: !todo.completed } 
-				: todo
-		)
-	);
+  todos.set(
+    todos().map(todo => 
+      todo.id === id 
+      ? { ...todo, completed: !todo.completed } 
+      : todo
+    )
+  );
 };
 
 const TodoApp = () => div({ className: 'todo-app' },
@@ -168,13 +168,13 @@ const TodoApp = () => div({ className: 'todo-app' },
       input({
         value: newTodo(),
         oninput: (_, el) => {
-					newTodo.set((el as HTMLInputElement).value)
-				},
+          newTodo.set((el as HTMLInputElement).value)
+        },
         placeholder: 'What needs to be done?'
       }),
       button({ onclick: addTodo }, 'Add Todo')
     ),
-		span(`Completed: ${completedTodos().length}`),
+    span(`Completed: ${completedTodos().length}`),
     ul({ className: 'todo-list' },
       ...todos().map(todo => 
         li({
