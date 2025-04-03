@@ -21,7 +21,7 @@ A lightweight, high-performance reactive DOM library with fine-grained reactivit
 
 ## Basic Usage
 
-```javascript
+```typescript
 // Erganomic HTML helpers
 const { div, button, span } = html;
 
@@ -52,7 +52,7 @@ Hella's reactivity system is built on three core primitives:
 
 Signals are reactive values that automatically track dependencies and trigger updates.
 
-```javascript
+```typescript
 import { signal } from '@hellajs/core';
 
 // Create a signal with initial value
@@ -71,7 +71,7 @@ count.update(n => n + 1);
 
 Computed values derive from other reactive values and automatically update when dependencies change.
 
-```javascript
+```typescript
 import { signal, computed } from '@hellajs/core';
 
 const firstName = signal('John');
@@ -91,7 +91,7 @@ console.log(fullName()); // "Jane Doe"
 
 Effects run side effects when their dependencies change.
 
-```javascript
+```typescript
 import { signal, effect } from '@hellajs/core';
 
 const user = signal({ name: 'John', role: 'Admin' });
@@ -110,7 +110,7 @@ user.set({ name: 'Jane', role: 'Manager' });
 
 Hella uses a lightweight virtual DOM system with a fast diffing algorithm. The `html` helper provides simple syntax for creating virtual DOM nodes:
 
-```javascript
+```typescript
 import { html } from '@hellajs/core';
 
 // Using the HTML tag helpers
@@ -128,7 +128,7 @@ const Header = (title) =>
 
 Components in Hella are just functions that return virtual DOM nodes. They re-render when a signal created **outside** the function changes.
 
-```javascript
+```typescript
 import { computed, html, mount, signal } from "../lib";
 const { div, ul, li, input, button, span } = html;
 
@@ -194,7 +194,7 @@ mount(TodoApp);
 
 Group multiple updates to prevent unnecessary re-renders:
 
-```javascript
+```typescript
 import { signal, batch } from '@hellajs/core';
 
 const firstName = signal('John');
@@ -213,7 +213,7 @@ batch(() => {
 
 Read reactive values without creating dependencies:
 
-```javascript
+```typescript
 import { signal, effect, untracked } from '@hellajs/core';
 
 const count = signal(0);
@@ -233,7 +233,7 @@ effect(() => {
 
 Create isolated instances of the reactive system:
 
-```javascript
+```typescript
 import { context } from '@hellajs/core';
 
 // Create a custom context
