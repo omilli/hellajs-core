@@ -1,4 +1,5 @@
 import { getDefaultContext } from "../context";
+import { CONTEXT_STORE } from "../context/store";
 import type { EffectFn, Signal } from "../types";
 import { flushEffects, getActiveTracker } from "../utils";
 
@@ -16,17 +17,15 @@ export function signal<T>(
 	initialValue: T,
 	{ reactive } = getDefaultContext(),
 ): Signal<T> {
-	// Store the current value in a local variable instead of reusing the parameter
+	// Store the current value in a local variable
 	let value = initialValue;
-	// Track effects that depend on this signal using WeakRefs to avoid memory leaks
+	// Track effects that depend on this signal
 	const subscribers = new Set<WeakRef<EffectFn>>();
-	/**
-	 * The core signal function that both reads the value and tracks dependencies
-	 * This function is called when consumers access the signal value: signal()
-	 */
+
 	const signalFn = (() => {
-		// Check if this read is happening during an effect execution
+		// Check if this read is happening during an effect execution in this context
 		const activeEffect = getActiveTracker(reactive);
+
 		// If so, establish bidirectional links between effect and signal
 		if (activeEffect) {
 			// Get/create the set of signals this effect depends on
@@ -38,8 +37,25 @@ export function signal<T>(
 			effectDeps.add(signalFn);
 			// Update the context's effect dependencies map
 			reactive.effectDependencies.set(activeEffect, effectDeps);
+		} else {
+			// If no active effect in signal's own context, check all other contexts
+			// Get all known contexts from the context store
+			for (const [_, ctx] of CONTEXT_STORE.entries()) {
+				// Skip signal's own context (already checked)
+				if (ctx.reactive === reactive) continue;
+
+				// Check if this context has an active effect
+				const otherActiveEffect = getActiveTracker(ctx.reactive);
+				if (otherActiveEffect) {
+					// Track the effect from the other context
+					const effectDeps = ctx.reactive.effectDependencies.get(otherActiveEffect) || new Set();
+					subscribers.add(new WeakRef(otherActiveEffect));
+					effectDeps.add(signalFn);
+					ctx.reactive.effectDependencies.set(otherActiveEffect, effectDeps);
+				}
+			}
 		}
-		// Simply return the current value
+
 		return value;
 	}) as Signal<T>;
 	/**
