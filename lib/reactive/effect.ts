@@ -117,7 +117,7 @@ export function effect(
 		// Mark as disposed immediately to prevent any future executions
 		observer._disposed = true;
 		// Also mark the dispose function as disposed for testing
-		Object.defineProperty(disposeEffect, '_disposed', { value: true });
+		Object.defineProperty(disposeEffect, "_disposed", { value: true });
 		// Dispose all child effects first
 		disposeChildEffects();
 		// Remove from pending notifications if it's queued

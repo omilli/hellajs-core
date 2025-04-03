@@ -48,7 +48,8 @@ export function signal<T>(
 				const otherActiveEffect = getActiveTracker(ctx.reactive);
 				if (otherActiveEffect) {
 					// Track the effect from the other context
-					const effectDeps = ctx.reactive.effectDependencies.get(otherActiveEffect) || new Set();
+					const effectDeps =
+						ctx.reactive.effectDependencies.get(otherActiveEffect) || new Set();
 					subscribers.add(new WeakRef(otherActiveEffect));
 					effectDeps.add(signalFn);
 					ctx.reactive.effectDependencies.set(otherActiveEffect, effectDeps);
