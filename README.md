@@ -32,11 +32,11 @@ const decrement = () => count.set(count() - 1);
 
 // Reactive components
 const Counter = () =>
-	div(
-		button({ onclick: decrement }, "-"),
-		span(count()),
-		button({ onclick: increment }, "+"),
-	);
+  div(
+    button({ onclick: decrement }, "-"),
+    span(count()),
+    button({ onclick: increment }, "+"),
+  );
 
 // Reactive DOM
 mount(Counter, '#app');
