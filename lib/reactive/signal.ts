@@ -37,23 +37,23 @@ export function signal<T>(
 			effectDeps.add(signalFn);
 			// Update the context's effect dependencies map
 			reactive.effectDependencies.set(activeEffect, effectDeps);
-		} else {
-			// If no active effect in signal's own context, check all other contexts
-			// Get all known contexts from the context store
-			for (const [_, ctx] of CONTEXT_STORE.entries()) {
-				// Skip signal's own context (already checked)
-				if (ctx.reactive === reactive) continue;
+		}
 
-				// Check if this context has an active effect
-				const otherActiveEffect = getActiveTracker(ctx.reactive);
-				if (otherActiveEffect) {
-					// Track the effect from the other context
-					const effectDeps =
-						ctx.reactive.effectDependencies.get(otherActiveEffect) || new Set();
-					subscribers.add(new WeakRef(otherActiveEffect));
-					effectDeps.add(signalFn);
-					ctx.reactive.effectDependencies.set(otherActiveEffect, effectDeps);
-				}
+		// Check all other contexts for active effects regardless of whether
+		// we found an active effect in this signal's context
+		for (const [_, ctx] of CONTEXT_STORE.entries()) {
+			// Skip signal's own context (already checked)
+			if (ctx.reactive === reactive) continue;
+
+			// Check if this context has an active effect
+			const otherActiveEffect = getActiveTracker(ctx.reactive);
+			if (otherActiveEffect) {
+				// Track the effect from the other context
+				const effectDeps =
+					ctx.reactive.effectDependencies.get(otherActiveEffect) || new Set();
+				subscribers.add(new WeakRef(otherActiveEffect));
+				effectDeps.add(signalFn);
+				ctx.reactive.effectDependencies.set(otherActiveEffect, effectDeps);
 			}
 		}
 
