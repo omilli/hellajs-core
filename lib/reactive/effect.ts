@@ -62,6 +62,8 @@ export function effect(
 	const executeEffectCore = () => {
 		// Remove prior subscriptions
 		unsubscribeDependencies(observer, reactive);
+		// Clean up any existing child effects before re-running
+		disposeChildEffects();
 		// Set the current executing effect to this effect
 		reactive.currentExecutingEffect = disposeEffect;
 		// Set the active tracker to this effect
@@ -114,6 +116,8 @@ export function effect(
 		}
 		// Mark as disposed immediately to prevent any future executions
 		observer._disposed = true;
+		// Also mark the dispose function as disposed for testing
+		Object.defineProperty(disposeEffect, '_disposed', { value: true });
 		// Dispose all child effects first
 		disposeChildEffects();
 		// Remove from pending notifications if it's queued
