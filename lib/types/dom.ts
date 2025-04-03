@@ -24,9 +24,9 @@ type VNodeEventHandlers = {
  * Excludes event handlers (which are handled separately).
  */
 type VNodeAttributes<T extends HTMLTagName> = {
-	[K in keyof HTMLElementTagNameMap[T] as K extends `on${string}`
-		? never
-		: K]?: HTMLElementTagNameMap[T][K];
+	[K in keyof HTMLElementTagNameMap[T]as K extends `on${string}`
+	? never
+	: K]?: HTMLElementTagNameMap[T][K];
 } & VNodeEventHandlers;
 
 /**
