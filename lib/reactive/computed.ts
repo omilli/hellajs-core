@@ -1,8 +1,7 @@
-import type { ComputedFn, ComputedOptions, SignalValue } from "../types";
+import type { ComputedFn, SignalValue } from "../types";
 import { handleError } from "../utils/error";
 import { effect } from "./effect";
 import { signal } from "./signal";
-import { untracked } from "./untracked";
 
 /**
  * Creates a computed signal that derives its value from other reactive dependencies.
@@ -17,17 +16,9 @@ import { untracked } from "./untracked";
  */
 export function computed<T>(
 	computedFn: ComputedFn<T>,
-	options?: ComputedOptions<T>,
 ): SignalValue<T> {
 	// Extract options with defaults
-	const {
-		name,
-		onError,
-		onComputed,
-		keepAlive = false,
-		memo = false,
-	} = options || {}; // Create a backing signal to store the computed value
-	const backingSignal = signal<T>(undefined as unknown as T, { name });
+	const backingSignal = signal<T>(undefined as unknown as T);
 	// Cached value
 	let value: T;
 	// Indicates if the cached value needs to be recomputed
@@ -44,12 +35,8 @@ export function computed<T>(
 		// Check if the new value is different from the current value
 		const valueChanged = !Object.is(value, newValue);
 		// Only update the backing signal if the value changed or memo is false
-		if (!memo || valueChanged) {
+		if (valueChanged) {
 			backingSignal.set(newValue);
-			if (onComputed) {
-				// Run callback outside of tracking context to avoid circular dependencies
-				untracked(() => onComputed(newValue)); // Use newValue instead of value
-			}
 		}
 		// Update the cached value
 		value = newValue;
@@ -66,7 +53,7 @@ export function computed<T>(
 		try {
 			return withUpdate ? computeAndUpdate() : computedFn();
 		} catch (error) {
-			handleError(error, onError);
+			handleError(error);
 		}
 	};
 	/**
@@ -78,15 +65,8 @@ export function computed<T>(
 			if (isDisposed) return;
 			// Mark as stale whenever dependencies change
 			isStale = true;
-			if (keepAlive) {
-				// For keepAlive mode, immediately compute and update the value
-				tryCompute(true);
-			} else {
-				// Otherwise, just run the function to capture dependencies without updating
-				tryCompute(false);
-			}
+			tryCompute(true);
 		},
-		{ name: `${name || "computed"}_tracker` },
 	);
 	/**
 	 * The accessor function that returns the computed value
@@ -102,7 +82,6 @@ export function computed<T>(
 	// Add metadata and cleanup method to the accessor function
 	Object.defineProperties(accessor, {
 		_isComputed: { value: true },
-		_name: { value: name },
 		_cleanup: {
 			value: () => {
 				isDisposed = true;

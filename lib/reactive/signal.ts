@@ -1,5 +1,5 @@
 import { getDefaultContext } from "../context";
-import type { EffectFn, Signal, SignalOptions } from "../types";
+import type { EffectFn, Signal } from "../types";
 import { flushEffects, getActiveTracker } from "../utils";
 
 /**
@@ -14,11 +14,8 @@ import { flushEffects, getActiveTracker } from "../utils";
  */
 export function signal<T>(
 	initialValue: T,
-	options?: SignalOptions<T>,
 	{ reactive } = getDefaultContext(),
 ): Signal<T> {
-	// Extract options with defaults
-	const { name, validators = [] } = options || {};
 	// Store the current value in a local variable instead of reusing the parameter
 	let value = initialValue;
 	// Track effects that depend on this signal using WeakRefs to avoid memory leaks
@@ -46,39 +43,11 @@ export function signal<T>(
 		return value;
 	}) as Signal<T>;
 	/**
-	 * Validates a new value against all registered validators
-	 * @param newValue - The value to validate
-	 * @returns Whether the value passed all validators
-	 */
-	const didValidate = (newValue: T): boolean => {
-		if (validators.length > 0 && !validators.every((v) => v(newValue))) {
-			console.warn(`Validation failed: "${name || "unnamed"}"`, newValue);
-			return false;
-		}
-		return true;
-	};
-	/**
-	 * Invokes the onSet callback if provided in options
-	 * Safely handles any errors in the callback
-	 * @param newValue - The new value being set
-	 */
-	const tryOnSet = (newValue: T) => {
-		if (options?.onSet) {
-			try {
-				options.onSet(newValue, value);
-			} catch (error) {
-				throw new Error(`onSet error: ${name || "unnamed"} ${error}`);
-			}
-		}
-	};
-	/**
 	 * Updates the signal value and notifies all subscribers
 	 * This is the core update mechanism that ensures reactivity
 	 * @param newValue - The new value to set
 	 */
 	const update = (newValue: T) => {
-		// Try to set the new value
-		tryOnSet(newValue);
 		// Set the current value to the new value
 		value = newValue;
 		// Schedule all dependent effects for execution
@@ -112,10 +81,6 @@ export function signal<T>(
 	 * @param newValue - The new value to set
 	 */
 	const setter = (newValue: T) => {
-		// Abort if the new value is the same as the current value
-		if (!didValidate(newValue)) {
-			return;
-		}
 		// Only update if the value has actually changed
 		if (newValue !== value) {
 			update(newValue);
@@ -132,7 +97,6 @@ export function signal<T>(
 	};
 	// Attach methods and properties to the signal function
 	Object.defineProperties(signalFn, {
-		_name: { value: name }, // Name for debugging
 		_deps: { get: () => subscribers }, // Access to subscribers for debugging/tooling
 		set: { value: setter }, // Method to update the signal value
 		update: { value: updater }, // Method to update via a function

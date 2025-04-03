@@ -1,5 +1,5 @@
 import { getDefaultContext } from "../context";
-import type { EffectFn, EffectOptions } from "../types";
+import type { EffectFn } from "../types";
 import { setActiveTracker, unsubscribeDependencies } from "../utils";
 import { handleError } from "../utils/error";
 
@@ -14,11 +14,8 @@ import { handleError } from "../utils/error";
  */
 export function effect(
 	fn: EffectFn,
-	options?: EffectOptions,
 	{ reactive } = getDefaultContext(),
 ): EffectFn {
-	// Get the options props
-	const { name, scheduler, once, debounce, onError, onCleanup } = options || {};
 	// Get the reactive context props
 	const {
 		activeTracker,
@@ -29,22 +26,8 @@ export function effect(
 		pendingNotifications,
 		pendingRegistry,
 	} = reactive;
-	// Store user's cleanup function if provided
-	let userCleanup: (() => void) | undefined = onCleanup;
 	// Debounce timeout ID
 	let timeoutId: ReturnType<typeof setTimeout> | undefined;
-	// Flag to indicate if this is the first run
-	let isFirstRun = true;
-	/**
-	 * Schedules effect execution using the provided scheduler or runs it directly
-	 */
-	const scheduleRun = (runFn: () => void) => {
-		if (scheduler) {
-			scheduler(runFn);
-		} else {
-			runFn();
-		}
-	};
 	/**
 	 * Manages debouncing and schedules the effect's execution
 	 */
@@ -53,17 +36,13 @@ export function effect(
 		const skipWhen = [
 			observer._disposed,
 			detectCircularDependency(),
-			shouldSkipOnceEffect(),
-			shouldDebounce(),
 		];
 		// If any condition is true, skip execution
 		if (skipWhen.some(Boolean)) {
 			return;
 		}
-		// For first run or non-debounced runs
-		isFirstRun = false;
 		// Use the scheduler for effect execution
-		scheduleRun(executeEffectCore);
+		executeEffectCore();
 	};
 	/**
 	 * Checks if the effect is creating a circular dependency
@@ -74,29 +53,9 @@ export function effect(
 			// Log a warning for circular dependency
 			console.log("Circular dependency: ", {
 				runningEffectsSize: executionContext.length,
-				effectId: name || observer.toString().substring(0, 50),
+				effect: observer.toString().substring(0, 50),
 			});
 			throw new Error("Circular dependency detected in effect");
-		}
-		return false;
-	};
-	/**
-	 * Determines if a "once" effect should be skipped
-	 */
-	const shouldSkipOnceEffect = (): boolean => {
-		return Boolean(once && (observer as EffectFn)._hasRun);
-	};
-	/**
-	 * Handles debouncing logic and returns whether execution should be deferred
-	 */
-	const shouldDebounce = (): boolean => {
-		// Check if debounce is enabled and not the first run
-		if (debounce && debounce > 0 && !isFirstRun) {
-			// Clear any existing timeout
-			clearTimeout(timeoutId);
-			// Set a new timeout for the effect execution
-			timeoutId = setTimeout(() => scheduleRun(executeEffectCore), debounce);
-			return true;
 		}
 		return false;
 	};
@@ -117,7 +76,7 @@ export function effect(
 			const result = fn() as void | Promise<void> | (() => void);
 			handleEffectResult(result);
 		} catch (error) {
-			handleError(error, onError);
+			handleError(error);
 		} finally {
 			// Restore previous context
 			executionContext.pop();
@@ -131,28 +90,18 @@ export function effect(
 	 * Handles the result returned by the effect function
 	 */
 	const handleEffectResult = (result: void | Promise<void> | (() => void)) => {
-		// Handle the case where the effect returns a cleanup function
-		if (typeof result === "function") {
-			userCleanup = result;
-		}
 		// Handle async functions that return promises
-		else if (result instanceof Promise) {
+		if (result instanceof Promise) {
 			result.catch((error) => {
-				handleError(error, onError);
+				handleError(error);
 			});
-		}
-		// Mark as having run at least once (for "once" option)
-		if (once) {
-			(observer as EffectFn)._hasRun = true;
 		}
 	};
 	// Create an observer function
 	const observer: EffectFn = () => handleEffectScheduling();
 	// Attach metadata to the observer
 	Object.defineProperties(observer, {
-		_name: { value: name },
 		_hasRun: { value: false, writable: true },
-		_priority: { value: options?.priority },
 		_disposed: { value: false, writable: true },
 	});
 	// Create dependency tracking set in context
@@ -170,8 +119,6 @@ export function effect(
 		observer._disposed = true;
 		// Dispose all child effects first
 		disposeChildEffects();
-		// Run user cleanup if provided
-		runUserCleanup();
 		// Remove from pending notifications if it's queued
 		removeFromPendingQueue();
 		// Clean up all dependencies and registries
@@ -195,20 +142,6 @@ export function effect(
 			childEffects.clear();
 			// Remove the entry from the parent-child effects map
 			parentChildEffectsMap.delete(disposeEffect);
-		}
-	};
-	/**
-	 * Executes user-provided cleanup function safely
-	 */
-	const runUserCleanup = () => {
-		// Check if user cleanup function exists
-		if (userCleanup) {
-			// Try to cleanup or log an error
-			try {
-				userCleanup();
-			} catch (error) {
-				throw new Error(`Error in effect cleanup:, ${error}`);
-			}
 		}
 	};
 	/**
@@ -243,13 +176,8 @@ export function effect(
 		// Add this effect to the parent's child effects
 		parentChildEffects.add(disposeEffect);
 	}
-	// Handle custom scheduling or immediate execution
-	if (scheduler) {
-		scheduler(observer);
-	} else {
-		// Initial execution
-		observer();
-	}
+	// Initial execution
+	observer();
 	// Return cleanup function
 	return disposeEffect;
 }

@@ -1,6 +1,5 @@
-import type { EffectFn, EffectOptions } from "./effect";
-import type { EventFn, VNode } from "./nodes";
-import type { Signal, SignalOptions, SignalValue } from "./signal";
+import type { EventFn, VNode } from "./dom";
+import type { Signal, SignalValue, EffectFn } from "./reactive";
 
 /**
  * Represents the global context that extends the Window and globalThis objects.
@@ -26,11 +25,11 @@ export type Context = {
 	/**
 	 * Creates a reactive signal with the specified initial value
 	 */
-	signal: <T>(initialValue: T, options?: SignalOptions<T>) => Signal<T>;
+	signal: <T>(initialValue: T) => Signal<T>;
 	/**
 	 * Registers a side effect function that tracks reactive dependencies
 	 */
-	effect: (fn: EffectFn, options?: EffectOptions) => void;
+	effect: (fn: EffectFn) => void;
 	/**
 	 * Creates a read-only signal derived from reactive dependencies
 	 */
