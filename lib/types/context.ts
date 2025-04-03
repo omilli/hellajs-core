@@ -1,5 +1,5 @@
 import type { EventFn, VNode } from "./dom";
-import type { Signal, SignalValue, EffectFn } from "./reactive";
+import type { EffectFn, Signal, SignalValue } from "./reactive";
 
 /**
  * Represents the global context that extends the Window and globalThis objects.

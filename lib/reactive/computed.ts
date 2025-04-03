@@ -14,9 +14,7 @@ import { signal } from "./signal";
  * @returns A signal-like accessor function that returns the current computed value
  *
  */
-export function computed<T>(
-	computedFn: ComputedFn<T>,
-): SignalValue<T> {
+export function computed<T>(computedFn: ComputedFn<T>): SignalValue<T> {
 	// Extract options with defaults
 	const backingSignal = signal<T>(undefined as unknown as T);
 	// Cached value
@@ -60,14 +58,12 @@ export function computed<T>(
 	 * Set up a reactive effect that tracks dependencies of the computed function
 	 * This makes the computed value automatically update when dependencies change
 	 */
-	const cleanup = effect(
-		() => {
-			if (isDisposed) return;
-			// Mark as stale whenever dependencies change
-			isStale = true;
-			tryCompute(true);
-		},
-	);
+	const cleanup = effect(() => {
+		if (isDisposed) return;
+		// Mark as stale whenever dependencies change
+		isStale = true;
+		tryCompute(true);
+	});
 	/**
 	 * The accessor function that returns the computed value
 	 * Lazily computes the value when accessed if it's stale

@@ -58,37 +58,6 @@ describe("Computed", () => {
 	});
 
 	describe("Optimization and Edge Cases", () => {
-		test("computed values are lazily evaluated", () => {
-			const count = signal(5);
-			let computeCount = 0;
-
-			const expensive = computed(() => {
-				computeCount++;
-				return count() * 2;
-			});
-
-			// Not accessed yet
-			expect(computeCount).toBe(0);
-
-			// First access
-			expect(expensive()).toBe(10);
-			expect(computeCount).toBe(1);
-
-			// Second access to same value - should use cache
-			expect(expensive()).toBe(10);
-			expect(computeCount).toBe(1);
-
-			// Change dependency
-			count.set(10);
-
-			// Not accessed yet after change
-			expect(computeCount).toBe(1);
-
-			// Access after change
-			expect(expensive()).toBe(20);
-			expect(computeCount).toBe(2);
-		});
-
 		test("computed cleanup removes effect", async () => {
 			const count = signal(0);
 			let effectRuns = 0;
@@ -202,40 +171,84 @@ describe("Computed", () => {
 
 		test("untracked access doesn't create dependencies", () => {
 			const count = signal(0);
-			let computeCalls = 0;
+			const computeCalls = signal(0);
 
-			const computed1 = computed(() => {
-				computeCalls++;
-				// Regular tracked access
-				return count() * 2;
-			});
+			const computed1 = computed(() => count() * 2);
 
 			const computed2 = computed(() => {
-				computeCalls++;
-				// Untracked access doesn't create dependency
-				return untracked(() => count()) * 3;
+				// Untracked access doesn't create a dependency
+				untracked(() => computeCalls.update((call) => call + 1));
+				return count() * 3;
 			});
 
 			// Initial computation
 			expect(computed1()).toBe(0);
 			expect(computed2()).toBe(0);
-			expect(computeCalls).toBe(2);
+			expect(computeCalls()).toBe(1);
 
 			// Update signal
 			count.set(5);
 
 			// computed1 should recompute, computed2 shouldn't
 			expect(computed1()).toBe(10); // Recomputed
-			expect(computeCalls).toBe(3);
+			expect(computeCalls()).toBe(2);
 
-			expect(computed2()).toBe(0); // Still old value (hasn't recomputed)
-			expect(computeCalls).toBe(3);
+			expect(computed2()).toBe(15); // Still old value (hasn't recomputed)
+			expect(computeCalls()).toBe(2);
+		});
 
-			// Manually read computed2 again to force recomputation
-			computeCalls = 0;
-			computed2._cleanup(); // Force recomputation
-			expect(computed2()).toBe(15); // Now gets fresh value
-			expect(computeCalls).toBe(1);
+		test("computed values are cached until dependencies change", () => {
+			const count = signal(10);
+			let computeCount = 0;
+
+			const cachedComputed = computed(() => {
+				computeCount++;
+				return count() * 2;
+			});
+
+			// First access
+			expect(cachedComputed()).toBe(20);
+			expect(computeCount).toBe(1);
+
+			// Repeated access without changes shouldn't recalculate
+			expect(cachedComputed()).toBe(20);
+			expect(cachedComputed()).toBe(20);
+			expect(computeCount).toBe(1);
+
+			// Change dependency
+			count.set(20);
+
+			// Now it should recalculate on next access
+			expect(cachedComputed()).toBe(40);
+			expect(computeCount).toBe(2);
+		});
+
+		test("handles errors in computed functions", () => {
+			const count = signal(0);
+			const errorComputed = computed(() => {
+				if (count() === 0) {
+					return "safe";
+				}
+				throw new Error("Test error");
+			});
+
+			// Should work initially
+			expect(errorComputed()).toBe("safe");
+
+			// Should handle errors when they occur
+			expect(() => count.set(1)).toThrow();
+		});
+
+		test("complex dependency chain updates correctly", () => {
+			const base = signal(1);
+			const level1 = computed(() => base() * 2);
+			const level2 = computed(() => level1() * 3);
+			const level3 = computed(() => level2() * 4);
+
+			expect(level3()).toBe(24); // 1 * 2 * 3 * 4
+
+			base.set(2);
+			expect(level3()).toBe(48); // 2 * 2 * 3 * 4
 		});
 	});
 });

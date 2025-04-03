@@ -33,10 +33,7 @@ export function effect(
 	 */
 	const handleEffectScheduling = () => {
 		// Check if the effect is disposed or if it should be skipped
-		const skipWhen = [
-			observer._disposed,
-			detectCircularDependency(),
-		];
+		const skipWhen = [observer._disposed, detectCircularDependency()];
 		// If any condition is true, skip execution
 		if (skipWhen.some(Boolean)) {
 			return;
