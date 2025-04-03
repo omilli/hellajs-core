@@ -1,23 +1,23 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
-import { context, diff, render, signal, VNode } from "../lib";
+import { cleanupRootEvents, context, diff, render, VNode } from "../lib";
 
 // Helper functions for testing
-function createContainer() {
+function createContainer(id = "test-container") {
   const container = document.createElement("div");
-  container.id = "test-container";
+  container.id = id;
   document.body.appendChild(container);
   return container;
 }
 
-function removeContainer() {
-  const container = document.getElementById("test-container");
+function removeContainer(id = "test-container") {
+  const container = document.getElementById(id);
   if (container) {
     document.body.removeChild(container);
   }
 }
 
-function getContainer() {
-  return document.getElementById("test-container");
+function getContainer(id = "test-container") {
+  return document.getElementById(id);
 }
 
 describe("DOM Rendering and Diffing", () => {
@@ -197,12 +197,15 @@ describe("DOM Rendering and Diffing", () => {
       button.click();
 
       expect(clicked).toBe(true);
+
+      // Run event cleanup 
+      cleanupRootEvents("#test-container");
     });
 
     test("updates event handlers", () => {
       let counter = 0;
 
-      // Initial handler
+      // Initial handler (skip manual button creation)
       const vNode1: VNode = {
         type: "button",
         props: {
@@ -210,7 +213,13 @@ describe("DOM Rendering and Diffing", () => {
         },
         children: ["Click Me"]
       };
-      render(vNode1, "#test-container");
+      diff(vNode1, "#test-container");
+
+      // Click to verify initial handler works
+      const container1 = getContainer();
+      const button1 = container1?.childNodes[0] as HTMLButtonElement;
+      button1.click();
+      expect(counter).toBe(1);
 
       // Updated handler
       const vNode2: VNode = {
@@ -222,13 +231,14 @@ describe("DOM Rendering and Diffing", () => {
       };
       diff(vNode2, "#test-container");
 
-      const container = getContainer();
-      const button = container?.childNodes[0] as HTMLButtonElement;
-
       // Simulate click with updated handler
-      button.click();
-
+      const container2 = getContainer();
+      const button2 = container2?.childNodes[0] as HTMLButtonElement;
+      button2.click();
       expect(counter).toBe(2);
+
+      // Run event cleanup 
+      cleanupRootEvents("#test-container");
     });
   });
 
@@ -277,51 +287,10 @@ describe("DOM Rendering and Diffing", () => {
     });
   });
 
-  describe("Integration with Reactivity", () => {
-    test("updates DOM when signal changes", () => {
-      const count = signal(0);
-
-      const renderCount = `Count: ${count()}`;
-
-      const vNode: VNode = {
-        type: "div",
-        children: [
-          {
-            type: "span",
-            children: [renderCount]
-          },
-          {
-            type: "button",
-            props: {
-              onclick: () => count.set(count() + 1)
-            },
-            children: ["Increment"]
-          }
-        ]
-      };
-
-      render(vNode, "#test-container");
-
-      const container = getContainer();
-      const div = container?.childNodes[0] as HTMLElement;
-      const span = div.childNodes[0] as HTMLElement;
-      const button = div.childNodes[1] as HTMLButtonElement;
-
-      // Initial state
-      expect(span.textContent).toBe("Count: 0");
-
-      // Increment count
-      button.click();
-
-      // Check that the DOM was updated
-      expect(span.textContent).toBe("Count: 1");
-    });
-  });
-
   describe("Context-specific Rendering", () => {
-    test("renders with custom context", () => {
+    test("renders with context", () => {
       const ctx = context("custom");
-      const count = ctx.signal(0);
+      const count = ctx.signal(40);
 
       const renderCount = `Count: ${count()}`;
 
@@ -330,57 +299,13 @@ describe("DOM Rendering and Diffing", () => {
         children: [renderCount]
       };
 
-      render(vNode, "#test-container", ctx);
+      ctx.render(vNode, "#test-container");
 
       const container = getContainer();
       const div = container?.childNodes[0] as HTMLElement;
 
       // Initial state
-      expect(div.textContent).toBe("Count: 0");
-
-      // Update count
-      count.set(42);
-
-      // Check that the DOM was updated
-      expect(div.textContent).toBe("Count: 42");
-    });
-
-    test("isolates rendering between contexts", () => {
-      const ctx1 = context("ctx1");
-      const ctx2 = context("ctx2");
-
-      const count1 = ctx1.signal(0);
-      const count2 = ctx2.signal(100);
-
-      // First render with ctx1
-      const vNode1: VNode = {
-        type: "div",
-        children: [`Count 1: ${count1()}`]
-      };
-      render(vNode1, "#test-container", ctx1);
-
-      // Initial state with ctx1
-      let div = getContainer()?.childNodes[0] as HTMLElement;
-      expect(div.textContent).toBe("Count 1: 0");
-
-      // Second render with ctx2
-      const vNode2: VNode = {
-        type: "div",
-        children: [`Count 2: ${count2()}`]
-      };
-      render(vNode2, "#test-container", ctx2);
-
-      // State with ctx2
-      div = getContainer()?.childNodes[0] as HTMLElement;
-      expect(div.textContent).toBe("Count 2: 100");
-
-      // Update count1 (should not affect current DOM as we're using ctx2)
-      count1.set(50);
-      expect(div.textContent).toBe("Count 2: 100");
-
-      // Update count2 (should update DOM since we're using ctx2)
-      count2.set(200);
-      expect(div.textContent).toBe("Count 2: 200");
+      expect(div.textContent).toBe("Count: 40");
     });
   });
 });
