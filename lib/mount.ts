@@ -1,7 +1,7 @@
 import { getDefaultContext } from "./context";
 import { diff } from "./diff";
 import { cleanupRootEvents } from "./events";
-import { computed, effect } from "./reactive";
+import { effect } from "./reactive";
 import type { VNode } from "./types";
 
 /**
@@ -21,20 +21,14 @@ export function mount(
 	rootSelector = "#root",
 	context = getDefaultContext(),
 ) {
-	// Create a reactive component that will be updated when dependencies change
-	const component = computed(vNodeEffect, { memo: true });
 	// Create the effect that diffs the component when any signal dependency changes
 	const dispose = effect(() => {
-		diff(component(), rootSelector, context);
+		diff(vNodeEffect(), rootSelector, context);
 	});
 	// Return a cleanup function
 	return () => {
 		// Clean up the effect
 		dispose();
-		// Clean up the computed component
-		if (component._cleanup) {
-			component._cleanup();
-		}
 		// Clean up event delegates
 		cleanupRootEvents(rootSelector);
 	};

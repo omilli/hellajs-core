@@ -1,17 +1,17 @@
 import { html, mount, signal } from "../lib";
 
-const { div, button } = html;
+const { div,span, button } = html;
 
-const counter = signal(0);
+const count = signal(0);
 
-const increment = () => counter.set(counter() + 1);
-const decrement = () => counter.set(counter() - 1);
+const increment = () => count.set(count() + 1);
+const decrement = () => count.set(count() - 1);
 
-const view = () =>
+const Counter = () =>
 	div(
 		button({ onclick: decrement }, "-"),
-		counter(),
+		span(count()),
 		button({ onclick: increment }, "+"),
 	);
 
-mount(view);
+mount(Counter);
