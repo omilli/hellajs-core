@@ -13,12 +13,12 @@ export default defineConfig({
 	build: {
 		target: "esnext",
 		minify: "esbuild",
-		lib: {
-			name: "@hellajs/reactive",
-			entry: "./lib/index.ts",
-			fileName: (format) => `index.${format}.js`,
-			formats: ["es", "umd", "cjs"],
-		},
+		// lib: {
+		// 	name: "@hellajs/reactive",
+		// 	entry: "./lib/index.ts",
+		// 	fileName: (format) => `index.${format}.js`,
+		// 	formats: ["es", "umd", "cjs"],
+		// },
 	},
 	esbuild: {
 		pure: ["console.warn", "console.error"],

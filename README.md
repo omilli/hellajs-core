@@ -1,7 +1,7 @@
 # Hella
 
 <p align="center">
-  <img src="https://img.shields.io/badge/bundle-~10kb-blue" alt="Bundle Size">
+  <img src="https://img.shields.io/badge/bundle-~4kB%20gzip-blue" alt="Bundle Size">
   <img src="https://img.shields.io/badge/dependencies-none-green" alt="Zero Dependencies">
   <img src="https://img.shields.io/badge/status-experimental-orange" alt="Status">
 </p>
@@ -53,8 +53,6 @@ Hella's reactivity system is built on three core primitives:
 Signals are reactive values that automatically track dependencies and trigger updates.
 
 ```typescript
-import { signal } from '@hellajs/core';
-
 // Create a signal with initial value
 const count = signal(0);
 
@@ -72,8 +70,6 @@ count.update(n => n + 1);
 Computed values derive from other reactive values and automatically update when dependencies change.
 
 ```typescript
-import { signal, computed } from '@hellajs/core';
-
 const firstName = signal('John');
 const lastName = signal('Doe');
 
@@ -92,8 +88,6 @@ console.log(fullName()); // "Jane Doe"
 Effects run side effects when their dependencies change.
 
 ```typescript
-import { signal, effect } from '@hellajs/core';
-
 const user = signal({ name: 'John', role: 'Admin' });
 
 // Run an effect when dependencies change
@@ -111,8 +105,6 @@ user.set({ name: 'Jane', role: 'Manager' });
 Hella uses a lightweight virtual DOM system with a fast diffing algorithm. The `html` helper provides simple syntax for creating virtual DOM nodes:
 
 ```typescript
-import { html } from '@hellajs/core';
-
 // Using the HTML tag helpers
 const { div, h1, p, button } = html;
 
@@ -129,7 +121,6 @@ const Header = (title) =>
 Components in Hella are just functions that return virtual DOM nodes. They re-render when a signal created **outside** the function changes.
 
 ```typescript
-import { computed, html, mount, signal } from "../lib";
 const { div, ul, li, input, button, span } = html;
 
 const todos = signal([
@@ -195,8 +186,6 @@ mount(TodoApp);
 Group multiple updates to prevent unnecessary re-renders:
 
 ```typescript
-import { signal, batch } from '@hellajs/core';
-
 const firstName = signal('John');
 const lastName = signal('Doe');
 const age = signal(30);
@@ -214,8 +203,6 @@ batch(() => {
 Read reactive values without creating dependencies:
 
 ```typescript
-import { signal, effect, untracked } from '@hellajs/core';
-
 const count = signal(0);
 const debug = signal(true);
 
@@ -234,8 +221,6 @@ effect(() => {
 Create isolated instances of the reactive system:
 
 ```typescript
-import { context } from '@hellajs/core';
-
 // Create a custom context
 const ctx = context('app');
 
