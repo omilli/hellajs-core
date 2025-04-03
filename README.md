@@ -1,179 +1,243 @@
 # Hella
 
-A lightweight, high-performance reactive DOM library with a fine-grained reactivity system and efficient virtual DOM diffing.
+<p align="center">
+  <img src="https://img.shields.io/badge/bundle-~10kb-blue" alt="Bundle Size">
+  <img src="https://img.shields.io/badge/dependencies-none-green" alt="Zero Dependencies">
+  <img src="https://img.shields.io/badge/status-experimental-orange" alt="Status">
+</p>
 
-## Core Features
+A lightweight, high-performance reactive DOM library with fine-grained reactivity and efficient virtual DOM diffing.
 
-- **🚀 Fine-grained Reactivity**: Precise dependency tracking with signals, computed values, and effects
+## Features
+
+- **🎯 Fine-grained Reactivity**: Precise dependency tracking with signals, computed values, and effects
 - **⚡ Efficient DOM Updates**: Fast diffing algorithm that minimizes DOM operations
-- **🧩 Functional Component Model**: Simple functional approach to building UI components
 - **📦 Zero Dependencies**: Standalone implementation with no external requirements
-- **🔄 Batched Updates**: Optimized rendering with intelligent update batching
-- **🎯 Event Delegation**: Efficient event handling that minimizes handlers
-- **📝 TypeScript Support**: Full TypeScript support with comprehensive type definitions
+- **🪄 Simple API**: Intuitive and minimal API surface that's easy to learn
+- **🔍 TypeScript-First**: Full TypeScript support with comprehensive type definitions
+- **🔄 Intelligent Batching**: Optimized rendering with automatic update batching
+- **📌 Event Delegation**: Efficient event handling with minimal listeners
+- **⚖️ Lightweight**: Small footprint for modern web applications
 
-## Reactive Primitives
+## Basic Usage
 
-### Signals
+```javascript
+// Erganomic HTML helpers
+const { div, button, span } = html;
 
-Signals are reactive values that trigger updates when they change:
+// Reactive state
+const count = signal(0);
+const increment = () => count.set(count() + 1);
+const decrement = () => count.set(count() - 1);
 
-```typescript
-import { signal, effect } from "@hellajs/reactive";
+// Reactive components
+const Counter = () =>
+	div(
+		button({ onclick: decrement }, "-"),
+		span(count()),
+		button({ onclick: increment }, "+"),
+	);
 
-// Create a reactive value
+// Reactive DOM
+mount(Counter, '#app');
+```
+
+## Core Concepts
+
+### Reactivity System
+
+Hella's reactivity system is built on three core primitives:
+
+#### 1. Signals
+
+Signals are reactive values that automatically track dependencies and trigger updates.
+
+```javascript
+import { signal } from '@hellajs/core';
+
+// Create a signal with initial value
 const count = signal(0);
 
-// Read the value
+// Read the current value
 console.log(count()); // 0
 
 // Update the value
-count.set(1);
-// or 
-count.update(prev => prev + 1);
-
-// Automatically track changes with effects
-effect(() => {
-  console.log(`Count changed: ${count()}`);
-});
+count.set(5);
+// or
+count.update(n => n + 1);
 ```
 
-### Computed Values
+#### 2. Computed Values
 
-Computed values derive from other reactive values:
+Computed values derive from other reactive values and automatically update when dependencies change.
 
-```typescript
-import { signal, computed } from "@hellajs/reactive";
+```javascript
+import { signal, computed } from '@hellajs/core';
 
-const firstName = signal("John");
-const lastName = signal("Doe");
+const firstName = signal('John');
+const lastName = signal('Doe');
 
+// Create a computed value
 const fullName = computed(() => `${firstName()} ${lastName()}`);
 
 console.log(fullName()); // "John Doe"
 
-// Updates when dependencies change
-firstName.set("Jane");
+// When a dependency updates, the computed value automatically updates
+firstName.set('Jane');
 console.log(fullName()); // "Jane Doe"
 ```
 
-### Effects
+#### 3. Effects
 
-Effects run when their reactive dependencies change:
+Effects run side effects when their dependencies change.
 
-```typescript
-import { signal, effect } from "@hellajs/reactive";
+```javascript
+import { signal, effect } from '@hellajs/core';
 
-const user = signal({ name: "John", age: 30 });
+const user = signal({ name: 'John', role: 'Admin' });
 
+// Run an effect when dependencies change
 effect(() => {
-  console.log(`User updated: ${user().name}, ${user().age}`);
+  console.log(`User updated: ${user().name} (${user().role})`);
 });
 
-// Effect runs automatically when user changes
-user.set({ name: "Jane", age: 28 });
+// The effect automatically runs when the signal changes
+user.set({ name: 'Jane', role: 'Manager' });
+// Console: "User updated: Jane (Manager)"
 ```
 
-## DOM Rendering
+### Virtual DOM
 
-### HTML Helper
+Hella uses a lightweight virtual DOM system with a fast diffing algorithm. The `html` helper provides simple syntax for creating virtual DOM nodes:
 
-Create DOM nodes with a simple, familiar syntax:
+```javascript
+import { html } from '@hellajs/core';
 
-```typescript
-import { html } from "@hellajs/reactive";
+// Using the HTML tag helpers
+const { div, h1, p, button } = html;
 
-const { div, button, span } = html;
+// Create a simple component
+const Header = (title) => 
+  div({ className: 'header' },
+    h1(title),
+    p({ className: 'subtitle' }, 'Welcome to Hella!')
+  );
+```
 
-// Create a div with a button
-const view = () => 
-  div({ className: "container" },
-    button({ 
-      className: "btn",
-      onClick: () => console.log("Clicked!") 
-    }, 
-    "Click me!"
+### Component-Based Architecture
+
+Components in Hella are just functions that return virtual DOM nodes. They re-render when a signal created **outside** the function changes.
+
+```javascript
+import { computed, html, mount, signal } from "../lib";
+const { div, ul, li, input, button, span } = html;
+
+const todos = signal([
+  { id: 1, text: 'Learn Hella', completed: false },
+  { id: 2, text: 'Build an app', completed: false }
+]);
+
+const completedTodos = computed(() => 
+	todos().filter(todo => todo.completed)
+)
+
+const newTodo = signal('');
+
+const addTodo = () => {
+	if (newTodo().trim()) {
+		todos.set([
+			...todos(), 
+			{ id: Date.now(), text: newTodo(), completed: false }
+		]);
+		newTodo.set('');
+	}
+};
+
+const toggleTodo = (id: number) => {
+	todos.set(
+		todos().map(todo => 
+			todo.id === id 
+				? { ...todo, completed: !todo.completed } 
+				: todo
+		)
+	);
+};
+
+const TodoApp = () => div({ className: 'todo-app' },
+    div({ className: 'todo-header' },
+      input({
+        value: newTodo(),
+        oninput: (_, el) => {
+					newTodo.set((el as HTMLInputElement).value)
+				},
+        placeholder: 'What needs to be done?'
+      }),
+      button({ onclick: addTodo }, 'Add Todo')
+    ),
+		span(`Completed: ${completedTodos().length}`),
+    ul({ className: 'todo-list' },
+      ...todos().map(todo => 
+        li({
+          className: todo.completed ? 'completed' : '',
+          onclick: () => toggleTodo(todo.id)
+        }, todo.text)
+      )
     )
   );
+
+mount(TodoApp);
 ```
 
-### Mounting Components
+## Advanced Patterns
 
-Combine signals with HTML helpers to create reactive components:
-
-```typescript
-import { signal, html, mount } from "@hellajs/reactive";
-
-const { div, button } = html;
-
-// Create a counter component
-function Counter() {
-  const count = signal(0);
-  
-  const increment = () => count.set(count() + 1);
-  const decrement = () => count.set(count() - 1);
-  
-  return () => div({ className: "counter" },
-    button({ onClick: decrement }, "-"),
-    div({ className: "count" }, count()),
-    button({ onClick: increment }, "+")
-  );
-}
-
-// Mount the component to the DOM
-mount(Counter());
-```
-
-## Batch Updates
+### Batch Updates
 
 Group multiple updates to prevent unnecessary re-renders:
 
-```typescript
-import { signal, batch } from "@hellajs/reactive";
+```javascript
+import { signal, batch } from '@hellajs/core';
 
-const firstName = signal("John");
-const lastName = signal("Doe");
+const firstName = signal('John');
+const lastName = signal('Doe');
 const age = signal(30);
 
-// All three signals update in a single batch
+// Update all signals in a single batch
 batch(() => {
-  firstName.set("Jane");
-  lastName.set("Smith");
+  firstName.set('Jane');
+  lastName.set('Smith');
   age.set(28);
 });
 ```
-
-## Advanced Features
 
 ### Untracked Reads
 
 Read reactive values without creating dependencies:
 
-```typescript
-import { signal, effect, untracked } from "@hellajs/reactive";
+```javascript
+import { signal, effect, untracked } from '@hellajs/core';
 
 const count = signal(0);
 const debug = signal(true);
 
 effect(() => {
-  console.log(`Count: ${count()}`);
+  console.log(`Count is now: ${count()}`);
   
   // This read won't create a dependency
   if (untracked(() => debug())) {
-    console.log("Debug mode is on");
+    console.log('Debug information...');
   }
 });
 ```
 
-### Context Management
+### Context Isolation
 
 Create isolated instances of the reactive system:
 
-```typescript
-import { context } from "@hellajs/reactive";
+```javascript
+import { context } from '@hellajs/core';
 
 // Create a custom context
-const ctx = context("my-app");
+const ctx = context('app');
 
 // Use context-specific APIs
 const count = ctx.signal(0);
