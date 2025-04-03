@@ -137,9 +137,9 @@ const todos = signal([
   { id: 2, text: 'Build an app', completed: false }
 ]);
 
-const completedTodos = computed(() => 
-	todos().filter(todo => todo.completed)
-)
+const completedTodos = computed(() => {
+    return todos().filter(todo => todo.completed)
+});
 
 const newTodo = signal('');
 
