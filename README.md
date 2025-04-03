@@ -146,7 +146,7 @@ const newTodo = signal('');
 const addTodo = () => {
   if (newTodo().trim()) {
     todos.set([
-      ...todos(), 
+      ...todos(),
       { id: Date.now(), text: newTodo(), completed: false }
     ]);
     newTodo.set('');
