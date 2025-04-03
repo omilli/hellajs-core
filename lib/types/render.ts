@@ -1,4 +1,4 @@
-import type { VNodeValue } from "./dom";
+import type { VNodeValue } from "./nodes";
 
 /**
  * Functions that handles properties for rendering.
@@ -20,6 +20,11 @@ export type RenderPropHandler = {
 	 * @param value
 	 */
 	regularProp(key: string, value: VNodeValue): void;
+	/**
+   * Handles dataset properties for data-* attributes.
+   * @param datasetObj The dataset object containing key-value pairs
+   */
+  datasetProp?(datasetObj: Record<string, string>): void;
 };
 
 /**

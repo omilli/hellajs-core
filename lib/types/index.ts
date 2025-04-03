@@ -2,5 +2,5 @@ export * from "./computed";
 export * from "./context";
 export * from "./effect";
 export * from "./signal";
-export * from "./dom";
+export * from "./nodes";
 export * from "./render";

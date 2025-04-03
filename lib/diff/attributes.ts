@@ -65,6 +65,17 @@ export function processAttributes(
 				element.setAttribute(key, strValue);
 			}
 		},
+		datasetProp(datasetObj) {
+			// Process each dataset property
+			for (const [key, value] of Object.entries(datasetObj)) {
+				// Cast to string if needed
+				const strValue = castToString(value);
+				// Only update if the value has changed
+				if (element.dataset[key] !== strValue) {
+					element.dataset[key] = strValue;
+				}
+			}
+		}
 	});
 	// Remove the attributes that are not in the vNode props
 	for (const attr of attrsToRemove) {

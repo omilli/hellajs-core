@@ -1,4 +1,4 @@
-import type { EventFn, VNode } from "./dom";
+import type { EventFn, VNode } from "./nodes";
 import type { EffectFn, EffectOptions } from "./effect";
 import type { Signal, SignalOptions, SignalValue } from "./signal";
 
