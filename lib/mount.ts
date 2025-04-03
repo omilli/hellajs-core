@@ -1,7 +1,7 @@
 import { getDefaultContext } from "./context";
 import { diff } from "./diff";
 import { cleanupRootEvents } from "./events";
-import { effect } from "./reactive";
+import { batch, effect } from "./reactive";
 import type { VNode } from "./types";
 
 /**
@@ -17,14 +17,14 @@ import type { VNode } from "./types";
  * be re-rendered through the diff algorithm.
  */
 export function mount(
-	vNodeEffect: () => VNode,
+	vNodeFn: () => VNode,
 	rootSelector = "#root",
 	context = getDefaultContext(),
 ) {
 	// Create the effect that diffs the component when any signal dependency changes
-	const dispose = effect(() => {
-		diff(vNodeEffect(), rootSelector, context);
-	});
+	const dispose = effect(() =>
+		batch(() => diff(vNodeFn(), rootSelector, context)),
+	);
 	// Return a cleanup function
 	return () => {
 		// Clean up the effect
